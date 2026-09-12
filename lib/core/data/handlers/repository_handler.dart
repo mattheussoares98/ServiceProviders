@@ -1,5 +1,7 @@
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 /// A utility for repository implementations to coordinate remote and local
@@ -91,5 +93,48 @@ abstract final class RepositoryHandler {
   >({required FutureList<T> Function() localCallback}) async {
     final dtoState = await localCallback();
     return dtoState.mapData((list) => list.map((e) => e.toEntity()).toList());
+  }
+
+  /// Coordinates a remote realtime stream with local persistence and maps
+  /// remote DTOs/models to domain entities.
+  static Stream<RealtimeEvent<R>> syncRealtimeStream<T, R>({
+    required Stream<RealtimeEvent<T>> stream,
+    Future<void> Function(T model)? saveLocal,
+    Future<void> Function(String id)? deleteLocal,
+    bool Function(T model)? isDeleted,
+    R Function(T model)? toEntity,
+  }) {
+    return stream.asyncMap((event) async {
+      final model = event.entity;
+
+      if (model != null &&
+          (event.eventType == RealtimeEventType.insert ||
+              event.eventType == RealtimeEventType.update)) {
+        final deleted = isDeleted?.call(model) ?? false;
+        if (deleted) {
+          await deleteLocal?.call(event.id);
+        } else {
+          await saveLocal?.call(model);
+        }
+      } else if (event.eventType == RealtimeEventType.delete &&
+          event.id.isNotEmpty) {
+        await deleteLocal?.call(event.id);
+      }
+
+      final entity = model != null
+          ? (toEntity != null
+                ? toEntity(model)
+                : (model is DataConvertible<R>
+                      ? (model as DataConvertible<R>).toEntity()
+                      : (model as R)))
+          : null;
+
+      return RealtimeEvent<R>(
+        eventType: event.eventType,
+        id: event.id,
+        companyId: event.companyId,
+        entity: entity,
+      );
+    });
   }
 }

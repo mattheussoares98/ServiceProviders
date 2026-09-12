@@ -3,7 +3,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
@@ -104,28 +103,11 @@ final class SectorsRepositoryImpl implements SectorsRepository {
   Stream<RealtimeEvent<SectorEntity>> watchSectorsRealtime({
     String? companyId,
   }) {
-    return _remoteDataSource
-        .watchSectorsRealtime(companyId: companyId)
-        .asyncMap((event) async {
-          if (event.entity != null &&
-              (event.eventType == RealtimeEventType.insert ||
-                  event.eventType == RealtimeEventType.update)) {
-            if (event.entity!.deletedAt != null) {
-              await _localDataSource.deleteSector(event.id);
-            } else {
-              await _localDataSource.saveSector(event.entity!);
-            }
-          } else if (event.eventType == RealtimeEventType.delete &&
-              event.id.isNotEmpty) {
-            await _localDataSource.deleteSector(event.id);
-          }
-
-          return RealtimeEvent<SectorEntity>(
-            eventType: event.eventType,
-            id: event.id,
-            companyId: event.companyId,
-            entity: event.entity?.toEntity(),
-          );
-        });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchSectorsRealtime(companyId: companyId),
+      saveLocal: _localDataSource.saveSector,
+      deleteLocal: _localDataSource.deleteSector,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 }

@@ -3,7 +3,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
@@ -102,28 +101,11 @@ final class SlaRepositoryImpl implements SlaRepository {
   Stream<RealtimeEvent<SlaPolicyEntity>> watchSlaPoliciesRealtime({
     String? companyId,
   }) {
-    return _remoteDataSource
-        .watchSlaPoliciesRealtime(companyId: companyId)
-        .asyncMap((event) async {
-          if (event.entity != null &&
-              (event.eventType == RealtimeEventType.insert ||
-                  event.eventType == RealtimeEventType.update)) {
-            if (event.entity!.deletedAt != null) {
-              await _localDataSource.deleteSlaPolicy(event.id);
-            } else {
-              await _localDataSource.saveSlaPolicy(event.entity!);
-            }
-          } else if (event.eventType == RealtimeEventType.delete &&
-              event.id.isNotEmpty) {
-            await _localDataSource.deleteSlaPolicy(event.id);
-          }
-
-          return RealtimeEvent<SlaPolicyEntity>(
-            eventType: event.eventType,
-            id: event.id,
-            companyId: event.companyId,
-            entity: event.entity,
-          );
-        });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchSlaPoliciesRealtime(companyId: companyId),
+      saveLocal: _localDataSource.saveSlaPolicy,
+      deleteLocal: _localDataSource.deleteSlaPolicy,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 }

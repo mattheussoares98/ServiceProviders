@@ -3,7 +3,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
@@ -235,57 +234,21 @@ final class LocationsRepositoryImpl implements LocationsRepository {
   Stream<RealtimeEvent<LocationEntity>> watchLocationsRealtime({
     String? companyId,
   }) {
-    return _remoteDataSource
-        .watchLocationsRealtime(companyId: companyId)
-        .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        if (event.entity!.deletedAt != null) {
-          await _localDataSource.deleteLocation(event.id);
-        } else {
-          await _localDataSource.saveLocation(event.entity!);
-        }
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        await _localDataSource.deleteLocation(event.id);
-      }
-
-      return RealtimeEvent<LocationEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchLocationsRealtime(companyId: companyId),
+      saveLocal: _localDataSource.saveLocation,
+      deleteLocal: _localDataSource.deleteLocation,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 
   @override
-  Stream<RealtimeEvent<AreaEntity>> watchAreasRealtime({
-    String? companyId,
-  }) {
-    return _remoteDataSource
-        .watchAreasRealtime(companyId: companyId)
-        .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        if (event.entity!.deletedAt != null) {
-          await _localDataSource.deleteArea(event.id);
-        } else {
-          await _localDataSource.saveArea(event.entity!);
-        }
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        await _localDataSource.deleteArea(event.id);
-      }
-
-      return RealtimeEvent<AreaEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+  Stream<RealtimeEvent<AreaEntity>> watchAreasRealtime({String? companyId}) {
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchAreasRealtime(companyId: companyId),
+      saveLocal: _localDataSource.saveArea,
+      deleteLocal: _localDataSource.deleteArea,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 }

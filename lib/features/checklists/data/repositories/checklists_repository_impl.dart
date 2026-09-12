@@ -5,7 +5,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';
@@ -42,7 +41,6 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   final ChecklistsLocalDataSource _localDataSource;
   final SyncRepository _syncRepository;
   final SessionRepository _sessionRepository;
-
 
   @override
   FutureList<ChecklistTemplateEntity> getTemplates(String companyId) =>
@@ -140,29 +138,14 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   @override
   Stream<RealtimeEvent<ChecklistTemplateEntity>>
   watchChecklistTemplatesRealtime({String? companyId}) {
-    return _remoteDataSource
-        .watchChecklistTemplatesRealtime(companyId: companyId)
-        .asyncMap((event) async {
-          if (event.entity != null &&
-              (event.eventType == RealtimeEventType.insert ||
-                  event.eventType == RealtimeEventType.update)) {
-            if (event.entity!.deletedAt != null) {
-              await _localDataSource.deleteTemplate(event.id);
-            } else {
-              await _localDataSource.saveTemplate(event.entity!);
-            }
-          } else if (event.eventType == RealtimeEventType.delete &&
-              event.id.isNotEmpty) {
-            await _localDataSource.deleteTemplate(event.id);
-          }
-
-          return RealtimeEvent<ChecklistTemplateEntity>(
-            eventType: event.eventType,
-            id: event.id,
-            companyId: event.companyId,
-            entity: event.entity,
-          );
-        });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchChecklistTemplatesRealtime(
+        companyId: companyId,
+      ),
+      saveLocal: _localDataSource.saveTemplate,
+      deleteLocal: _localDataSource.deleteTemplate,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 
   @override
@@ -242,36 +225,20 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   Stream<RealtimeEvent<ChecklistItemEntity>> watchChecklistItemsRealtime({
     String? companyId,
   }) {
-    return _remoteDataSource
-        .watchChecklistItemsRealtime(companyId: companyId)
-        .asyncMap((event) async {
-          if (event.entity != null &&
-              (event.eventType == RealtimeEventType.insert ||
-                  event.eventType == RealtimeEventType.update)) {
-            if (event.entity!.deletedAt != null) {
-              await _localDataSource.deleteItem(event.id);
-            } else {
-              await _localDataSource.saveItem(event.entity!);
-            }
-          } else if (event.eventType == RealtimeEventType.delete &&
-              event.id.isNotEmpty) {
-            await _localDataSource.deleteItem(event.id);
-          }
-
-          return RealtimeEvent<ChecklistItemEntity>(
-            eventType: event.eventType,
-            id: event.id,
-            companyId: event.companyId,
-            entity: event.entity,
-          );
-        });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchChecklistItemsRealtime(
+        companyId: companyId,
+      ),
+      saveLocal: _localDataSource.saveItem,
+      deleteLocal: _localDataSource.deleteItem,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 
   @override
   FutureList<ChecklistAnswerEntity> getResponsesByWorkOrder(
     String workOrderId,
-  ) =>
-      getResponsesByWorkOrderIds([workOrderId]);
+  ) => getResponsesByWorkOrderIds([workOrderId]);
 
   @override
   FutureList<ChecklistAnswerEntity> getResponsesByWorkOrderIds(
@@ -296,24 +263,13 @@ final class ChecklistsRepositoryImpl implements ChecklistsRepository {
   Stream<RealtimeEvent<ChecklistAnswerEntity>> watchChecklistAnswersRealtime({
     required String workOrderId,
   }) {
-    return _remoteDataSource
-        .watchChecklistAnswersRealtime(workOrderId: workOrderId)
-        .asyncMap((event) async {
-          if (event.entity != null &&
-              (event.eventType == RealtimeEventType.insert ||
-                  event.eventType == RealtimeEventType.update)) {
-            await _localDataSource.saveResponse(
-              ChecklistAnswerModel.fromEntity(event.entity!),
-            );
-          }
-
-          return RealtimeEvent<ChecklistAnswerEntity>(
-            eventType: event.eventType,
-            id: event.id,
-            companyId: event.companyId,
-            entity: event.entity,
-          );
-        });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchChecklistAnswersRealtime(
+        workOrderId: workOrderId,
+      ),
+      saveLocal: (model) =>
+          _localDataSource.saveResponse(ChecklistAnswerModel.fromEntity(model)),
+    );
   }
 
   @override

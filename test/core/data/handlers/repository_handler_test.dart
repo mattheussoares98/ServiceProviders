@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 class FakeDto implements DataConvertible<String> {
@@ -190,6 +192,76 @@ void main() {
           );
       expect(result, isA<FailureState<List<String>>>());
       expect(result.message, 'Local list error');
+    });
+  });
+
+  group('RepositoryHandler.syncRealtimeStream', () {
+    test('calls saveLocal and maps entity on insert event', () async {
+      FakeDto? savedModel;
+      final stream = Stream.value(
+        const RealtimeEvent<FakeDto>(
+          eventType: RealtimeEventType.insert,
+          id: '123',
+          entity: FakeDto(42),
+        ),
+      );
+
+      final resultStream = RepositoryHandler.syncRealtimeStream<FakeDto, String>(
+        stream: stream,
+        saveLocal: (model) async => savedModel = model,
+        deleteLocal: (_) async {},
+      );
+
+      final event = await resultStream.first;
+      expect(savedModel?.value, 42);
+      expect(event.eventType, RealtimeEventType.insert);
+      expect(event.id, '123');
+      expect(event.entity, 'Mapped: 42');
+    });
+
+    test('calls deleteLocal when update event is soft-deleted', () async {
+      String? deletedId;
+      FakeDto? savedModel;
+      final stream = Stream.value(
+        const RealtimeEvent<FakeDto>(
+          eventType: RealtimeEventType.update,
+          id: '123',
+          entity: FakeDto(-1),
+        ),
+      );
+
+      final resultStream = RepositoryHandler.syncRealtimeStream<FakeDto, String>(
+        stream: stream,
+        saveLocal: (model) async => savedModel = model,
+        deleteLocal: (id) async => deletedId = id,
+        isDeleted: (model) => model.value < 0,
+      );
+
+      final event = await resultStream.first;
+      expect(deletedId, '123');
+      expect(savedModel, isNull);
+      expect(event.eventType, RealtimeEventType.update);
+      expect(event.entity, 'Mapped: -1');
+    });
+
+    test('calls deleteLocal on delete event', () async {
+      String? deletedId;
+      final stream = Stream.value(
+        const RealtimeEvent<FakeDto>(
+          eventType: RealtimeEventType.delete,
+          id: '123',
+        ),
+      );
+
+      final resultStream = RepositoryHandler.syncRealtimeStream<FakeDto, String>(
+        stream: stream,
+        deleteLocal: (id) async => deletedId = id,
+      );
+
+      final event = await resultStream.first;
+      expect(deletedId, '123');
+      expect(event.eventType, RealtimeEventType.delete);
+      expect(event.entity, isNull);
     });
   });
 }

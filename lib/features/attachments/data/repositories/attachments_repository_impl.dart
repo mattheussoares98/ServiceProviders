@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/file_extension.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/services/file_service.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
@@ -378,33 +377,17 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
   Stream<RealtimeEvent<AttachmentEntity>> watchAttachmentsRealtime({
     required String workOrderId,
   }) {
-    return _remoteDataSource
-        .watchAttachmentsRealtime(workOrderId: workOrderId)
-        .asyncMap((event) async {
-          if (event.entity != null &&
-              (event.eventType == RealtimeEventType.insert ||
-                  event.eventType == RealtimeEventType.update)) {
-            if (!_isProviderMode) {
-              if (event.entity!.deletedAt != null) {
-                await _localDataSource.deleteAttachment(event.id);
-              } else {
-                await _saveRemoteModelPreservingLocalPath(event.entity!);
-              }
-            }
-          } else if (event.eventType == RealtimeEventType.delete &&
-              event.id.isNotEmpty) {
-            if (!_isProviderMode) {
-              await _localDataSource.deleteAttachment(event.id);
-            }
-          }
-
-          return RealtimeEvent<AttachmentEntity>(
-            eventType: event.eventType,
-            id: event.id,
-            companyId: event.companyId,
-            entity: event.entity?.toEntity(),
-          );
-        });
+    return RepositoryHandler.syncRealtimeStream<
+      AttachmentModel,
+      AttachmentEntity
+    >(
+      stream: _remoteDataSource.watchAttachmentsRealtime(
+        workOrderId: workOrderId,
+      ),
+      saveLocal: _isProviderMode ? null : _saveRemoteModelPreservingLocalPath,
+      deleteLocal: _isProviderMode ? null : _localDataSource.deleteAttachment,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 
   @override

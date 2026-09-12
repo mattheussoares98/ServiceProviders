@@ -5,7 +5,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
@@ -626,21 +625,17 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     final stream = _realtimeRemoteDataSource.watchWorkOrders(
       companyId: companyId,
     );
-    return stream.asyncMap((event) async {
-      if (!_isProviderMode) {
-        if (event.eventType == RealtimeEventType.delete ||
-            (event.entity != null && event.entity!.deletedAt != null)) {
-          await _localDataSource.deleteWorkOrder(event.id);
-        } else if (event.entity != null) {
-          await _localDataSource.saveWorkOrders([event.entity!]);
-        }
-      }
-      return RealtimeEvent<WorkOrderEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+    return RepositoryHandler.syncRealtimeStream<
+      WorkOrderModel,
+      WorkOrderEntity
+    >(
+      stream: stream,
+      saveLocal: _isProviderMode
+          ? null
+          : (model) => _localDataSource.saveWorkOrders([model]),
+      deleteLocal: _isProviderMode ? null : _localDataSource.deleteWorkOrder,
+      isDeleted: (model) => model.deletedAt != null,
+      toEntity: (model) => model,
+    );
   }
 }

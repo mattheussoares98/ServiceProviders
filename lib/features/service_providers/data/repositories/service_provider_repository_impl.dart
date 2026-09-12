@@ -3,7 +3,6 @@ import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
@@ -120,29 +119,14 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
   @override
   Stream<RealtimeEvent<ServiceProviderCompanyEntity>>
   watchServiceProviderCompaniesRealtime({String? companyId}) {
-    return _remoteDataSource
-        .watchServiceProviderCompaniesRealtime(companyId: companyId)
-        .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        if (event.entity!.deletedAt != null) {
-          await _localDataSource.deleteServiceProviderCompany(event.id);
-        } else {
-          await _localDataSource.saveServiceProviderCompany(event.entity!);
-        }
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        await _localDataSource.deleteServiceProviderCompany(event.id);
-      }
-
-      return RealtimeEvent<ServiceProviderCompanyEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchServiceProviderCompaniesRealtime(
+        companyId: companyId,
+      ),
+      saveLocal: _localDataSource.saveServiceProviderCompany,
+      deleteLocal: _localDataSource.deleteServiceProviderCompany,
+      isDeleted: (model) => model.deletedAt != null,
+    );
   }
 
   @override
@@ -236,30 +220,14 @@ final class ServiceProviderRepositoryImpl implements ServiceProviderRepository {
 
   @override
   Stream<RealtimeEvent<ServiceProviderProfileEntity>>
-  watchServiceProviderProfilesRealtime({
-    String? serviceProviderCompanyId,
-  }) {
-    return _remoteDataSource
-        .watchServiceProviderProfilesRealtime(
-          serviceProviderCompanyId: serviceProviderCompanyId,
-        )
-        .asyncMap((event) async {
-      if (event.entity != null &&
-          (event.eventType == RealtimeEventType.insert ||
-              event.eventType == RealtimeEventType.update)) {
-        await _localDataSource.saveServiceProviderProfile(event.entity!);
-      } else if (event.eventType == RealtimeEventType.delete &&
-          event.id.isNotEmpty) {
-        await _localDataSource.deleteServiceProviderProfile(event.id);
-      }
-
-      return RealtimeEvent<ServiceProviderProfileEntity>(
-        eventType: event.eventType,
-        id: event.id,
-        companyId: event.companyId,
-        entity: event.entity,
-      );
-    });
+  watchServiceProviderProfilesRealtime({String? serviceProviderCompanyId}) {
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchServiceProviderProfilesRealtime(
+        serviceProviderCompanyId: serviceProviderCompanyId,
+      ),
+      saveLocal: _localDataSource.saveServiceProviderProfile,
+      deleteLocal: _localDataSource.deleteServiceProviderProfile,
+    );
   }
 
   @override
