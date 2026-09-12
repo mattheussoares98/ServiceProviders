@@ -54,7 +54,32 @@ void main() {
       verify(
         () => mockRealtimeClient.streamTableChanges(
           table: 'work_orders',
-          filter: any(named: 'filter'),
+          filter: any(
+            named: 'filter',
+            that: isA<PostgresChangeFilter>()
+                .having((f) => f.column, 'column', 'company_id')
+                .having((f) => f.value, 'value', companyId),
+          ),
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'watchWorkOrders passes correct table and filter when workOrderId is provided',
+    () {
+      final workOrderId = faker.guid.guid();
+      dataSource.watchWorkOrders(workOrderId: workOrderId);
+
+      verify(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'work_orders',
+          filter: any(
+            named: 'filter',
+            that: isA<PostgresChangeFilter>()
+                .having((f) => f.column, 'column', 'id')
+                .having((f) => f.value, 'value', workOrderId),
+          ),
         ),
       ).called(1);
     },

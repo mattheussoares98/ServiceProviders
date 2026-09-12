@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
@@ -18,18 +22,51 @@ enum WorkOrderObservationsSections implements SectionKey {
 class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   WorkOrderObservationsCubit({
     required WorkOrderObservationsCubitUseCases useCases,
+    @factoryParam required String workOrderId,
   }) : _useCases = useCases,
-       super(const WorkOrderObservationsState());
+       _workOrderId = workOrderId,
+       super(const WorkOrderObservationsState()) {
+    fetchObservations();
+    _initRealtime();
+  }
 
   final WorkOrderObservationsCubitUseCases _useCases;
+  final String _workOrderId;
+  StreamSubscription<RealtimeEvent<WorkOrderObservationEntity>>?
+  _realtimeSubscription;
 
-  Future<void> fetchObservations(String workOrderId) async {
+  @override
+  Future<void> close() {
+    _realtimeSubscription?.cancel();
+    return super.close();
+  }
+
+  void _initRealtime() {
+    _realtimeSubscription?.cancel();
+    _realtimeSubscription = _useCases
+        .watchObservationsRealtime(workOrderId: _workOrderId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<WorkOrderObservationEntity> event) {
+    if (isClosed) return;
+
+    final updatedObservations = state.observations.applyRealtimeEvent(
+      event: event,
+      idSelector: (obs) => obs.id,
+    )..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    emit(state.copyWith(observations: updatedObservations));
+  }
+
+  Future<void> fetchObservations([String? workOrderId]) async {
+    final targetWorkOrderId = workOrderId ?? _workOrderId;
     emit(
       state.copyWith(
         sections: withSection(BaseSections.load, SectionStatus.running),
       ),
     );
-    final result = await _useCases.getObservations(workOrderId);
+    final result = await _useCases.getObservations(targetWorkOrderId);
     switch (result) {
       case SuccessState(:final data):
         final list = List<WorkOrderObservationEntity>.from(data!)

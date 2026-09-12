@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_order_observations_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
 
 @LazySingleton()
@@ -13,6 +14,7 @@ class WorkOrderObservationsCubitUseCases {
     required this.getSessionUser,
     required this.getSelectedMode,
     required this.getSessionProviderProfile,
+    required this.watchObservationsRealtime,
   });
 
   final GetWorkOrderObservationsUseCase getObservations;
@@ -21,5 +23,6 @@ class WorkOrderObservationsCubitUseCases {
   final GetSessionUserUseCase getSessionUser;
   final GetSelectedModeUseCase getSelectedMode;
   final GetSessionProviderProfileUseCase getSessionProviderProfile;
+  final WatchWorkOrderObservationsRealtimeUseCase watchObservationsRealtime;
 }
 

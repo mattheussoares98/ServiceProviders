@@ -6,7 +6,10 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class WorkOrdersRealtimeRemoteDataSource {
-  Stream<RealtimeEvent<WorkOrderModel>> watchWorkOrders({String? companyId});
+  Stream<RealtimeEvent<WorkOrderModel>> watchWorkOrders({
+    String? companyId,
+    String? workOrderId,
+  });
 }
 
 @LazySingleton(as: WorkOrdersRealtimeRemoteDataSource)
@@ -19,14 +22,24 @@ final class WorkOrdersRealtimeRemoteDataSourceImpl
   final SupabaseRealtimeClient _realtimeClient;
 
   @override
-  Stream<RealtimeEvent<WorkOrderModel>> watchWorkOrders({String? companyId}) {
-    final filter = companyId != null && companyId.isNotEmpty
-        ? PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'company_id',
-            value: companyId,
-          )
-        : null;
+  Stream<RealtimeEvent<WorkOrderModel>> watchWorkOrders({
+    String? companyId,
+    String? workOrderId,
+  }) {
+    PostgresChangeFilter? filter;
+    if (workOrderId != null && workOrderId.isNotEmpty) {
+      filter = PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'id',
+        value: workOrderId,
+      );
+    } else if (companyId != null && companyId.isNotEmpty) {
+      filter = PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'company_id',
+        value: companyId,
+      );
+    }
 
     final stream = _realtimeClient.streamTableChanges(
       table: 'work_orders',

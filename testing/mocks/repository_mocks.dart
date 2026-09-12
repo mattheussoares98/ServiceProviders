@@ -16,6 +16,7 @@ import 'package:o_jogo_da_obra/features/sla_policies/domain/repositories/sla_rep
 import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
 import 'package:o_jogo_da_obra/features/users/domain/repositories/users_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_order_observations_repository.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
 
 class MockAssetsRepository extends Mock implements AssetsRepository {}
@@ -58,3 +59,5 @@ class MockSyncRepository extends Mock implements SyncRepository {}
 
 class MockAccessLogsRepository extends Mock implements AccessLogsRepository {}
 
+class MockWorkOrderObservationsRepository extends Mock
+    implements WorkOrderObservationsRepository {}

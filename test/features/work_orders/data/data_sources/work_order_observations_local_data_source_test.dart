@@ -200,5 +200,42 @@ void main() {
         expect(list.isEmpty, true);
       },
     );
+
+    test(
+      'getObservationsByWorkOrderIds returns empty list when workOrderIds is empty',
+      () async {
+        final result = await dataSource.getObservationsByWorkOrderIds([]);
+        expect(result, isA<SuccessState<List<WorkOrderObservationModel>>>());
+        expect(
+          (result as SuccessState<List<WorkOrderObservationModel>>).data,
+          isEmpty,
+        );
+      },
+    );
+
+    test(
+      'getObservationsByWorkOrderIds returns observations belonging to specified work order IDs',
+      () async {
+        await insertDependencies(
+          companyId: tModel.companyId,
+          userId: tModel.authorId!,
+          locationId: locationId,
+          areaId: areaId,
+          assetId: assetId,
+          workOrderId: tModel.workOrderId,
+        );
+
+        await dataSource.saveObservation(tModel);
+
+        final result = await dataSource.getObservationsByWorkOrderIds([
+          tModel.workOrderId,
+        ]);
+        expect(result, isA<SuccessState<List<WorkOrderObservationModel>>>());
+        final list =
+            (result as SuccessState<List<WorkOrderObservationModel>>).data!;
+        expect(list.length, 1);
+        expect(list.first.id, tModel.id);
+      },
+    );
   });
 }

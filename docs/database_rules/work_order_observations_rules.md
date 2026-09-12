@@ -71,6 +71,10 @@ AFTER INSERT OR UPDATE ON public.work_order_observations
 FOR EACH ROW EXECUTE FUNCTION public.handle_audit_work_order_observations();
 ```
 
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260912224500_publish_work_order_observations_realtime.sql`).
+
 ## History
 
 | Migration | Change |
@@ -81,5 +85,6 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_audit_work_order_observations();
 | `20260820140000_allow_provider_authored_observations.sql` | `author_id` made nullable, `author_provider_profile_id` added with a single-author CHECK; INSERT/UPDATE rewritten around `is_own_provider_profile` |
 | `20260822160000_add_push_notification_triggers.sql` | Added `tr_notify_observation` trigger to dispatch notifications for new observations |
 | `20260904220000_handle_observation_audit_logs.sql` | Added specialized `tr_audit_work_order_observations` trigger to log observation content diff on create and delete, and backfilled existing observation audit logs |
+| `20260912224500_publish_work_order_observations_realtime.sql` | Added `public.work_order_observations` to `supabase_realtime` publication with `REPLICA IDENTITY FULL` |
 
 

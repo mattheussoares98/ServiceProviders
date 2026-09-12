@@ -107,6 +107,7 @@ final class IntegrationDataSources {
       ),
       observations: WorkOrderObservationsRemoteDataSourceImpl(
         database: database,
+        realtimeClient: realtime,
       ),
       workOrders: WorkOrdersRemoteDataSourceImpl(database: database),
       workOrdersRealtime: WorkOrdersRealtimeRemoteDataSourceImpl(

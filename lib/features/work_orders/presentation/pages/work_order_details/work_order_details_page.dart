@@ -46,8 +46,7 @@ class WorkOrderDetailsPage extends HookWidget {
         ),
         BlocProvider(
           create: (context) =>
-              GetIt.I<WorkOrderObservationsCubit>()
-                ..fetchObservations(workOrderId),
+              GetIt.I<WorkOrderObservationsCubit>(param1: workOrderId),
         ),
         BlocProvider(create: (context) => GetIt.I<WorkOrderChecklistCubit>()),
       ],

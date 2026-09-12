@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/repositories/work_order_observations_repository_impl.dart';
@@ -70,7 +72,7 @@ void main() {
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
-          () => mockRemoteDataSource.getObservations(any()),
+          () => mockRemoteDataSource.getObservationsByWorkOrderIds(any()),
         ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
         when(
           () => mockLocalDataSource.saveObservations(any()),
@@ -89,9 +91,9 @@ void main() {
           tObservationEntity.id,
         );
         verify(
-          () => mockRemoteDataSource.getObservations(
+          () => mockRemoteDataSource.getObservationsByWorkOrderIds([
             tObservationEntity.workOrderId,
-          ),
+          ]),
         ).called(1);
         verify(
           () => mockLocalDataSource.saveObservations([tObservationModel]),
@@ -102,7 +104,7 @@ void main() {
     test('should fetch local observations when offline', () async {
       when(() => mockInternetClient.isConnected).thenReturn(false);
       when(
-        () => mockLocalDataSource.getObservations(any()),
+        () => mockLocalDataSource.getObservationsByWorkOrderIds(any()),
       ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
 
       final result = await repository.getObservations(
@@ -111,10 +113,120 @@ void main() {
 
       expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
       verify(
-        () =>
-            mockLocalDataSource.getObservations(tObservationEntity.workOrderId),
+        () => mockLocalDataSource.getObservationsByWorkOrderIds([
+          tObservationEntity.workOrderId,
+        ]),
       ).called(1);
       verifyZeroInteractions(mockRemoteDataSource);
+    });
+  });
+
+  group('getObservationsByWorkOrderIds', () {
+    test('fetches from remote and caches locally when online', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.getObservationsByWorkOrderIds(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
+      when(
+        () => mockLocalDataSource.saveObservations(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.getObservationsByWorkOrderIds([
+        tObservationEntity.workOrderId,
+      ]);
+
+      expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
+      expect(result.data, hasLength(1));
+      verify(
+        () => mockRemoteDataSource.getObservationsByWorkOrderIds([
+          tObservationEntity.workOrderId,
+        ]),
+      ).called(1);
+      verify(
+        () => mockLocalDataSource.saveObservations([tObservationModel]),
+      ).called(1);
+    });
+
+    test('falls back to local data source when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.getObservationsByWorkOrderIds(any()),
+      ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
+
+      final result = await repository.getObservationsByWorkOrderIds([
+        tObservationEntity.workOrderId,
+      ]);
+
+      expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
+      expect(result.data, hasLength(1));
+      verify(
+        () => mockLocalDataSource.getObservationsByWorkOrderIds([
+          tObservationEntity.workOrderId,
+        ]),
+      ).called(1);
+      verifyZeroInteractions(mockRemoteDataSource);
+    });
+  });
+
+  group('watchObservationsRealtime', () {
+    test(
+      'syncs insert/update event to local DB when not in provider mode',
+      () async {
+        when(
+          () => mockRemoteDataSource.watchObservationsRealtime(
+            workOrderId: any(named: 'workOrderId'),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<WorkOrderObservationModel>(
+              eventType: RealtimeEventType.insert,
+              id: tObservationModel.id,
+              companyId: tObservationModel.companyId,
+              entity: tObservationModel,
+            ),
+          ),
+        );
+        when(
+          () => mockLocalDataSource.saveObservation(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchObservationsRealtime(
+          workOrderId: tObservationEntity.workOrderId,
+        );
+        await stream.first;
+
+        verify(
+          () => mockLocalDataSource.saveObservation(tObservationModel),
+        ).called(1);
+      },
+    );
+
+    test('syncs delete event to local DB when not in provider mode', () async {
+      when(
+        () => mockRemoteDataSource.watchObservationsRealtime(
+          workOrderId: any(named: 'workOrderId'),
+        ),
+      ).thenAnswer(
+        (_) => Stream.value(
+          RealtimeEvent<WorkOrderObservationModel>(
+            eventType: RealtimeEventType.delete,
+            id: tObservationModel.id,
+            companyId: tObservationModel.companyId,
+          ),
+        ),
+      );
+      when(
+        () => mockLocalDataSource.deleteObservation(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final stream = repository.watchObservationsRealtime(
+        workOrderId: tObservationEntity.workOrderId,
+      );
+      await stream.first;
+
+      verify(
+        () => mockLocalDataSource.deleteObservation(tObservationModel.id),
+      ).called(1);
     });
   });
 
@@ -222,7 +334,7 @@ void main() {
     test('getObservations fetches remotely without saving locally', () async {
       when(() => mockInternetClient.isConnected).thenReturn(true);
       when(
-        () => mockRemoteDataSource.getObservations(any()),
+        () => mockRemoteDataSource.getObservationsByWorkOrderIds(any()),
       ).thenAnswer((_) async => SuccessState(data: [tObservationModel]));
 
       final result = await repository.getObservations(
@@ -231,9 +343,9 @@ void main() {
 
       expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
       verify(
-        () => mockRemoteDataSource.getObservations(
+        () => mockRemoteDataSource.getObservationsByWorkOrderIds([
           tObservationEntity.workOrderId,
-        ),
+        ]),
       ).called(1);
       verifyNever(() => mockLocalDataSource.saveObservations(any()));
     });

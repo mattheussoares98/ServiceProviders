@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_observation_entity.dart';
@@ -26,22 +28,36 @@ void main() {
   late MockGetSessionUserUseCase mockGetSessionUser;
   late MockGetSelectedModeUseCase mockGetSelectedMode;
   late MockGetSessionProviderProfileUseCase mockGetProviderProfile;
+  late MockWatchWorkOrderObservationsRealtimeUseCase mockWatchRealtime;
   late MockNavigationClient mockNavigationClient;
   late WorkOrderObservationsCubitUseCases cubitUseCases;
+  late String tWorkOrderId;
 
   setUpAll(() {
     registerFallbackValue(WorkOrderFactory.makeWorkOrderObservationEntity());
   });
 
   setUp(() {
+    tWorkOrderId = faker.guid.guid();
     getUseCase = MockGetWorkOrderObservationsUseCase();
     createUseCase = MockCreateWorkOrderObservationUseCase();
     deleteUseCase = MockDeleteWorkOrderObservationUseCase();
     mockGetSessionUser = MockGetSessionUserUseCase();
     mockGetSelectedMode = MockGetSelectedModeUseCase();
     mockGetProviderProfile = MockGetSessionProviderProfileUseCase();
+    mockWatchRealtime = MockWatchWorkOrderObservationsRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
+
+    when(
+      () => mockWatchRealtime.call(
+        companyId: any(named: 'companyId'),
+        workOrderId: any(named: 'workOrderId'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => getUseCase.call(any<String>()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
 
     cubitUseCases = WorkOrderObservationsCubitUseCases(
       getObservations: getUseCase,
@@ -50,59 +66,89 @@ void main() {
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
       getSessionProviderProfile: mockGetProviderProfile,
+      watchObservationsRealtime: mockWatchRealtime,
     );
   });
 
   tearDown(GetIt.I.reset);
 
-  blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
-    'emits [loading, loaded] when fetchObservations succeeds',
-    build: () {
-      final list = WorkOrderFactory.makeWorkOrderObservationEntityList();
-      when(
-        () => getUseCase.call(any<String>()),
-      ).thenAnswer((_) async => SuccessState(data: list));
-      return WorkOrderObservationsCubit(useCases: cubitUseCases);
-    },
-    act: (cubit) => cubit.fetchObservations(faker.guid.guid()),
-    expect: () => [
-      isA<WorkOrderObservationsState>().having(
-        (s) => s.sections[BaseSections.load],
-        'sections[load]',
-        const SectionState.running(),
-      ),
-      isA<WorkOrderObservationsState>()
-          .having(
-            (s) => s.sections[BaseSections.load],
-            'sections[load]',
-            const SectionState.success(),
-          )
-          .having((s) => s.observations.length, 'observations length', 3),
-    ],
-  );
+  group('WorkOrderObservationsCubit - init & fetch', () {
+    blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+      'emits [loaded] on init when fetchObservations succeeds',
+      build: () {
+        final list = WorkOrderFactory.makeWorkOrderObservationEntityList();
+        when(
+          () => getUseCase.call(any<String>()),
+        ).thenAnswer((_) async => SuccessState(data: list));
+        return WorkOrderObservationsCubit(
+          useCases: cubitUseCases,
+          workOrderId: tWorkOrderId,
+        );
+      },
+      expect: () => [
+        isA<WorkOrderObservationsState>()
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
+            .having((s) => s.observations.length, 'observations length', 3),
+      ],
+    );
 
-  blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
-    'emits [loading, error] when fetchObservations fails',
-    build: () {
-      when(
-        () => getUseCase.call(any<String>()),
-      ).thenAnswer((_) async => FailureState(message: 'Erro ao carregar'));
-      return WorkOrderObservationsCubit(useCases: cubitUseCases);
-    },
-    act: (cubit) => cubit.fetchObservations(faker.guid.guid()),
-    expect: () => [
-      isA<WorkOrderObservationsState>().having(
-        (s) => s.sections[BaseSections.load],
-        'sections[load]',
-        const SectionState.running(),
-      ),
-      isA<WorkOrderObservationsState>().having(
-        (s) => s.sections[BaseSections.load],
-        'sections[load]',
-        const SectionState.error('Erro ao carregar'),
-      ),
-    ],
-  );
+    blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+      'emits [error] on init when fetchObservations fails',
+      build: () {
+        when(
+          () => getUseCase.call(any<String>()),
+        ).thenAnswer((_) async => FailureState(message: 'Erro ao carregar'));
+        return WorkOrderObservationsCubit(
+          useCases: cubitUseCases,
+          workOrderId: tWorkOrderId,
+        );
+      },
+      expect: () => [
+        isA<WorkOrderObservationsState>().having(
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.error('Erro ao carregar'),
+        ),
+      ],
+    );
+
+    blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+      'emits [loading, loaded] when fetchObservations is called manually',
+      build: () {
+        final list = WorkOrderFactory.makeWorkOrderObservationEntityList();
+        when(
+          () => getUseCase.call(any<String>()),
+        ).thenAnswer((_) async => SuccessState(data: list));
+        return WorkOrderObservationsCubit(
+          useCases: cubitUseCases,
+          workOrderId: tWorkOrderId,
+        );
+      },
+      skip: 1,
+      act: (cubit) async {
+        await Future<void>.delayed(Duration.zero);
+        await cubit.fetchObservations();
+      },
+      expect: () => [
+        isA<WorkOrderObservationsState>().having(
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.running(),
+        ),
+        isA<WorkOrderObservationsState>()
+            .having(
+              (s) => s.sections[BaseSections.load],
+              'sections[load]',
+              const SectionState.success(),
+            )
+            .having((s) => s.observations.length, 'observations length', 3),
+      ],
+    );
+  });
 
   final tObs = WorkOrderFactory.makeWorkOrderObservationEntity();
 
@@ -116,13 +162,22 @@ void main() {
       when(
         () => createUseCase.call(any<WorkOrderObservationEntity>()),
       ).thenAnswer((_) async => SuccessState(data: createdObs));
-      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+      when(
+        () => getUseCase.call(any<String>()),
+      ).thenAnswer((_) async => SuccessState(data: [tObs]));
+      return WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tWorkOrderId,
+      );
     },
-    seed: () => WorkOrderObservationsState(observations: [tObs]),
-    act: (cubit) => cubit.createObservation(
-      workOrder: WorkOrderFactory.makeWorkOrderEntity(),
-      content: faker.lorem.sentence(),
-    ),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      await cubit.createObservation(
+        workOrder: WorkOrderFactory.makeWorkOrderEntity(),
+        content: faker.lorem.sentence(),
+      );
+    },
+    skip: 1, // Skip initial loaded from constructor fetch
     expect: () => [
       isA<WorkOrderObservationsState>().having(
         (s) => s.sections[WorkOrderObservationsSections.saveObservation],
@@ -163,7 +218,10 @@ void main() {
         ),
       );
 
-      final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+      final cubit = WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tWorkOrderId,
+      );
       final success = await cubit.createObservation(
         workOrder: workOrder,
         content: faker.lorem.sentence(),
@@ -198,7 +256,10 @@ void main() {
         ),
       );
 
-      final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+      final cubit = WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tWorkOrderId,
+      );
       final success = await cubit.createObservation(
         workOrder: WorkOrderFactory.makeWorkOrderEntity(),
         content: faker.lorem.sentence(),
@@ -227,7 +288,10 @@ void main() {
       ),
     );
 
-    final cubit = WorkOrderObservationsCubit(useCases: cubitUseCases);
+    final cubit = WorkOrderObservationsCubit(
+      useCases: cubitUseCases,
+      workOrderId: tWorkOrderId,
+    );
     await cubit.createObservation(
       workOrder: workOrder,
       content: faker.lorem.sentence(),
@@ -256,12 +320,19 @@ void main() {
       when(
         () => createUseCase.call(any<WorkOrderObservationEntity>()),
       ).thenAnswer((_) async => FailureState(message: errorMsg));
-      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+      return WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tWorkOrderId,
+      );
     },
-    act: (cubit) => cubit.createObservation(
-      workOrder: WorkOrderFactory.makeWorkOrderEntity(),
-      content: faker.lorem.sentence(),
-    ),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      await cubit.createObservation(
+        workOrder: WorkOrderFactory.makeWorkOrderEntity(),
+        content: faker.lorem.sentence(),
+      );
+    },
+    skip: 1, // Skip initial loaded from constructor fetch
     expect: () => [
       isA<WorkOrderObservationsState>().having(
         (s) => s.sections[WorkOrderObservationsSections.saveObservation],
@@ -282,10 +353,19 @@ void main() {
       when(
         () => deleteUseCase.call(any<String>()),
       ).thenAnswer((_) async => const SuccessState(data: true));
-      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+      when(
+        () => getUseCase.call(any<String>()),
+      ).thenAnswer((_) async => SuccessState(data: [tObs]));
+      return WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tWorkOrderId,
+      );
     },
-    seed: () => WorkOrderObservationsState(observations: [tObs]),
-    act: (cubit) => cubit.deleteObservation(tObs.id),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      await cubit.deleteObservation(tObs.id);
+    },
+    skip: 1, // Skip initial loaded from constructor fetch
     expect: () => [
       isA<WorkOrderObservationsState>().having(
         (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
@@ -308,10 +388,19 @@ void main() {
       when(
         () => deleteUseCase.call(any<String>()),
       ).thenAnswer((_) async => FailureState(message: 'Erro ao excluir'));
-      return WorkOrderObservationsCubit(useCases: cubitUseCases);
+      when(
+        () => getUseCase.call(any<String>()),
+      ).thenAnswer((_) async => SuccessState(data: [tObs]));
+      return WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tWorkOrderId,
+      );
     },
-    seed: () => WorkOrderObservationsState(observations: [tObs]),
-    act: (cubit) => cubit.deleteObservation(tObs.id),
+    act: (cubit) async {
+      await Future<void>.delayed(Duration.zero);
+      await cubit.deleteObservation(tObs.id);
+    },
+    skip: 1, // Skip initial loaded from constructor fetch
     expect: () => [
       isA<WorkOrderObservationsState>().having(
         (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
@@ -325,4 +414,44 @@ void main() {
       ),
     ],
   );
+
+  group('realtime events', () {
+    test('updates state when insert/update and delete events occur', () async {
+      final newObs = WorkOrderFactory.makeWorkOrderObservationEntity().copyWith(
+        workOrderId: tObs.workOrderId,
+        createdAt: DateTime.now().add(const Duration(minutes: 5)),
+      );
+      when(
+        () => mockWatchRealtime.call(
+          companyId: any(named: 'companyId'),
+          workOrderId: any(named: 'workOrderId'),
+        ),
+      ).thenAnswer(
+        (_) => Stream.fromIterable([
+          RealtimeEvent<WorkOrderObservationEntity>(
+            eventType: RealtimeEventType.insert,
+            id: newObs.id,
+            companyId: newObs.companyId,
+            entity: newObs,
+          ),
+          RealtimeEvent<WorkOrderObservationEntity>(
+            eventType: RealtimeEventType.delete,
+            id: tObs.id,
+            companyId: tObs.companyId,
+          ),
+        ]),
+      );
+
+      final cubit = WorkOrderObservationsCubit(
+        useCases: cubitUseCases,
+        workOrderId: tObs.workOrderId,
+      )..emit(WorkOrderObservationsState(observations: [tObs]));
+      await Future<void>.delayed(Duration.zero);
+
+      expect(cubit.state.observations.length, equals(1));
+      expect(cubit.state.observations.first.id, equals(newObs.id));
+
+      await cubit.close();
+    });
+  });
 }

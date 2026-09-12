@@ -4,12 +4,14 @@ import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_fi
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_observation_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/factories/work_order_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtime;
   late WorkOrderObservationsRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -19,8 +21,10 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
+    mockRealtime = MockSupabaseRealtimeClient();
     dataSource = WorkOrderObservationsRemoteDataSourceImpl(
       database: mockDatabase,
+      realtimeClient: mockRealtime,
     );
   });
 
@@ -70,6 +74,70 @@ void main() {
       );
 
       expect(result, isA<FailureState<List<WorkOrderObservationModel>>>());
+    });
+  });
+
+  group('getObservationsByWorkOrderIds', () {
+    test(
+      'should return empty list immediately when workOrderIds is empty',
+      () async {
+        final result = await dataSource.getObservationsByWorkOrderIds([]);
+        expect(result, isA<SuccessState<List<WorkOrderObservationModel>>>());
+        expect(result.data, isEmpty);
+        verifyZeroInteractions(mockDatabase);
+      },
+    );
+
+    test(
+      'should return SuccessState with list of observations when query succeeds',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tObservationModel.toJson()]);
+
+        final result = await dataSource.getObservationsByWorkOrderIds([
+          tObservationEntity.workOrderId,
+        ]);
+
+        expect(result, isA<SuccessState<List<WorkOrderObservationModel>>>());
+        expect(result.data, hasLength(1));
+        expect(result.data!.first.id, tObservationEntity.id);
+      },
+    );
+  });
+
+  group('watchObservationsRealtime', () {
+    test('streams changes with work_order_id filter', () {
+      when(
+        () => mockRealtime.streamTableChanges(
+          table: any(named: 'table'),
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => const Stream.empty());
+
+      dataSource.watchObservationsRealtime(
+        workOrderId: tObservationEntity.workOrderId,
+      );
+
+      verify(
+        () => mockRealtime.streamTableChanges(
+          table: 'work_order_observations',
+          filter: any(
+            named: 'filter',
+            that: isA<PostgresChangeFilter>()
+                .having((f) => f.column, 'column', 'work_order_id')
+                .having(
+                  (f) => f.value,
+                  'value',
+                  tObservationEntity.workOrderId,
+                ),
+          ),
+        ),
+      ).called(1);
     });
   });
 

@@ -8,6 +8,9 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 
 abstract interface class WorkOrderObservationsLocalDataSource {
   FutureList<WorkOrderObservationModel> getObservations(String workOrderId);
+  FutureList<WorkOrderObservationModel> getObservationsByWorkOrderIds(
+    List<String> workOrderIds,
+  );
   FutureBool saveObservation(WorkOrderObservationModel observation);
   FutureBool saveObservations(List<WorkOrderObservationModel> observations);
   FutureBool deleteObservation(String observationId);
@@ -23,12 +26,19 @@ final class WorkOrderObservationsLocalDataSourceImpl
   final AppDatabase _database;
 
   @override
-  FutureList<WorkOrderObservationModel> getObservations(String workOrderId) {
+  FutureList<WorkOrderObservationModel> getObservations(String workOrderId) =>
+      getObservationsByWorkOrderIds([workOrderId]);
+
+  @override
+  FutureList<WorkOrderObservationModel> getObservationsByWorkOrderIds(
+    List<String> workOrderIds,
+  ) {
     return ErrorHandler.execute(() async {
+      if (workOrderIds.isEmpty) {
+        return const SuccessState(data: []);
+      }
       final query = _database.select(_database.workOrderObservations)
-        ..where(
-          (t) => t.workOrderId.equals(workOrderId) & t.deletedAt.isNull(),
-        );
+        ..where((t) => t.workOrderId.isIn(workOrderIds) & t.deletedAt.isNull());
       final rows = await query.get();
       final list = rows
           .map(
@@ -52,7 +62,9 @@ final class WorkOrderObservationsLocalDataSourceImpl
   @override
   FutureBool saveObservation(WorkOrderObservationModel observation) {
     return ErrorHandler.execute(() async {
-      await _database.into(_database.workOrderObservations).insertOnConflictUpdate(
+      await _database
+          .into(_database.workOrderObservations)
+          .insertOnConflictUpdate(
             WorkOrderObservationsCompanion.insert(
               id: observation.id,
               companyId: observation.companyId,
