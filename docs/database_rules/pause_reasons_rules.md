@@ -30,3 +30,7 @@ CREATE TRIGGER tr_prevent_delete_pause_reasons_with_relations
   BEFORE UPDATE ON public.pause_reasons FOR EACH ROW
   EXECUTE FUNCTION public.check_pause_reason_before_delete();
 ```
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260911215000_publish_pause_reasons_realtime.sql`).
