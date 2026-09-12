@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
@@ -15,9 +19,61 @@ enum SectorsSections implements SectionKey { save, delete }
 class SectorsCubit extends BaseCubit<SectorsState> {
   SectorsCubit({required SectorsCubitUseCases useCases})
     : _useCases = useCases,
-      super(const SectorsState.initial());
+      super(const SectorsState.initial()) {
+    _initRealtime();
+  }
 
   final SectorsCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<SectorEntity>>? _realtimeSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _realtimeSubscription = _useCases
+        .watchSectorsRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<SectorEntity> event) {
+    if (isClosed) return;
+
+    final currentSectors = List<SectorEntity>.from(state.sectors);
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null && event.entity!.deletedAt == null) {
+          final index = currentSectors.indexWhere((s) => s.id == event.id);
+          if (index == -1) {
+            currentSectors.insert(0, event.entity!);
+          } else {
+            currentSectors[index] = event.entity!;
+          }
+          emit(state.copyWith(sectors: currentSectors));
+        }
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentSectors.indexWhere((s) => s.id == event.id);
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentSectors.removeAt(index);
+              emit(state.copyWith(sectors: currentSectors));
+            }
+          } else {
+            if (index != -1) {
+              currentSectors[index] = event.entity!;
+            } else {
+              currentSectors.add(event.entity!);
+            }
+            emit(state.copyWith(sectors: currentSectors));
+          }
+        }
+      case RealtimeEventType.delete:
+        final index = currentSectors.indexWhere((s) => s.id == event.id);
+        if (index != -1) {
+          currentSectors.removeAt(index);
+          emit(state.copyWith(sectors: currentSectors));
+        }
+    }
+  }
 
   Future<void> loadSectors({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
@@ -160,5 +216,11 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   Future<void> navigateToCreateUpdateSector({SectorEntity? sector}) async {
     await pushRoute(CreateUpdateSectorRoute(sector: sector));
     await loadSectors(emitLoading: false);
+  }
+
+  @override
+  Future<void> close() {
+    _realtimeSubscription?.cancel();
+    return super.close();
   }
 }

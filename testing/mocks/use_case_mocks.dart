@@ -20,6 +20,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/set_session_use_ca
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/sign_up_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/verify_otp_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/use_cases/watch_categories_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/create_checklist_item_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/create_checklist_template_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/delete_checklist_item_use_case.dart';
@@ -48,6 +49,7 @@ import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_u
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/watch_sectors_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/create_service_provider_profile_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/delete_service_provider_invitation_use_case.dart';
@@ -234,6 +236,12 @@ class MockWatchAreasRealtimeUseCase extends Mock
 class MockWatchAssetsRealtimeUseCase extends Mock
     implements WatchAssetsRealtimeUseCase {}
 
+class MockWatchCategoriesRealtimeUseCase extends Mock
+    implements WatchCategoriesRealtimeUseCase {}
+
+class MockWatchSectorsRealtimeUseCase extends Mock
+    implements WatchSectorsRealtimeUseCase {}
+
 class MockWatchSlaPoliciesRealtimeUseCase extends Mock
     implements WatchSlaPoliciesRealtimeUseCase {}
 
@@ -337,4 +345,3 @@ class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
 
 class MockDeleteAttachmentUseCase extends Mock
     implements DeleteAttachmentUseCase {}
-

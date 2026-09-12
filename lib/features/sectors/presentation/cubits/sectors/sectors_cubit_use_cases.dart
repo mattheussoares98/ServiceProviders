@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_u
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/watch_sectors_realtime_use_case.dart';
 
 @LazySingleton()
 class SectorsCubitUseCases {
@@ -13,6 +14,7 @@ class SectorsCubitUseCases {
     required this.updateSector,
     required this.deleteSector,
     required this.getActiveCompanyId,
+    required this.watchSectorsRealtime,
   });
 
   final GetSectorsUseCase getSectors;
@@ -20,5 +22,5 @@ class SectorsCubitUseCases {
   final UpdateSectorUseCase updateSector;
   final DeleteSectorUseCase deleteSector;
   final GetActiveCompanyIdUseCase getActiveCompanyId;
+  final WatchSectorsRealtimeUseCase watchSectorsRealtime;
 }
-

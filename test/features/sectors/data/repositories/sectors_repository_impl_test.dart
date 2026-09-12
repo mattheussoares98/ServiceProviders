@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
@@ -40,6 +42,100 @@ void main() {
   });
 
   group('SectorsRepositoryImpl Tests', () {
+    group('watchSectorsRealtime', () {
+      final tSector = SystemFactory.makeSectorEntity();
+      final tModel = SectorModel.fromEntity(tSector);
+
+      test('saves to localDataSource on insert/update event', () async {
+        when(
+          () => mockRemoteDataSource.watchSectorsRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<SectorModel>(
+              eventType: RealtimeEventType.insert,
+              id: tModel.id,
+              companyId: tSector.companyId,
+              entity: tModel,
+            ),
+          ),
+        );
+        when(
+          () => mockLocalDataSource.saveSector(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchSectorsRealtime(
+          companyId: tSector.companyId,
+        );
+        final event = await stream.first;
+
+        expect(event.entity, equals(tSector));
+        verify(() => mockLocalDataSource.saveSector(tModel)).called(1);
+      });
+
+      test(
+        'deletes from localDataSource on update event when deletedAt is not null',
+        () async {
+          final deletedModel = SectorModel.fromEntity(
+            tSector.copyWith(deletedAt: DateTime.now()),
+          );
+          when(
+            () => mockRemoteDataSource.watchSectorsRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer(
+            (_) => Stream.value(
+              RealtimeEvent<SectorModel>(
+                eventType: RealtimeEventType.update,
+                id: deletedModel.id,
+                companyId: tSector.companyId,
+                entity: deletedModel,
+              ),
+            ),
+          );
+          when(
+            () => mockLocalDataSource.deleteSector(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchSectorsRealtime(
+            companyId: tSector.companyId,
+          );
+          await stream.first;
+
+          verify(
+            () => mockLocalDataSource.deleteSector(deletedModel.id),
+          ).called(1);
+        },
+      );
+
+      test('deletes from localDataSource on delete event', () async {
+        when(
+          () => mockRemoteDataSource.watchSectorsRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<SectorModel>(
+              eventType: RealtimeEventType.delete,
+              id: tModel.id,
+              companyId: tSector.companyId,
+            ),
+          ),
+        );
+        when(
+          () => mockLocalDataSource.deleteSector(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchSectorsRealtime(
+          companyId: tSector.companyId,
+        );
+        await stream.first;
+
+        verify(() => mockLocalDataSource.deleteSector(tModel.id)).called(1);
+      });
+    });
+
     test(
       'getSectors fetches from remote and caches locally when connected',
       () async {

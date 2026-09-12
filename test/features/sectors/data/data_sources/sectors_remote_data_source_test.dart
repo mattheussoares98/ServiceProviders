@@ -3,12 +3,14 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/models/responses/sector_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/factories/system_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabaseClient;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late SectorsRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -19,10 +21,39 @@ void main() {
 
   setUp(() {
     mockDatabaseClient = MockSupabaseDatabaseClient();
-    dataSource = SectorsRemoteDataSourceImpl(database: mockDatabaseClient);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = SectorsRemoteDataSourceImpl(
+      database: mockDatabaseClient,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   group('SectorsRemoteDataSource Tests', () {
+    test(
+      'watchSectorsRealtime streams changes from sectors table with company filter',
+      () {
+        when(
+          () => mockRealtimeClient.streamTableChanges(
+            table: any(named: 'table'),
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer((_) => const Stream.empty());
+
+        dataSource.watchSectorsRealtime(companyId: 'company-123');
+
+        verify(
+          () => mockRealtimeClient.streamTableChanges(
+            table: 'sectors',
+            filter: any(
+              named: 'filter',
+              that: isA<PostgresChangeFilter>()
+                  .having((f) => f.column, 'column', 'company_id')
+                  .having((f) => f.value, 'value', 'company-123'),
+            ),
+          ),
+        ).called(1);
+      },
+    );
     test('getSectors returns SuccessState when query succeeds', () async {
       final tSectorModel = SectorModel.fromEntity(
         SystemFactory.makeSectorEntity(),

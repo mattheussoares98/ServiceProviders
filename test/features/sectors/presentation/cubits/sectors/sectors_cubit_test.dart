@@ -1,8 +1,13 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -23,6 +28,7 @@ void main() {
   late MockCreateSectorUseCase mockCreateSector;
   late MockUpdateSectorUseCase mockUpdateSector;
   late MockDeleteSectorUseCase mockDeleteSector;
+  late MockWatchSectorsRealtimeUseCase mockWatchSectorsRealtime;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
   late UserProfileEntity tUserProfile;
@@ -39,6 +45,7 @@ void main() {
     mockCreateSector = MockCreateSectorUseCase();
     mockUpdateSector = MockUpdateSectorUseCase();
     mockDeleteSector = MockDeleteSectorUseCase();
+    mockWatchSectorsRealtime = MockWatchSectorsRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
@@ -46,6 +53,12 @@ void main() {
 
     tUserProfile = UserFactory.makeUserProfileEntity();
     when(() => mockGetSessionUser.call()).thenReturn(tUserProfile);
+    when(
+      () => mockGetActiveCompanyIdUseCase.call(),
+    ).thenReturn(tUserProfile.companyId);
+    when(
+      () => mockWatchSectorsRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = SectorsCubitUseCases(
       getSectors: mockGetSectors,
@@ -53,6 +66,7 @@ void main() {
       updateSector: mockUpdateSector,
       deleteSector: mockDeleteSector,
       getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+      watchSectorsRealtime: mockWatchSectorsRealtime,
     );
 
     cubit = SectorsCubit(useCases: useCases);
@@ -409,6 +423,127 @@ void main() {
           verify(() => mockGetSectors.call(tUserProfile.companyId)).called(1);
         },
       );
+    });
+
+    group('realtime events', () {
+      test('inserts new sector into state on insert event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<SectorEntity>>();
+        when(
+          () => mockWatchSectorsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = SectorsCubitUseCases(
+          getSectors: mockGetSectors,
+          createSector: mockCreateSector,
+          updateSector: mockUpdateSector,
+          deleteSector: mockDeleteSector,
+          getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+          watchSectorsRealtime: mockWatchSectorsRealtime,
+        );
+        final c = SectorsCubit(useCases: useCases);
+
+        final newSector = SystemFactory.makeSectorEntity();
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.insert,
+            id: newSector.id,
+            entity: newSector,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.sectors, contains(newSector));
+        await c.close();
+        await streamController.close();
+      });
+
+      test('updates existing sector on update event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<SectorEntity>>();
+        when(
+          () => mockWatchSectorsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = SectorsCubitUseCases(
+          getSectors: mockGetSectors,
+          createSector: mockCreateSector,
+          updateSector: mockUpdateSector,
+          deleteSector: mockDeleteSector,
+          getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+          watchSectorsRealtime: mockWatchSectorsRealtime,
+        );
+        final c = SectorsCubit(useCases: useCases);
+
+        final initialSector = SystemFactory.makeSectorEntity();
+        c.emit(c.state.copyWith(sectors: [initialSector]));
+
+        final updatedSector = initialSector.copyWith(name: 'Updated Sector');
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: updatedSector.id,
+            entity: updatedSector,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.sectors.first.name, 'Updated Sector');
+        await c.close();
+        await streamController.close();
+      });
+
+      test('removes sector on delete or soft-delete event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<SectorEntity>>();
+        when(
+          () => mockWatchSectorsRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = SectorsCubitUseCases(
+          getSectors: mockGetSectors,
+          createSector: mockCreateSector,
+          updateSector: mockUpdateSector,
+          deleteSector: mockDeleteSector,
+          getActiveCompanyId: mockGetActiveCompanyIdUseCase,
+          watchSectorsRealtime: mockWatchSectorsRealtime,
+        );
+        final c = SectorsCubit(useCases: useCases);
+
+        final sector1 = SystemFactory.makeSectorEntity();
+        final sector2 = SystemFactory.makeSectorEntity();
+        c.emit(c.state.copyWith(sectors: [sector1, sector2]));
+
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.delete,
+            id: sector1.id,
+            entity: sector1,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.sectors, isNot(contains(sector1)));
+        expect(c.state.sectors, contains(sector2));
+
+        final softDeleted = sector2.copyWith(deletedAt: DateTime.now().toUtc());
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: softDeleted.id,
+            entity: softDeleted,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.sectors, isEmpty);
+        await c.close();
+        await streamController.close();
+      });
     });
   });
 }

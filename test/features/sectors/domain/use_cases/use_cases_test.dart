@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_u
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/delete_sector_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/get_sectors_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/update_sector_use_case.dart';
+import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/watch_sectors_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/factories/system_factory.dart';
 
@@ -18,6 +19,7 @@ void main() {
   late CreateSectorUseCase createSectorUseCase;
   late UpdateSectorUseCase updateSectorUseCase;
   late DeleteSectorUseCase deleteSectorUseCase;
+  late WatchSectorsRealtimeUseCase watchSectorsRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(SystemFactory.makeSectorEntity());
@@ -33,6 +35,9 @@ void main() {
       sectorsRepository: mockRepository,
     );
     deleteSectorUseCase = DeleteSectorUseCase(
+      sectorsRepository: mockRepository,
+    );
+    watchSectorsRealtimeUseCase = WatchSectorsRealtimeUseCase(
       sectorsRepository: mockRepository,
     );
   });
@@ -162,6 +167,22 @@ void main() {
       expect(result, isA<FailureState<bool>>());
       expect((result as FailureState<bool>).message, tError);
       verify(() => mockRepository.deleteSector(tSectorId)).called(1);
+    });
+  });
+
+  group('WatchSectorsRealtimeUseCase Tests', () {
+    test('should forward stream from repository with companyId', () {
+      when(
+        () => mockRepository.watchSectorsRealtime(
+          companyId: any(named: 'companyId'),
+        ),
+      ).thenAnswer((_) => const Stream.empty());
+
+      watchSectorsRealtimeUseCase(companyId: 'company-123');
+
+      verify(
+        () => mockRepository.watchSectorsRealtime(companyId: 'company-123'),
+      ).called(1);
     });
   });
 }
