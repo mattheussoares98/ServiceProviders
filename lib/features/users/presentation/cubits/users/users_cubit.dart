@@ -4,8 +4,8 @@ import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
@@ -47,43 +47,12 @@ class UsersCubit extends BaseCubit<UsersState> {
   void _handleRealtimeEvent(RealtimeEvent<UserProfileEntity> event) {
     if (isClosed) return;
 
-    final currentUsers = List<UserProfileEntity>.from(state.users);
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentUsers.indexWhere((u) => u.id == event.id);
-          if (index == -1) {
-            currentUsers.insert(0, event.entity!);
-          } else {
-            currentUsers[index] = event.entity!;
-          }
-          emit(state.copyWith(users: currentUsers));
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentUsers.indexWhere((u) => u.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentUsers.removeAt(index);
-              emit(state.copyWith(users: currentUsers));
-            }
-          } else {
-            if (index != -1) {
-              currentUsers[index] = event.entity!;
-            } else {
-              currentUsers.add(event.entity!);
-            }
-            emit(state.copyWith(users: currentUsers));
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentUsers.indexWhere((u) => u.id == event.id);
-        if (index != -1) {
-          currentUsers.removeAt(index);
-          emit(state.copyWith(users: currentUsers));
-        }
-    }
+    final updatedUsers = state.users.applyRealtimeEvent(
+      event: event,
+      idSelector: (u) => u.id,
+      isDeleted: (u) => u.deletedAt != null,
+    );
+    emit(state.copyWith(users: updatedUsers));
   }
 
   // ============================================
@@ -327,11 +296,7 @@ class UsersCubit extends BaseCubit<UsersState> {
       return true;
     } else {
       final message = result.message ?? 'Erro ao reenviar convite'.hardcoded;
-      emit(
-        state.copyWith(
-          resendingInvitationIds: updatedResending,
-        ),
-      );
+      emit(state.copyWith(resendingInvitationIds: updatedResending));
       showErrorToast(message);
       return false;
     }

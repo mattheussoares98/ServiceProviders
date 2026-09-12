@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
@@ -38,43 +38,12 @@ class AssetsCubit extends BaseCubit<AssetsState> {
   void _handleRealtimeEvent(RealtimeEvent<AssetEntity> event) {
     if (isClosed) return;
 
-    final currentAssets = List<AssetEntity>.from(state.assets);
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentAssets.indexWhere((a) => a.id == event.id);
-          if (index == -1) {
-            currentAssets.insert(0, event.entity!);
-          } else {
-            currentAssets[index] = event.entity!;
-          }
-          emit(state.copyWith(assets: currentAssets));
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentAssets.indexWhere((a) => a.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentAssets.removeAt(index);
-              emit(state.copyWith(assets: currentAssets));
-            }
-          } else {
-            if (index != -1) {
-              currentAssets[index] = event.entity!;
-            } else {
-              currentAssets.add(event.entity!);
-            }
-            emit(state.copyWith(assets: currentAssets));
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentAssets.indexWhere((a) => a.id == event.id);
-        if (index != -1) {
-          currentAssets.removeAt(index);
-          emit(state.copyWith(assets: currentAssets));
-        }
-    }
+    final updatedAssets = state.assets.applyRealtimeEvent(
+      event: event,
+      idSelector: (a) => a.id,
+      isDeleted: (a) => a.deletedAt != null,
+    );
+    emit(state.copyWith(assets: updatedAssets));
   }
 
   Future<void> loadAssets({bool emitLoading = true}) async {

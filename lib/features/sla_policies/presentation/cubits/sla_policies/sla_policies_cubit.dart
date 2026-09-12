@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit_use_cases.dart';
@@ -37,43 +37,12 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
   void _handleRealtimeEvent(RealtimeEvent<SlaPolicyEntity> event) {
     if (isClosed) return;
 
-    final currentPolicies = List<SlaPolicyEntity>.from(state.slaPolicies);
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentPolicies.indexWhere((p) => p.id == event.id);
-          if (index == -1) {
-            currentPolicies.insert(0, event.entity!);
-          } else {
-            currentPolicies[index] = event.entity!;
-          }
-          emit(state.copyWith(slaPolicies: currentPolicies));
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentPolicies.indexWhere((p) => p.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentPolicies.removeAt(index);
-              emit(state.copyWith(slaPolicies: currentPolicies));
-            }
-          } else {
-            if (index != -1) {
-              currentPolicies[index] = event.entity!;
-            } else {
-              currentPolicies.add(event.entity!);
-            }
-            emit(state.copyWith(slaPolicies: currentPolicies));
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentPolicies.indexWhere((p) => p.id == event.id);
-        if (index != -1) {
-          currentPolicies.removeAt(index);
-          emit(state.copyWith(slaPolicies: currentPolicies));
-        }
-    }
+    final updatedPolicies = state.slaPolicies.applyRealtimeEvent(
+      event: event,
+      idSelector: (p) => p.id,
+      isDeleted: (p) => p.deletedAt != null,
+    );
+    emit(state.copyWith(slaPolicies: updatedPolicies));
   }
 
   Future<void> loadSlaPolicies({bool emitLoading = true}) async {

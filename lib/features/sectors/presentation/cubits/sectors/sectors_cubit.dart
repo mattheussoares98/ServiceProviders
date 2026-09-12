@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
@@ -36,43 +36,12 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   void _handleRealtimeEvent(RealtimeEvent<SectorEntity> event) {
     if (isClosed) return;
 
-    final currentSectors = List<SectorEntity>.from(state.sectors);
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentSectors.indexWhere((s) => s.id == event.id);
-          if (index == -1) {
-            currentSectors.insert(0, event.entity!);
-          } else {
-            currentSectors[index] = event.entity!;
-          }
-          emit(state.copyWith(sectors: currentSectors));
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentSectors.indexWhere((s) => s.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentSectors.removeAt(index);
-              emit(state.copyWith(sectors: currentSectors));
-            }
-          } else {
-            if (index != -1) {
-              currentSectors[index] = event.entity!;
-            } else {
-              currentSectors.add(event.entity!);
-            }
-            emit(state.copyWith(sectors: currentSectors));
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentSectors.indexWhere((s) => s.id == event.id);
-        if (index != -1) {
-          currentSectors.removeAt(index);
-          emit(state.copyWith(sectors: currentSectors));
-        }
-    }
+    final updatedSectors = state.sectors.applyRealtimeEvent(
+      event: event,
+      idSelector: (s) => s.id,
+      isDeleted: (s) => s.deletedAt != null,
+    );
+    emit(state.copyWith(sectors: updatedSectors));
   }
 
   Future<void> loadSectors({bool emitLoading = true}) async {

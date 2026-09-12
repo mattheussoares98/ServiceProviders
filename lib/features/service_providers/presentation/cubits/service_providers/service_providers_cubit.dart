@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/document_type.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_invitation_entity.dart';
@@ -56,45 +57,12 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
   ) {
     if (isClosed) return;
 
-    final currentCompanies = List<ServiceProviderCompanyEntity>.from(
-      state.companies,
+    final updatedCompanies = state.companies.applyRealtimeEvent(
+      event: event,
+      idSelector: (c) => c.id,
+      isDeleted: (c) => c.deletedAt != null,
     );
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentCompanies.indexWhere((c) => c.id == event.id);
-          if (index == -1) {
-            currentCompanies.insert(0, event.entity!);
-          } else {
-            currentCompanies[index] = event.entity!;
-          }
-          emit(state.copyWith(companies: currentCompanies));
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentCompanies.indexWhere((c) => c.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentCompanies.removeAt(index);
-              emit(state.copyWith(companies: currentCompanies));
-            }
-          } else {
-            if (index != -1) {
-              currentCompanies[index] = event.entity!;
-            } else {
-              currentCompanies.add(event.entity!);
-            }
-            emit(state.copyWith(companies: currentCompanies));
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentCompanies.indexWhere((c) => c.id == event.id);
-        if (index != -1) {
-          currentCompanies.removeAt(index);
-          emit(state.copyWith(companies: currentCompanies));
-        }
-    }
+    emit(state.copyWith(companies: updatedCompanies));
   }
 
   void _handleProfileRealtimeEvent(
@@ -112,35 +80,26 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
 
     switch (event.eventType) {
       case RealtimeEventType.insert:
-        if (event.entity != null) {
-          final companyId = event.entity!.serviceProviderCompanyId;
-          final list = updatedProfiles.putIfAbsent(companyId, () => []);
-          final index = list.indexWhere((p) => p.id == event.id);
-          if (index == -1) {
-            list.insert(0, event.entity!);
-          } else {
-            list[index] = event.entity!;
-          }
-          emit(state.copyWith(profiles: updatedProfiles));
-        }
       case RealtimeEventType.update:
         if (event.entity != null) {
           final companyId = event.entity!.serviceProviderCompanyId;
-          final list = updatedProfiles.putIfAbsent(companyId, () => []);
-          final index = list.indexWhere((p) => p.id == event.id);
-          if (index != -1) {
-            list[index] = event.entity!;
-          } else {
-            list.add(event.entity!);
-          }
+          final currentList = updatedProfiles[companyId] ?? [];
+          updatedProfiles[companyId] = currentList.applyRealtimeEvent(
+            event: event,
+            idSelector: (p) => p.id,
+          );
           emit(state.copyWith(profiles: updatedProfiles));
         }
       case RealtimeEventType.delete:
         var changed = false;
-        for (final list in updatedProfiles.values) {
-          final index = list.indexWhere((p) => p.id == event.id);
-          if (index != -1) {
-            list.removeAt(index);
+        for (final entry in updatedProfiles.entries) {
+          final currentList = entry.value;
+          final updatedList = currentList.applyRealtimeEvent(
+            event: event,
+            idSelector: (p) => p.id,
+          );
+          if (updatedList.length != currentList.length) {
+            updatedProfiles[entry.key] = updatedList;
             changed = true;
             break;
           }

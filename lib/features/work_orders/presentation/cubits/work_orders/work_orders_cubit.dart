@@ -4,8 +4,8 @@ import 'package:collection/collection.dart';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
@@ -58,39 +58,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   void _handleRealtimeEvent(RealtimeEvent<WorkOrderEntity> event) {
     if (isClosed) return;
 
-    switch (event.eventType) {
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final exists = state.workOrders.any((wo) => wo.id == event.id);
-          if (exists) {
-            if (event.entity!.deletedAt != null) {
-              final updated = state.workOrders
-                  .where((wo) => wo.id != event.id)
-                  .toList();
-              emit(state.copyWith(workOrders: updated));
-            } else {
-              final updated = state.workOrders
-                  .map((wo) => wo.id == event.id ? event.entity! : wo)
-                  .toList();
-              emit(state.copyWith(workOrders: updated));
-            }
-          }
-        }
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final exists = state.workOrders.any((wo) => wo.id == event.id);
-          if (!exists) {
-            emit(
-              state.copyWith(workOrders: [event.entity!, ...state.workOrders]),
-            );
-          }
-        }
-      case RealtimeEventType.delete:
-        final updated = state.workOrders
-            .where((wo) => wo.id != event.id)
-            .toList();
-        emit(state.copyWith(workOrders: updated));
-    }
+    final updatedWorkOrders = state.workOrders.applyRealtimeEvent(
+      event: event,
+      idSelector: (wo) => wo.id,
+      isDeleted: (wo) => wo.deletedAt != null,
+    );
+    emit(state.copyWith(workOrders: updatedWorkOrders));
 
     if (!_realtimeEventsController.isClosed) {
       _realtimeEventsController.add(event);

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
@@ -46,85 +46,23 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   void _handleLocationRealtimeEvent(RealtimeEvent<LocationEntity> event) {
     if (isClosed) return;
 
-    final currentLocations = List<LocationEntity>.from(state.locations);
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentLocations.indexWhere((l) => l.id == event.id);
-          if (index == -1) {
-            currentLocations.insert(0, event.entity!);
-          } else {
-            currentLocations[index] = event.entity!;
-          }
-          emit(state.copyWith(locations: currentLocations));
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentLocations.indexWhere((l) => l.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentLocations.removeAt(index);
-              emit(state.copyWith(locations: currentLocations));
-            }
-          } else {
-            if (index != -1) {
-              currentLocations[index] = event.entity!;
-            } else {
-              currentLocations.add(event.entity!);
-            }
-            emit(state.copyWith(locations: currentLocations));
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentLocations.indexWhere((l) => l.id == event.id);
-        if (index != -1) {
-          currentLocations.removeAt(index);
-          emit(state.copyWith(locations: currentLocations));
-        }
-    }
+    final updatedLocations = state.locations.applyRealtimeEvent(
+      event: event,
+      idSelector: (l) => l.id,
+      isDeleted: (l) => l.deletedAt != null,
+    );
+    emit(state.copyWith(locations: updatedLocations));
   }
 
   void _handleAreaRealtimeEvent(RealtimeEvent<AreaEntity> event) {
     if (isClosed) return;
 
-    final currentAreas = List<AreaEntity>.from(state.allAreas);
-
-    switch (event.eventType) {
-      case RealtimeEventType.insert:
-        if (event.entity != null && event.entity!.deletedAt == null) {
-          final index = currentAreas.indexWhere((a) => a.id == event.id);
-          if (index == -1) {
-            currentAreas.insert(0, event.entity!);
-          } else {
-            currentAreas[index] = event.entity!;
-          }
-          _rebuildAreasState(currentAreas);
-        }
-      case RealtimeEventType.update:
-        if (event.entity != null) {
-          final index = currentAreas.indexWhere((a) => a.id == event.id);
-          if (event.entity!.deletedAt != null) {
-            if (index != -1) {
-              currentAreas.removeAt(index);
-              _rebuildAreasState(currentAreas);
-            }
-          } else {
-            if (index != -1) {
-              currentAreas[index] = event.entity!;
-            } else {
-              currentAreas.add(event.entity!);
-            }
-            _rebuildAreasState(currentAreas);
-          }
-        }
-      case RealtimeEventType.delete:
-        final index = currentAreas.indexWhere((a) => a.id == event.id);
-        if (index != -1) {
-          currentAreas.removeAt(index);
-          _rebuildAreasState(currentAreas);
-        }
-    }
+    final updatedAreas = state.allAreas.applyRealtimeEvent(
+      event: event,
+      idSelector: (a) => a.id,
+      isDeleted: (a) => a.deletedAt != null,
+    );
+    _rebuildAreasState(updatedAreas);
   }
 
   void _rebuildAreasState(List<AreaEntity> areas) {
