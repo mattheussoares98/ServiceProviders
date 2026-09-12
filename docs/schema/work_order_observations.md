@@ -40,3 +40,9 @@ Table name: `work_order_observations_table`
 | `created_at` | `DateTimeColumn` | Creation timestamp |
 | `updated_at` | `DateTimeColumn` | Update timestamp |
 | `deleted_at` | `DateTimeColumn` (nullable) | Soft delete timestamp |
+
+---
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260912224500_publish_work_order_observations_realtime.sql`).
