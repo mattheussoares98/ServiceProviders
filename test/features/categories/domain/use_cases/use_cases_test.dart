@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/categories/domain/use_cases/create_categ
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/delete_category_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/get_categories_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/update_category_use_case.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/use_cases/watch_categories_realtime_use_case.dart';
 
 import '../../../../../testing/mocks/factories/asset_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
@@ -19,6 +20,7 @@ void main() {
   late UpdateCategoryUseCase updateCategoryUseCase;
   late DeleteCategoryUseCase deleteCategoryUseCase;
   late GetCategoriesUseCase getCategoriesUseCase;
+  late WatchCategoriesRealtimeUseCase watchCategoriesRealtimeUseCase;
 
   setUpAll(() {
     registerFallbackValue(AssetFactory.makeCategoryEntity());
@@ -36,6 +38,9 @@ void main() {
       categoriesRepository: mockRepository,
     );
     getCategoriesUseCase = GetCategoriesUseCase(
+      categoriesRepository: mockRepository,
+    );
+    watchCategoriesRealtimeUseCase = WatchCategoriesRealtimeUseCase(
       categoriesRepository: mockRepository,
     );
   });
@@ -188,6 +193,22 @@ void main() {
         expect(result, isA<FailureState<List<CategoryEntity>>>());
         expect(result.message, 'Load failed');
         verify(() => mockRepository.getCategories(tCompanyId)).called(1);
+      });
+    });
+
+    group('WatchCategoriesRealtimeUseCase', () {
+      test('should forward stream from repository', () {
+        when(
+          () => mockRepository.watchCategoriesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => const Stream.empty());
+
+        watchCategoriesRealtimeUseCase(companyId: tCompanyId);
+
+        verify(
+          () => mockRepository.watchCategoriesRealtime(companyId: tCompanyId),
+        ).called(1);
       });
     });
   });

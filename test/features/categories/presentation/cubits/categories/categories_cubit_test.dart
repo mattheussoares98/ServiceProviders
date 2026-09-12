@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/create_category_use_case.dart';
@@ -39,6 +43,7 @@ void main() {
   late MockCreateCategoryUseCase mockCreateCategory;
   late MockUpdateCategoryUseCase mockUpdateCategory;
   late MockDeleteCategoryUseCase mockDeleteCategory;
+  late MockWatchCategoriesRealtimeUseCase mockWatchCategoriesRealtime;
   late MockNavigationClient mockNavigationClient;
   late CategoryEntity tCategory;
 
@@ -56,6 +61,7 @@ void main() {
     mockCreateCategory = MockCreateCategoryUseCase();
     mockUpdateCategory = MockUpdateCategoryUseCase();
     mockDeleteCategory = MockDeleteCategoryUseCase();
+    mockWatchCategoriesRealtime = MockWatchCategoriesRealtimeUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -65,6 +71,9 @@ void main() {
     when(
       () => mockGetActiveCompanyId.call(),
     ).thenReturn(tUserProfile.companyId);
+    when(
+      () => mockWatchCategoriesRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
 
     final useCases = CategoriesCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -72,6 +81,7 @@ void main() {
       createCategory: mockCreateCategory,
       updateCategory: mockUpdateCategory,
       deleteCategory: mockDeleteCategory,
+      watchCategoriesRealtime: mockWatchCategoriesRealtime,
     );
 
     cubit = CategoriesCubit(useCases: useCases);
@@ -452,6 +462,129 @@ void main() {
           ),
         ).called(1);
         verify(() => mockGetCategories.call(tUserProfile.companyId)).called(1);
+      });
+    });
+
+    group('realtime events', () {
+      test('inserts new category into state on insert event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<CategoryEntity>>();
+        when(
+          () => mockWatchCategoriesRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = CategoriesCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getCategories: mockGetCategories,
+          createCategory: mockCreateCategory,
+          updateCategory: mockUpdateCategory,
+          deleteCategory: mockDeleteCategory,
+          watchCategoriesRealtime: mockWatchCategoriesRealtime,
+        );
+        final c = CategoriesCubit(useCases: useCases);
+
+        final newCategory = AssetFactory.makeCategoryEntity();
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.insert,
+            id: newCategory.id,
+            entity: newCategory,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.categories, contains(newCategory));
+        await c.close();
+        await streamController.close();
+      });
+
+      test('updates existing category on update event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<CategoryEntity>>();
+        when(
+          () => mockWatchCategoriesRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = CategoriesCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getCategories: mockGetCategories,
+          createCategory: mockCreateCategory,
+          updateCategory: mockUpdateCategory,
+          deleteCategory: mockDeleteCategory,
+          watchCategoriesRealtime: mockWatchCategoriesRealtime,
+        );
+        final c = CategoriesCubit(useCases: useCases);
+
+        final initialCategory = AssetFactory.makeCategoryEntity();
+        c.emit(c.state.copyWith(categories: [initialCategory]));
+
+        final updatedCategory = initialCategory.copyWith(name: 'Updated Name');
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: updatedCategory.id,
+            entity: updatedCategory,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.categories.first.name, 'Updated Name');
+        await c.close();
+        await streamController.close();
+      });
+
+      test('removes category on delete or soft-delete event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<CategoryEntity>>();
+        when(
+          () => mockWatchCategoriesRealtime(companyId: any(named: 'companyId')),
+        ).thenAnswer((_) => streamController.stream);
+
+        final useCases = CategoriesCubitUseCases(
+          getActiveCompanyId: mockGetActiveCompanyId,
+          getCategories: mockGetCategories,
+          createCategory: mockCreateCategory,
+          updateCategory: mockUpdateCategory,
+          deleteCategory: mockDeleteCategory,
+          watchCategoriesRealtime: mockWatchCategoriesRealtime,
+        );
+        final c = CategoriesCubit(useCases: useCases);
+
+        final category1 = AssetFactory.makeCategoryEntity();
+        final category2 = AssetFactory.makeCategoryEntity();
+        c.emit(c.state.copyWith(categories: [category1, category2]));
+
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.delete,
+            id: category1.id,
+            entity: category1,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.categories, isNot(contains(category1)));
+        expect(c.state.categories, contains(category2));
+
+        final softDeleted = category2.copyWith(
+          deletedAt: DateTime.now().toUtc(),
+        );
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: softDeleted.id,
+            entity: softDeleted,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(c.state.categories, isEmpty);
+        await c.close();
+        await streamController.close();
       });
     });
   });

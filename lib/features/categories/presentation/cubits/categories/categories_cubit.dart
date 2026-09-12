@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit_use_cases.dart';
@@ -15,9 +19,61 @@ enum CategoriesSections implements SectionKey { save, delete }
 class CategoriesCubit extends BaseCubit<CategoriesState> {
   CategoriesCubit({required CategoriesCubitUseCases useCases})
     : _useCases = useCases,
-      super(const CategoriesState.initial());
+      super(const CategoriesState.initial()) {
+    _initRealtime();
+  }
 
   final CategoriesCubitUseCases _useCases;
+  StreamSubscription<RealtimeEvent<CategoryEntity>>? _realtimeSubscription;
+
+  void _initRealtime() {
+    final companyId = _useCases.getActiveCompanyId();
+    _realtimeSubscription = _useCases
+        .watchCategoriesRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
+  }
+
+  void _handleRealtimeEvent(RealtimeEvent<CategoryEntity> event) {
+    if (isClosed) return;
+
+    final currentCategories = List<CategoryEntity>.from(state.categories);
+
+    switch (event.eventType) {
+      case RealtimeEventType.insert:
+        if (event.entity != null && event.entity!.deletedAt == null) {
+          final index = currentCategories.indexWhere((c) => c.id == event.id);
+          if (index == -1) {
+            currentCategories.insert(0, event.entity!);
+          } else {
+            currentCategories[index] = event.entity!;
+          }
+          emit(state.copyWith(categories: currentCategories));
+        }
+      case RealtimeEventType.update:
+        if (event.entity != null) {
+          final index = currentCategories.indexWhere((c) => c.id == event.id);
+          if (event.entity!.deletedAt != null) {
+            if (index != -1) {
+              currentCategories.removeAt(index);
+              emit(state.copyWith(categories: currentCategories));
+            }
+          } else {
+            if (index != -1) {
+              currentCategories[index] = event.entity!;
+            } else {
+              currentCategories.add(event.entity!);
+            }
+            emit(state.copyWith(categories: currentCategories));
+          }
+        }
+      case RealtimeEventType.delete:
+        final index = currentCategories.indexWhere((c) => c.id == event.id);
+        if (index != -1) {
+          currentCategories.removeAt(index);
+          emit(state.copyWith(categories: currentCategories));
+        }
+    }
+  }
 
   Future<void> loadCategories({bool emitLoading = true}) async {
     final companyId = _useCases.getActiveCompanyId();
@@ -152,5 +208,11 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
   }) async {
     await pushRoute(CreateUpdateCategoryRoute(category: category));
     await loadCategories(emitLoading: false);
+  }
+
+  @override
+  Future<void> close() {
+    _realtimeSubscription?.cancel();
+    return super.close();
   }
 }

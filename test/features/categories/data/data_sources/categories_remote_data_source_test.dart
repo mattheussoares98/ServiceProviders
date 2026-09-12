@@ -6,12 +6,14 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/factories/asset_factory.dart';
 
 void main() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtime;
   late CategoriesRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -25,7 +27,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = CategoriesRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtime = MockSupabaseRealtimeClient();
+    dataSource = CategoriesRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtime,
+    );
   });
 
   final tEntity = AssetFactory.makeCategoryEntity();
@@ -34,6 +40,30 @@ void main() {
   final tCompanyId = faker.guid.guid();
 
   group('CategoriesRemoteDataSourceImpl', () {
+    group('watchCategoriesRealtime', () {
+      test('streams changes from categories table with company filter', () {
+        when(
+          () => mockRealtime.streamTableChanges(
+            table: any(named: 'table'),
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer((_) => const Stream.empty());
+
+        dataSource.watchCategoriesRealtime(companyId: tCompanyId);
+
+        verify(
+          () => mockRealtime.streamTableChanges(
+            table: 'categories',
+            filter: any(
+              named: 'filter',
+              that: isA<PostgresChangeFilter>()
+                  .having((f) => f.column, 'column', 'company_id')
+                  .having((f) => f.value, 'value', tCompanyId),
+            ),
+          ),
+        ).called(1);
+      });
+    });
     group('getCategories', () {
       test(
         'should return SuccessState<List<CategoryModel>> on success',

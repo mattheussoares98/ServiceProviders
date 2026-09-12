@@ -2,6 +2,8 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
@@ -101,4 +103,33 @@ final class CategoriesRepositoryImpl implements CategoriesRepository {
           );
         },
       );
+
+  @override
+  Stream<RealtimeEvent<CategoryEntity>> watchCategoriesRealtime({
+    String? companyId,
+  }) {
+    return _remoteDataSource
+        .watchCategoriesRealtime(companyId: companyId)
+        .asyncMap((event) async {
+          if (event.entity != null &&
+              (event.eventType == RealtimeEventType.insert ||
+                  event.eventType == RealtimeEventType.update)) {
+            if (event.entity!.deletedAt != null) {
+              await _localDataSource.deleteCategory(event.id);
+            } else {
+              await _localDataSource.saveCategory(event.entity!);
+            }
+          } else if (event.eventType == RealtimeEventType.delete &&
+              event.id.isNotEmpty) {
+            await _localDataSource.deleteCategory(event.id);
+          }
+
+          return RealtimeEvent<CategoryEntity>(
+            eventType: event.eventType,
+            id: event.id,
+            companyId: event.companyId,
+            entity: event.entity?.toEntity(),
+          );
+        });
+  }
 }

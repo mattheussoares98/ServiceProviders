@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/categories/domain/use_cases/create_categ
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/delete_category_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/get_categories_use_case.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/use_cases/update_category_use_case.dart';
+import 'package:o_jogo_da_obra/features/categories/domain/use_cases/watch_categories_realtime_use_case.dart';
 
 @LazySingleton()
 class CategoriesCubitUseCases {
@@ -13,6 +14,7 @@ class CategoriesCubitUseCases {
     required this.createCategory,
     required this.updateCategory,
     required this.deleteCategory,
+    required this.watchCategoriesRealtime,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -20,4 +22,5 @@ class CategoriesCubitUseCases {
   final CreateCategoryUseCase createCategory;
   final UpdateCategoryUseCase updateCategory;
   final DeleteCategoryUseCase deleteCategory;
+  final WatchCategoriesRealtimeUseCase watchCategoriesRealtime;
 }

@@ -1,3 +1,4 @@
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
 
@@ -6,4 +7,7 @@ abstract interface class CategoriesRepository {
   FutureBool createCategory(CategoryEntity category);
   FutureBool updateCategory(CategoryEntity category);
   FutureBool deleteCategory(String id);
+  Stream<RealtimeEvent<CategoryEntity>> watchCategoriesRealtime({
+    String? companyId,
+  });
 }

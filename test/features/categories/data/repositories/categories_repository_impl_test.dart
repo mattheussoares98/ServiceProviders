@@ -2,6 +2,8 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/requests/category_request_model.dart';
 import 'package:o_jogo_da_obra/features/categories/data/models/responses/category_model.dart';
 import 'package:o_jogo_da_obra/features/categories/data/repositories/categories_repository_impl.dart';
@@ -43,6 +45,97 @@ void main() {
   final tCompanyId = faker.guid.guid();
 
   group('CategoriesRepositoryImpl', () {
+    group('watchCategoriesRealtime', () {
+      test('saves to localDataSource on insert/update event', () async {
+        when(
+          () => mockRemoteDataSource.watchCategoriesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<CategoryModel>(
+              eventType: RealtimeEventType.insert,
+              id: tModel.id,
+              companyId: tCompanyId,
+              entity: tModel,
+            ),
+          ),
+        );
+        when(
+          () => mockLocalDataSource.saveCategory(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchCategoriesRealtime(
+          companyId: tCompanyId,
+        );
+        final event = await stream.first;
+
+        expect(event.entity, equals(tEntity));
+        verify(() => mockLocalDataSource.saveCategory(tModel)).called(1);
+      });
+
+      test(
+        'deletes from localDataSource on update event when deletedAt is not null',
+        () async {
+          final deletedModel = CategoryModel.fromEntity(
+            tEntity.copyWith(deletedAt: DateTime.now()),
+          );
+          when(
+            () => mockRemoteDataSource.watchCategoriesRealtime(
+              companyId: any(named: 'companyId'),
+            ),
+          ).thenAnswer(
+            (_) => Stream.value(
+              RealtimeEvent<CategoryModel>(
+                eventType: RealtimeEventType.update,
+                id: deletedModel.id,
+                companyId: tCompanyId,
+                entity: deletedModel,
+              ),
+            ),
+          );
+          when(
+            () => mockLocalDataSource.deleteCategory(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final stream = repository.watchCategoriesRealtime(
+            companyId: tCompanyId,
+          );
+          await stream.first;
+
+          verify(
+            () => mockLocalDataSource.deleteCategory(deletedModel.id),
+          ).called(1);
+        },
+      );
+
+      test('deletes from localDataSource on delete event', () async {
+        when(
+          () => mockRemoteDataSource.watchCategoriesRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer(
+          (_) => Stream.value(
+            RealtimeEvent<CategoryModel>(
+              eventType: RealtimeEventType.delete,
+              id: tModel.id,
+              companyId: tCompanyId,
+            ),
+          ),
+        );
+        when(
+          () => mockLocalDataSource.deleteCategory(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchCategoriesRealtime(
+          companyId: tCompanyId,
+        );
+        await stream.first;
+
+        verify(() => mockLocalDataSource.deleteCategory(tModel.id)).called(1);
+      });
+    });
+
     group('getCategories', () {
       test(
         'should fetch categories from remote, cache them locally, and return list on success when online',
