@@ -42,7 +42,10 @@ void main() {
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
-    categoriesRemote = CategoriesRemoteDataSourceImpl(database: db);
+    categoriesRemote = CategoriesRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     companyId = IntegrationConfig.companyId;
 
     await SupabaseIntegrationHelper.signInAsAdmin();

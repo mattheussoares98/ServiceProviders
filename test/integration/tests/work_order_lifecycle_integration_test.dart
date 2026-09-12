@@ -62,7 +62,10 @@ void main() {
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
-    categoriesRemote = CategoriesRemoteDataSourceImpl(database: db);
+    categoriesRemote = CategoriesRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     assetsRemote = AssetsRemoteDataSourceImpl(
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
@@ -71,7 +74,10 @@ void main() {
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
-    sectorsRemote = SectorsRemoteDataSourceImpl(database: db);
+    sectorsRemote = SectorsRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     workOrdersRemote = WorkOrdersRemoteDataSourceImpl(database: db);
     pauseRemote = PauseRemoteDataSourceImpl(database: db);
 

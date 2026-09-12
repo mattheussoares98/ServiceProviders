@@ -70,7 +70,10 @@ final class IntegrationDataSources {
         supabaseAuth: auth,
         supabaseDatabase: database,
       ),
-      categories: CategoriesRemoteDataSourceImpl(database: database),
+      categories: CategoriesRemoteDataSourceImpl(
+        database: database,
+        realtimeClient: realtime,
+      ),
       checklists: ChecklistsRemoteDataSourceImpl(
         database: database,
         realtimeClient: realtime,
@@ -82,7 +85,10 @@ final class IntegrationDataSources {
         realtimeClient: realtime,
       ),
       notifications: NotificationsRemoteDataSourceImpl(database: database),
-      sectors: SectorsRemoteDataSourceImpl(database: database),
+      sectors: SectorsRemoteDataSourceImpl(
+        database: database,
+        realtimeClient: realtime,
+      ),
       serviceProviders: ServiceProviderRemoteDataSourceImpl(
         database: database,
         realtimeClient: realtime,
