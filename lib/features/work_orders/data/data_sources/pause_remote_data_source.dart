@@ -21,6 +21,14 @@ abstract interface class PauseRemoteDataSource {
     String workOrderId, {
     String? status,
   });
+  FutureList<PauseRequestModel> getPauseRequestsByWorkOrderIds(
+    List<String> workOrderIds, {
+    DateTime? since,
+  });
+  Stream<RealtimeEvent<PauseRequestModel>> watchPauseRequestsRealtime({
+    String? companyId,
+    String? workOrderId,
+  });
   FutureBool requestPause(PauseRequestModel pauseRequest);
   FutureBool reviewPause({
     required String id,
@@ -107,6 +115,52 @@ final class PauseRemoteDataSourceImpl implements PauseRemoteDataSource {
     );
     return response.map(PauseRequestModel.fromJson).toList();
   });
+
+  @override
+  FutureList<PauseRequestModel> getPauseRequestsByWorkOrderIds(
+    List<String> workOrderIds, {
+    DateTime? since,
+  }) => SupabaseHandler.call(() async {
+    if (workOrderIds.isEmpty) {
+      return const [];
+    }
+    final response = await _database.selectList(
+      table: 'work_order_pause_requests',
+      filters: [
+        SupabaseFilter.inList('work_order_id', workOrderIds),
+        if (since != null) SupabaseFilter.gt('updated_at', since.toIsoUtcString()),
+      ],
+    );
+    return response.map(PauseRequestModel.fromJson).toList();
+  });
+
+  @override
+  Stream<RealtimeEvent<PauseRequestModel>> watchPauseRequestsRealtime({
+    String? companyId,
+    String? workOrderId,
+  }) {
+    PostgresChangeFilter? filter;
+    if (workOrderId != null && workOrderId.isNotEmpty) {
+      filter = PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'work_order_id',
+        value: workOrderId,
+      );
+    } else if (companyId != null && companyId.isNotEmpty) {
+      filter = PostgresChangeFilter(
+        type: PostgresChangeFilterType.eq,
+        column: 'company_id',
+        value: companyId,
+      );
+    }
+
+    return _realtimeClient
+        .streamTableChanges(table: 'work_order_pause_requests', filter: filter)
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, PauseRequestModel.fromJson),
+        );
+  }
 
   @override
   FutureBool requestPause(PauseRequestModel pauseRequest) =>

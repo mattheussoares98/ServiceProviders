@@ -14,6 +14,14 @@ abstract interface class PauseRepository {
     String workOrderId, {
     PauseRequestStatus? status,
   });
+  FutureList<PauseRequestEntity> getPauseRequestsByWorkOrderIds(
+    List<String> workOrderIds, {
+    DateTime? since,
+  });
+  Stream<RealtimeEvent<PauseRequestEntity>> watchPauseRequestsRealtime({
+    String? companyId,
+    String? workOrderId,
+  });
   FutureBool requestPause(PauseRequestEntity pauseRequest);
   FutureBool reviewPause({
     required String id,

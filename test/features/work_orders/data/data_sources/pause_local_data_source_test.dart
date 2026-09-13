@@ -281,6 +281,76 @@ void main() {
       );
     });
 
+    group('getPauseRequestsByWorkOrderIds', () {
+      test('should return empty list when workOrderIds is empty', () async {
+        final result = await dataSource.getPauseRequestsByWorkOrderIds([]);
+        expect(result, isA<SuccessState<List<PauseRequestModel>>>());
+        expect(result.data, isEmpty);
+      });
+
+      test('should return pause requests for multiple work orders', () async {
+        await insertDependencies(
+          companyId: tRequestModel.companyId,
+          userId: userId,
+          locationId: locationId,
+          areaId: areaId,
+          assetId: assetId,
+          workOrderId: tRequestModel.workOrderId,
+        );
+        await dataSource.savePauseRequest(tRequestModel);
+
+        final result = await dataSource.getPauseRequestsByWorkOrderIds([
+          tRequestModel.workOrderId,
+        ]);
+
+        expect(result, isA<SuccessState<List<PauseRequestModel>>>());
+        expect(result.data?.first.id, tRequestModel.id);
+      });
+    });
+
+    group('savePauseRequests', () {
+      test('should batch save pause requests', () async {
+        await insertDependencies(
+          companyId: tRequestModel.companyId,
+          userId: userId,
+          locationId: locationId,
+          areaId: areaId,
+          assetId: assetId,
+          workOrderId: tRequestModel.workOrderId,
+        );
+
+        final result = await dataSource.savePauseRequests([tRequestModel]);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+
+        final fetched = await dataSource.getPauseRequests(tRequestModel.workOrderId);
+        expect(fetched.data?.first.id, tRequestModel.id);
+      });
+    });
+
+    group('deletePauseRequest', () {
+      test('should delete pause request by id', () async {
+        await insertDependencies(
+          companyId: tRequestModel.companyId,
+          userId: userId,
+          locationId: locationId,
+          areaId: areaId,
+          assetId: assetId,
+          workOrderId: tRequestModel.workOrderId,
+        );
+        await dataSource.savePauseRequest(tRequestModel);
+
+        final result = await dataSource.deletePauseRequest(tRequestModel.id);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, true);
+
+        final fetched = await dataSource.getPauseRequests(tRequestModel.workOrderId);
+        expect(fetched.data, isEmpty);
+      });
+    });
+
     group('reviewPause', () {
       test(
         'should update status and review fields of a pause request without changing work order status',

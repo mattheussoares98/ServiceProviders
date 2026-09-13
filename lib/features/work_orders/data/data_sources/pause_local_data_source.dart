@@ -19,7 +19,12 @@ abstract interface class PauseLocalDataSource {
     String workOrderId, {
     String? status,
   });
+  FutureList<PauseRequestModel> getPauseRequestsByWorkOrderIds(
+    List<String> workOrderIds,
+  );
   FutureBool savePauseRequest(PauseRequestModel request);
+  FutureBool savePauseRequests(List<PauseRequestModel> requests);
+  FutureBool deletePauseRequest(String id);
   FutureBool reviewPause({
     required String id,
     required String workOrderId,
@@ -149,6 +154,97 @@ final class PauseLocalDataSourceImpl implements PauseLocalDataSource {
           )
           .toList();
       return SuccessState(data: list);
+    });
+  }
+
+  @override
+  FutureList<PauseRequestModel> getPauseRequestsByWorkOrderIds(
+    List<String> workOrderIds,
+  ) {
+    return ErrorHandler.execute(() async {
+      if (workOrderIds.isEmpty) {
+        return const SuccessState(data: []);
+      }
+      final query = _database.select(_database.workOrderPauseRequests)
+        ..where((t) => t.workOrderId.isIn(workOrderIds));
+      final rows = await query.get();
+      final list = rows
+          .map(
+            (r) => PauseRequestModel(
+              id: r.id,
+              companyId: r.companyId,
+              workOrderId: r.workOrderId,
+              requestedById: r.requestedById,
+              eventType: PauseEventType.fromValue(r.eventType),
+              reasonId: r.reasonId,
+              customReason: r.customReason,
+              observation: r.observation,
+              responsibility: r.responsibility != null
+                  ? PauseResponsibility.fromValue(r.responsibility!)
+                  : null,
+              sectorId: r.sectorId,
+              status: PauseRequestStatus.fromValue(r.status),
+              pausedAt: r.pausedAt.toUtc(),
+              resumedAt: r.resumedAt?.toUtc(),
+              resumedById: r.resumedById,
+              reviewedById: r.reviewedById,
+              reviewObservation: r.reviewObservation,
+              affectsSla: r.affectsSla,
+              createdAt: r.createdAt.toUtc(),
+              updatedAt: r.updatedAt.toUtc(),
+            ),
+          )
+          .toList();
+      return SuccessState(data: list);
+    });
+  }
+
+  @override
+  FutureBool savePauseRequests(List<PauseRequestModel> requests) {
+    return ErrorHandler.execute(() async {
+      if (requests.isEmpty) {
+        return const SuccessState(data: true);
+      }
+      await _database.batch((batch) {
+        for (final request in requests) {
+          batch.insert(
+            _database.workOrderPauseRequests,
+            WorkOrderPauseRequestsCompanion(
+              id: Value(request.id),
+              companyId: Value(request.companyId),
+              workOrderId: Value(request.workOrderId),
+              requestedById: Value(request.requestedById),
+              eventType: Value(request.eventType.value),
+              reasonId: Value(request.reasonId),
+              customReason: Value(request.customReason),
+              observation: Value(request.observation),
+              responsibility: Value(request.responsibility?.value),
+              sectorId: Value(request.sectorId),
+              status: Value(request.status.value),
+              pausedAt: Value(request.pausedAt.toUtc()),
+              resumedAt: Value(request.resumedAt?.toUtc()),
+              resumedById: Value(request.resumedById),
+              reviewedById: Value(request.reviewedById),
+              reviewObservation: Value(request.reviewObservation),
+              affectsSla: Value(request.affectsSla),
+              createdAt: Value(request.createdAt.toUtc()),
+              updatedAt: Value(request.updatedAt.toUtc()),
+            ),
+            mode: InsertMode.insertOrReplace,
+          );
+        }
+      });
+      return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool deletePauseRequest(String id) {
+    return ErrorHandler.execute(() async {
+      await (_database.delete(_database.workOrderPauseRequests)
+            ..where((t) => t.id.equals(id)))
+          .go();
+      return const SuccessState(data: true);
     });
   }
 

@@ -60,6 +60,92 @@ void main() {
     });
   });
 
+  group('watchPauseRequestsRealtime', () {
+    test('streams changes from work_order_pause_requests table with workOrderId filter', () {
+      when(
+        () => mockRealtime.streamTableChanges(
+          table: any(named: 'table'),
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => const Stream.empty());
+
+      dataSource.watchPauseRequestsRealtime(
+        workOrderId: tRequestEntity.workOrderId,
+      );
+
+      verify(
+        () => mockRealtime.streamTableChanges(
+          table: 'work_order_pause_requests',
+          filter: any(
+            named: 'filter',
+            that: isA<PostgresChangeFilter>()
+                .having((f) => f.column, 'column', 'work_order_id')
+                .having((f) => f.value, 'value', tRequestEntity.workOrderId),
+          ),
+        ),
+      ).called(1);
+    });
+
+    test('streams changes from work_order_pause_requests table with companyId filter', () {
+      when(
+        () => mockRealtime.streamTableChanges(
+          table: any(named: 'table'),
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => const Stream.empty());
+
+      dataSource.watchPauseRequestsRealtime(
+        companyId: tRequestEntity.companyId,
+      );
+
+      verify(
+        () => mockRealtime.streamTableChanges(
+          table: 'work_order_pause_requests',
+          filter: any(
+            named: 'filter',
+            that: isA<PostgresChangeFilter>()
+                .having((f) => f.column, 'column', 'company_id')
+                .having((f) => f.value, 'value', tRequestEntity.companyId),
+          ),
+        ),
+      ).called(1);
+    });
+  });
+
+  group('getPauseRequestsByWorkOrderIds', () {
+    test('returns empty list without calling database when workOrderIds is empty', () async {
+      final result = await dataSource.getPauseRequestsByWorkOrderIds([]);
+
+      expect(result, isA<SuccessState<List<PauseRequestModel>>>());
+      expect(result.data, isEmpty);
+      verifyZeroInteractions(mockDatabase);
+    });
+
+    test('fetches pause requests for multiple work order ids', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tRequestModel.toJson()]);
+
+      final result = await dataSource.getPauseRequestsByWorkOrderIds(
+        [tRequestEntity.workOrderId],
+      );
+
+      expect(result, isA<SuccessState<List<PauseRequestModel>>>());
+      expect(result.data?.first.id, tRequestEntity.id);
+      verify(
+        () => mockDatabase.selectList(
+          table: 'work_order_pause_requests',
+          filters: [
+            SupabaseFilter.inList('work_order_id', [tRequestEntity.workOrderId]),
+          ],
+        ),
+      ).called(1);
+    });
+  });
+
   group('getPauseReasons', () {
     test(
       'should return SuccessState with list of pause reasons when successful',

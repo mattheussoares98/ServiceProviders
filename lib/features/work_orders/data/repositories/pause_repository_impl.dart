@@ -116,6 +116,46 @@ final class PauseRepositoryImpl implements PauseRepository {
   }
 
   @override
+  FutureList<PauseRequestEntity> getPauseRequestsByWorkOrderIds(
+    List<String> workOrderIds, {
+    DateTime? since,
+  }) {
+    final isProvider = _isProviderMode;
+    return RepositoryHandler.fetchWithFallbackAndMapList<
+      PauseRequestModel,
+      PauseRequestEntity
+    >(
+      isInternetConnected: _internet.isConnected,
+      localCallback: isProvider
+          ? null
+          : () => _localDataSource.getPauseRequestsByWorkOrderIds(workOrderIds),
+      remoteCallback: () => _remoteDataSource.getPauseRequestsByWorkOrderIds(
+        workOrderIds,
+        since: since,
+      ),
+      onRemoteSuccess: isProvider
+          ? null
+          : (list) => _localDataSource.savePauseRequests(list),
+    );
+  }
+
+  @override
+  Stream<RealtimeEvent<PauseRequestEntity>> watchPauseRequestsRealtime({
+    String? companyId,
+    String? workOrderId,
+  }) {
+    return RepositoryHandler.syncRealtimeStream(
+      stream: _remoteDataSource.watchPauseRequestsRealtime(
+        companyId: companyId,
+        workOrderId: workOrderId,
+      ),
+      saveLocal: _localDataSource.savePauseRequest,
+      deleteLocal: _localDataSource.deletePauseRequest,
+      isDeleted: (_) => false,
+    );
+  }
+
+  @override
   FutureBool requestPause(PauseRequestEntity pauseRequest) {
     final isProvider = _isProviderMode;
     return RepositoryHandler.fetchWithFallback<bool>(
