@@ -41,6 +41,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   final WorkOrdersCubitUseCases _useCases;
   StreamSubscription<void>? _syncSubscription;
   StreamSubscription<RealtimeEvent<WorkOrderEntity>>? _realtimeSubscription;
+  StreamSubscription<RealtimeEvent<WorkOrderChangeRequestEntity>>?
+  _changeRequestsSubscription;
   final _realtimeEventsController =
       StreamController<RealtimeEvent<WorkOrderEntity>>.broadcast();
 
@@ -48,11 +50,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       _realtimeEventsController.stream;
 
   void _initRealtime() {
-    _realtimeSubscription?.cancel();
+    _changeRequestsSubscription?.cancel();
     final companyId = _isProviderMode ? null : _useCases.getActiveCompanyId();
-    _realtimeSubscription = _useCases
-        .watchWorkOrdersRealtime(companyId: companyId)
-        .listen(_handleRealtimeEvent);
+
+    if (companyId != null && companyId.isNotEmpty) {
+      _changeRequestsSubscription = _useCases
+          .watchChangeRequestsRealtime(companyId: companyId)
+          .listen(_handleChangeRequestRealtimeEvent);
+    }
   }
 
   void _handleRealtimeEvent(RealtimeEvent<WorkOrderEntity> event) {
@@ -68,6 +73,19 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     if (!_realtimeEventsController.isClosed) {
       _realtimeEventsController.add(event);
     }
+  }
+
+  void _handleChangeRequestRealtimeEvent(
+    RealtimeEvent<WorkOrderChangeRequestEntity> event,
+  ) {
+    if (isClosed) return;
+
+    final updatedChangeRequests = state.changeRequests.applyRealtimeEvent(
+      event: event,
+      idSelector: (cr) => cr.id,
+      isDeleted: (cr) => cr.deletedAt != null,
+    );
+    emit(state.copyWith(changeRequests: updatedChangeRequests));
   }
 
   static const _pageSize = 50;
@@ -752,6 +770,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
   Future<void> close() {
     _syncSubscription?.cancel();
     _realtimeSubscription?.cancel();
+    _changeRequestsSubscription?.cancel();
     _realtimeEventsController.close();
     return super.close();
   }
