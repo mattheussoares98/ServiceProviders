@@ -221,18 +221,29 @@ class AppDatabase extends _$AppDatabase {
         await m.deleteTable('company_parameters');
         await m.createTable(companyParameters);
       }
+      Future<void> addColumnIfNotExists(
+        TableInfo<Table, dynamic> table,
+        GeneratedColumn column,
+      ) async {
+        final info = await customSelect(
+          "PRAGMA table_info('${table.actualTableName}')",
+        ).get();
+        final names = info.map((r) => r.read<String>('name')).toSet();
+        if (!names.contains(column.name)) {
+          await m.addColumn(table, column);
+        }
+      }
+
       if (from < 28) {
-        await m.deleteTable('company_parameters');
-        await m.createTable(companyParameters);
-        await m.addColumn(workOrders, workOrders.advanceWarningSentAt);
-        await m.addColumn(workOrders, workOrders.lastEscalationLevel);
-        await m.addColumn(workOrders, workOrders.lastEscalationAt);
+        await addColumnIfNotExists(workOrders, workOrders.advanceWarningSentAt);
+        await addColumnIfNotExists(workOrders, workOrders.lastEscalationLevel);
+        await addColumnIfNotExists(workOrders, workOrders.lastEscalationAt);
       }
       if (from < 29) {
         await m.addColumn(userProfiles, userProfiles.lastAccessAt);
       }
       if (from < 30) {
-        await m.addColumn(workOrders, workOrders.checklistTemplateId);
+        await addColumnIfNotExists(workOrders, workOrders.checklistTemplateId);
       }
       if (from < 31) {
         await m.createTable(checklistAnswers);
