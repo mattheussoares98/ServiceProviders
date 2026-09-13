@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_acce
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/get_access_logs_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
@@ -28,6 +29,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/delete_check
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklist_items_by_template_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklist_template_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_checklists_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/save_checklist_response_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_checklist_item_use_case.dart';
@@ -81,6 +83,7 @@ import 'package:o_jogo_da_obra/features/users/domain/use_cases/watch_user_profil
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
@@ -90,6 +93,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_reasons_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_requests_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_order_change_requests_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_order_observations_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/work_order_observations_use_cases.dart';
@@ -230,6 +235,9 @@ class MockSetSelectedCompanyIdUseCase extends Mock
 class MockWatchWorkOrdersRealtimeUseCase extends Mock
     implements WatchWorkOrdersRealtimeUseCase {}
 
+class MockWatchWorkOrderChangeRequestsRealtimeUseCase extends Mock
+    implements WatchWorkOrderChangeRequestsRealtimeUseCase {}
+
 class MockWatchLocationsRealtimeUseCase extends Mock
     implements WatchLocationsRealtimeUseCase {}
 
@@ -244,6 +252,9 @@ class MockWatchCategoriesRealtimeUseCase extends Mock
 
 class MockWatchPauseReasonsRealtimeUseCase extends Mock
     implements WatchPauseReasonsRealtimeUseCase {}
+
+class MockWatchPauseRequestsRealtimeUseCase extends Mock
+    implements WatchPauseRequestsRealtimeUseCase {}
 
 class MockWatchSectorsRealtimeUseCase extends Mock
     implements WatchSectorsRealtimeUseCase {}
@@ -283,6 +294,9 @@ class MockWatchWorkOrderObservationsRealtimeUseCase extends Mock
 
 class MockGetWorkOrderObservationsBatchUseCase extends Mock
     implements GetWorkOrderObservationsBatchUseCase {}
+
+class MockGetPauseRequestsBatchUseCase extends Mock
+    implements GetPauseRequestsBatchUseCase {}
 
 class MockGetWorkOrderByIdUseCase extends Mock
     implements GetWorkOrderByIdUseCase {}
@@ -357,3 +371,9 @@ class MockGetAttachmentsUseCase extends Mock implements GetAttachmentsUseCase {}
 
 class MockDeleteAttachmentUseCase extends Mock
     implements DeleteAttachmentUseCase {}
+
+class MockGetWorkOrderChecklistAnswersBatchUseCase extends Mock
+    implements GetWorkOrderChecklistAnswersBatchUseCase {}
+
+class MockGetAttachmentsBatchUseCase extends Mock
+    implements GetAttachmentsBatchUseCase {}

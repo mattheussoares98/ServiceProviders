@@ -4,7 +4,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
@@ -20,6 +22,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_reque
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_batch_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_observations_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
@@ -29,6 +33,7 @@ import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   _providerWorkOrdersTests();
@@ -39,6 +44,11 @@ void main() {
   late MockWorkOrdersLocalDataSource mockLocalDataSource;
   late MockSessionRepository mockSessionRepository;
   late MockSyncRepository mockSyncRepository;
+  late MockGetWorkOrderChecklistAnswersBatchUseCase
+  mockChecklistAnswersBatchUseCase;
+  late MockGetAttachmentsBatchUseCase mockAttachmentsBatchUseCase;
+  late MockGetWorkOrderObservationsBatchUseCase mockObservationsBatchUseCase;
+  late MockGetPauseRequestsBatchUseCase mockPauseRequestsBatchUseCase;
   late WorkOrdersRepositoryImpl repository;
 
   setUpAll(() {
@@ -70,6 +80,14 @@ void main() {
     );
     registerFallbackValue(const WorkOrderFilter());
     registerFallbackValue(DateTime.now());
+    registerFallbackValue(
+      const GetWorkOrderChecklistAnswersBatchParams(workOrderIds: []),
+    );
+    registerFallbackValue(const GetAttachmentsBatchParams(workOrderIds: []));
+    registerFallbackValue(
+      const GetWorkOrderObservationsBatchParams(workOrderIds: []),
+    );
+    registerFallbackValue(const GetPauseRequestsBatchParams(workOrderIds: []));
   });
 
   setUp(() {
@@ -79,6 +97,25 @@ void main() {
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
+    mockChecklistAnswersBatchUseCase =
+        MockGetWorkOrderChecklistAnswersBatchUseCase();
+    mockAttachmentsBatchUseCase = MockGetAttachmentsBatchUseCase();
+    mockObservationsBatchUseCase = MockGetWorkOrderObservationsBatchUseCase();
+    mockPauseRequestsBatchUseCase = MockGetPauseRequestsBatchUseCase();
+
+    when(
+      () => mockChecklistAnswersBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockAttachmentsBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockObservationsBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockPauseRequestsBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.internal.name);
@@ -99,6 +136,10 @@ void main() {
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
+      checklistAnswersBatchUseCase: mockChecklistAnswersBatchUseCase,
+      attachmentsBatchUseCase: mockAttachmentsBatchUseCase,
+      observationsBatchUseCase: mockObservationsBatchUseCase,
+      pauseRequestsBatchUseCase: mockPauseRequestsBatchUseCase,
     );
   });
 
@@ -579,18 +620,36 @@ void main() {
     });
 
     test(
-      'initial sync (when lastSyncAt is null) should fetch active work orders and batch save locally',
+      'initial sync (when lastSyncAt is null) should fetch all pages of work orders, batch save, and trigger child batch preloading',
       () async {
         when(() => mockInternetClient.isConnected).thenReturn(true);
         when(
           () => mockLocalDataSource.getLastUpdatedTimestamp(tCompanyId),
         ).thenAnswer((_) async => null);
+
+        final page1 = List.generate(
+          100,
+          (_) =>
+              WorkOrderModel.fromEntity(WorkOrderFactory.makeWorkOrderEntity()),
+        );
+        final page2 = [tWorkOrderModel];
+
         when(
           () => mockRemoteDataSource.getWorkOrders(tCompanyId, pageSize: 100),
-        ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel]));
+        ).thenAnswer((_) async => SuccessState(data: page1));
+        when(
+          () => mockRemoteDataSource.getWorkOrders(
+            tCompanyId,
+            pageSize: 100,
+            offset: 100,
+          ),
+        ).thenAnswer((_) async => SuccessState(data: page2));
         when(
           () => mockLocalDataSource.saveWorkOrders(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.getActiveWorkOrderIds(tCompanyId),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel.id]));
 
         final result = await repository.syncWorkOrders(tCompanyId);
 
@@ -600,16 +659,69 @@ void main() {
           () => mockRemoteDataSource.getWorkOrders(tCompanyId, pageSize: 100),
         ).called(1);
         verify(
-          () => mockLocalDataSource.saveWorkOrders([tWorkOrderModel]),
+          () => mockRemoteDataSource.getWorkOrders(
+            tCompanyId,
+            pageSize: 100,
+            offset: 100,
+          ),
         ).called(1);
+        verify(() => mockLocalDataSource.saveWorkOrders(page1)).called(1);
+        verify(() => mockLocalDataSource.saveWorkOrders(page2)).called(1);
         verify(
           () => mockLocalDataSource.getLastUpdatedTimestamp(tCompanyId),
+        ).called(1);
+        verify(
+          () => mockLocalDataSource.getActiveWorkOrderIds(tCompanyId),
+        ).called(1);
+        verify(
+          () => mockChecklistAnswersBatchUseCase(
+            any(
+              that: isA<GetWorkOrderChecklistAnswersBatchParams>()
+                  .having((p) => p.workOrderIds, 'workOrderIds', [
+                    tWorkOrderModel.id,
+                  ])
+                  .having((p) => p.since, 'since', isNull),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockAttachmentsBatchUseCase(
+            any(
+              that: isA<GetAttachmentsBatchParams>()
+                  .having((p) => p.workOrderIds, 'workOrderIds', [
+                    tWorkOrderModel.id,
+                  ])
+                  .having((p) => p.since, 'since', isNull),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockObservationsBatchUseCase(
+            any(
+              that: isA<GetWorkOrderObservationsBatchParams>()
+                  .having((p) => p.workOrderIds, 'workOrderIds', [
+                    tWorkOrderModel.id,
+                  ])
+                  .having((p) => p.since, 'since', isNull),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockPauseRequestsBatchUseCase(
+            any(
+              that: isA<GetPauseRequestsBatchParams>()
+                  .having((p) => p.workOrderIds, 'workOrderIds', [
+                    tWorkOrderModel.id,
+                  ])
+                  .having((p) => p.since, 'since', isNull),
+            ),
+          ),
         ).called(1);
       },
     );
 
     test(
-      'delta sync (when lastSyncAt is not null) should fetch delta changes and batch save locally',
+      'delta sync (when lastSyncAt is not null) should fetch delta changes and pre-load child batch with since',
       () async {
         final tLastSync = DateTime.now().toUtc().subtract(
           const Duration(hours: 2),
@@ -627,6 +739,9 @@ void main() {
         when(
           () => mockLocalDataSource.saveWorkOrders(any()),
         ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockLocalDataSource.getActiveWorkOrderIds(tCompanyId),
+        ).thenAnswer((_) async => SuccessState(data: [tWorkOrderModel.id]));
 
         final result = await repository.syncWorkOrders(tCompanyId);
 
@@ -640,6 +755,50 @@ void main() {
         ).called(1);
         verify(
           () => mockLocalDataSource.saveWorkOrders([tWorkOrderModel]),
+        ).called(1);
+        verify(
+          () => mockChecklistAnswersBatchUseCase(
+            any(
+              that: isA<GetWorkOrderChecklistAnswersBatchParams>().having(
+                (p) => p.since,
+                'since',
+                tLastSync,
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockAttachmentsBatchUseCase(
+            any(
+              that: isA<GetAttachmentsBatchParams>().having(
+                (p) => p.since,
+                'since',
+                tLastSync,
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockObservationsBatchUseCase(
+            any(
+              that: isA<GetWorkOrderObservationsBatchParams>().having(
+                (p) => p.since,
+                'since',
+                tLastSync,
+              ),
+            ),
+          ),
+        ).called(1);
+        verify(
+          () => mockPauseRequestsBatchUseCase(
+            any(
+              that: isA<GetPauseRequestsBatchParams>().having(
+                (p) => p.since,
+                'since',
+                tLastSync,
+              ),
+            ),
+          ),
         ).called(1);
       },
     );
@@ -655,6 +814,7 @@ void main() {
           () => mockRemoteDataSource.getWorkOrders(
             any(),
             pageSize: any(named: 'pageSize'),
+            offset: any(named: 'offset'),
           ),
         ).thenAnswer((_) async => FailureState(message: 'Remote error'));
 
@@ -1332,6 +1492,45 @@ void main() {
       },
     );
   });
+
+  group('watchChangeRequestsRealtime', () {
+    test(
+      'should emit event and cache change request locally on update',
+      () async {
+        final tEntity = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
+        final tModel = WorkOrderChangeRequestModel.fromEntity(tEntity);
+        final tEvent = RealtimeEvent<WorkOrderChangeRequestModel>(
+          eventType: RealtimeEventType.insert,
+          id: tEntity.id,
+          entity: tModel,
+        );
+        when(
+          () => mockRemoteDataSource.watchChangeRequestsRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(tEvent));
+        when(
+          () => mockLocalDataSource.saveChangeRequest(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final stream = repository.watchChangeRequestsRealtime(
+          companyId: tCompanyId,
+        );
+
+        final event = await stream.first;
+
+        expect(event.eventType, RealtimeEventType.insert);
+        expect(event.entity?.id, tEntity.id);
+
+        verify(
+          () => mockRemoteDataSource.watchChangeRequestsRealtime(
+            companyId: tCompanyId,
+          ),
+        ).called(1);
+        verify(() => mockLocalDataSource.saveChangeRequest(any())).called(1);
+      },
+    );
+  });
 }
 
 void _providerWorkOrdersTests() {
@@ -1350,6 +1549,26 @@ void _providerWorkOrdersTests() {
     mockLocalDataSource = MockWorkOrdersLocalDataSource();
     mockSessionRepository = MockSessionRepository();
     mockSyncRepository = MockSyncRepository();
+    final mockChecklistAnswersBatchUseCase =
+        MockGetWorkOrderChecklistAnswersBatchUseCase();
+    final mockAttachmentsBatchUseCase = MockGetAttachmentsBatchUseCase();
+    final mockObservationsBatchUseCase =
+        MockGetWorkOrderObservationsBatchUseCase();
+    final mockPauseRequestsBatchUseCase = MockGetPauseRequestsBatchUseCase();
+
+    when(
+      () => mockChecklistAnswersBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockAttachmentsBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockObservationsBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockPauseRequestsBatchUseCase(any()),
+    ).thenAnswer((_) async => const SuccessState(data: []));
+
     when(
       () => mockSessionRepository.getSelectedMode(),
     ).thenReturn(AppMode.provider.name);
@@ -1361,6 +1580,10 @@ void _providerWorkOrdersTests() {
       localDataSource: mockLocalDataSource,
       sessionRepository: mockSessionRepository,
       syncRepository: mockSyncRepository,
+      checklistAnswersBatchUseCase: mockChecklistAnswersBatchUseCase,
+      attachmentsBatchUseCase: mockAttachmentsBatchUseCase,
+      observationsBatchUseCase: mockObservationsBatchUseCase,
+      pauseRequestsBatchUseCase: mockPauseRequestsBatchUseCase,
     );
   });
 

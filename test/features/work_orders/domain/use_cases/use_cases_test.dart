@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -15,10 +16,12 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_reasons_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_observations_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_completion_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/request_pause_use_case.dart';
@@ -30,6 +33,8 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_reasons_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_pause_requests_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_order_change_requests_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_orders_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 
@@ -55,6 +60,8 @@ void main() {
   late UpdateWorkOrderUseCase updateWorkOrderUseCase;
   late SyncWorkOrdersUseCase syncWorkOrdersUseCase;
   late WatchWorkOrdersRealtimeUseCase watchWorkOrdersRealtimeUseCase;
+  late WatchWorkOrderChangeRequestsRealtimeUseCase
+  watchWorkOrderChangeRequestsRealtimeUseCase;
 
   late GetPauseReasonsUseCase getPauseReasonsUseCase;
   late WatchPauseReasonsRealtimeUseCase watchPauseReasonsRealtimeUseCase;
@@ -150,6 +157,10 @@ void main() {
     watchWorkOrdersRealtimeUseCase = WatchWorkOrdersRealtimeUseCase(
       workOrdersRepository: mockRepository,
     );
+    watchWorkOrderChangeRequestsRealtimeUseCase =
+        WatchWorkOrderChangeRequestsRealtimeUseCase(
+          workOrdersRepository: mockRepository,
+        );
     getPauseReasonsUseCase = GetPauseReasonsUseCase(
       pauseRepository: mockPauseRepository,
     );
@@ -906,7 +917,7 @@ void main() {
 
   group('WatchWorkOrdersRealtimeUseCase', () {
     test(
-      'should delegate to watchRealtimeWorkOrders on workOrdersRepository',
+      'should delegate to watchRealtimeWorkOrders on workOrdersRepository with companyId and workOrderId',
       () {
         final tEvent = SystemFactory.makeRealtimeEvent<WorkOrderEntity>(
           entity: WorkOrderFactory.makeWorkOrderEntity(),
@@ -914,15 +925,49 @@ void main() {
         when(
           () => mockRepository.watchRealtimeWorkOrders(
             companyId: any(named: 'companyId'),
+            workOrderId: any(named: 'workOrderId'),
           ),
         ).thenAnswer((_) => Stream.value(tEvent));
 
-        final stream = watchWorkOrdersRealtimeUseCase(companyId: 'company-123');
+        final stream = watchWorkOrdersRealtimeUseCase(
+          companyId: 'company-123',
+          workOrderId: 'wo-123',
+        );
 
         expect(stream, emits(tEvent));
         verify(
-          () =>
-              mockRepository.watchRealtimeWorkOrders(companyId: 'company-123'),
+          () => mockRepository.watchRealtimeWorkOrders(
+            companyId: 'company-123',
+            workOrderId: 'wo-123',
+          ),
+        ).called(1);
+      },
+    );
+  });
+
+  group('WatchWorkOrderChangeRequestsRealtimeUseCase', () {
+    test(
+      'should delegate to watchChangeRequestsRealtime on workOrdersRepository',
+      () {
+        final tEvent =
+            SystemFactory.makeRealtimeEvent<WorkOrderChangeRequestEntity>(
+              entity: WorkOrderFactory.makeWorkOrderChangeRequestEntity(),
+            );
+        when(
+          () => mockRepository.watchChangeRequestsRealtime(
+            companyId: any(named: 'companyId'),
+          ),
+        ).thenAnswer((_) => Stream.value(tEvent));
+
+        final stream = watchWorkOrderChangeRequestsRealtimeUseCase(
+          companyId: 'company-123',
+        );
+
+        expect(stream, emits(tEvent));
+        verify(
+          () => mockRepository.watchChangeRequestsRealtime(
+            companyId: 'company-123',
+          ),
         ).called(1);
       },
     );
@@ -1058,6 +1103,90 @@ void main() {
       expect(result.deliveryRate, 0.0);
       expect(result.breachRate, 100.0);
       expect(result.mttrMinutes, 120.0);
+    });
+  });
+
+  group('WatchPauseRequestsRealtimeUseCase', () {
+    test('calls watchPauseRequestsRealtime on pause repository', () {
+      const tStream = Stream<RealtimeEvent<PauseRequestEntity>>.empty();
+      when(
+        () => mockPauseRepository.watchPauseRequestsRealtime(
+          companyId: any(named: 'companyId'),
+          workOrderId: any(named: 'workOrderId'),
+        ),
+      ).thenAnswer((_) => tStream);
+
+      final useCase = WatchPauseRequestsRealtimeUseCase(
+        pauseRepository: mockPauseRepository,
+      );
+
+      final result = useCase(companyId: 'company-1', workOrderId: 'wo-1');
+
+      expect(result, tStream);
+      verify(
+        () => mockPauseRepository.watchPauseRequestsRealtime(
+          companyId: 'company-1',
+          workOrderId: 'wo-1',
+        ),
+      ).called(1);
+    });
+  });
+
+  group('GetPauseRequestsBatchUseCase', () {
+    test('calls getPauseRequestsByWorkOrderIds on pause repository', () async {
+      final tList = [WorkOrderFactory.makePauseRequestEntity()];
+      when(
+        () => mockPauseRepository.getPauseRequestsByWorkOrderIds(
+          any(),
+          since: any(named: 'since'),
+        ),
+      ).thenAnswer((_) async => SuccessState(data: tList));
+
+      final useCase = GetPauseRequestsBatchUseCase(
+        pauseRepository: mockPauseRepository,
+      );
+
+      final result = await useCase(
+        const GetPauseRequestsBatchParams(workOrderIds: ['wo-1', 'wo-2']),
+      );
+
+      expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
+      expect(result.data, tList);
+      verify(
+        () => mockPauseRepository.getPauseRequestsByWorkOrderIds([
+          'wo-1',
+          'wo-2',
+        ]),
+      ).called(1);
+    });
+  });
+
+  group('GetWorkOrderObservationsBatchUseCase', () {
+    test('calls getObservationsByWorkOrderIds on repository', () async {
+      final mockObsRepo = MockWorkOrderObservationsRepository();
+      final tList = [WorkOrderFactory.makeWorkOrderObservationEntity()];
+      when(
+        () => mockObsRepo.getObservationsByWorkOrderIds(
+          any(),
+          since: any(named: 'since'),
+        ),
+      ).thenAnswer((_) async => SuccessState(data: tList));
+
+      final useCase = GetWorkOrderObservationsBatchUseCase(
+        repository: mockObsRepo,
+      );
+
+      final result = await useCase(
+        const GetWorkOrderObservationsBatchParams(
+          workOrderIds: ['wo-1', 'wo-2'],
+        ),
+      );
+
+      expect(result, isA<SuccessState<List<dynamic>>>());
+      expect(result.data, tList);
+      verify(
+        () => mockObsRepo.getObservationsByWorkOrderIds(['wo-1', 'wo-2']),
+      ).called(1);
     });
   });
 }

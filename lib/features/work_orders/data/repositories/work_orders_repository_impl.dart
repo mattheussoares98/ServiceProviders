@@ -21,12 +21,16 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_batch_use_case.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/task_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_batch_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_observations_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -39,12 +43,21 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     required WorkOrdersLocalDataSource localDataSource,
     required SessionRepository sessionRepository,
     required SyncRepository syncRepository,
+    required GetWorkOrderChecklistAnswersBatchUseCase
+    checklistAnswersBatchUseCase,
+    required GetAttachmentsBatchUseCase attachmentsBatchUseCase,
+    required GetWorkOrderObservationsBatchUseCase observationsBatchUseCase,
+    required GetPauseRequestsBatchUseCase pauseRequestsBatchUseCase,
   }) : _internet = internet,
        _remoteDataSource = remoteDataSource,
        _realtimeRemoteDataSource = realtimeRemoteDataSource,
        _localDataSource = localDataSource,
        _sessionRepository = sessionRepository,
-       _syncRepository = syncRepository;
+       _syncRepository = syncRepository,
+       _checklistAnswersBatchUseCase = checklistAnswersBatchUseCase,
+       _attachmentsBatchUseCase = attachmentsBatchUseCase,
+       _observationsBatchUseCase = observationsBatchUseCase,
+       _pauseRequestsBatchUseCase = pauseRequestsBatchUseCase;
 
   final InternetClient _internet;
   final WorkOrdersRemoteDataSource _remoteDataSource;
@@ -52,6 +65,10 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
   final WorkOrdersLocalDataSource _localDataSource;
   final SessionRepository _sessionRepository;
   final SyncRepository _syncRepository;
+  final GetWorkOrderChecklistAnswersBatchUseCase _checklistAnswersBatchUseCase;
+  final GetAttachmentsBatchUseCase _attachmentsBatchUseCase;
+  final GetWorkOrderObservationsBatchUseCase _observationsBatchUseCase;
+  final GetPauseRequestsBatchUseCase _pauseRequestsBatchUseCase;
 
   bool get _isProviderMode =>
       AppMode.fromName(_sessionRepository.getSelectedMode()) ==
@@ -326,21 +343,35 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     );
 
     if (lastSyncAt == null) {
-      final result = await _remoteDataSource.getWorkOrders(
-        companyId,
-        pageSize: 100,
-      );
-      if (result is SuccessState<List<WorkOrderModel>>) {
-        final list = result.data ?? [];
-        await _localDataSource.saveWorkOrders(list);
-        return const SuccessState(data: true);
+      var offset = 0;
+      const pageSize = 100;
+      var hasMore = true;
+
+      while (hasMore) {
+        final result = await _remoteDataSource.getWorkOrders(
+          companyId,
+          pageSize: pageSize,
+          offset: offset,
+        );
+        if (result is SuccessState<List<WorkOrderModel>>) {
+          final list = result.data ?? [];
+          if (list.isNotEmpty) {
+            await _localDataSource.saveWorkOrders(list);
+          }
+          if (list.length < pageSize) {
+            hasMore = false;
+          } else {
+            offset += pageSize;
+          }
+        } else {
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        }
       }
-      return FailureState(
-        message: result.message,
-        error: result.error,
-        statusCode: result.statusCode,
-        response: result.response,
-      );
     } else {
       final result = await _remoteDataSource.getWorkOrdersDelta(
         companyId,
@@ -348,16 +379,56 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
       if (result is SuccessState<List<WorkOrderModel>>) {
         final list = result.data ?? [];
-        await _localDataSource.saveWorkOrders(list);
-        return const SuccessState(data: true);
+        if (list.isNotEmpty) {
+          await _localDataSource.saveWorkOrders(list);
+        }
+      } else {
+        return FailureState(
+          message: result.message,
+          error: result.error,
+          statusCode: result.statusCode,
+          response: result.response,
+        );
       }
-      return FailureState(
-        message: result.message,
-        error: result.error,
-        statusCode: result.statusCode,
-        response: result.response,
-      );
     }
+
+    final activeIdsResult = await _localDataSource.getActiveWorkOrderIds(
+      companyId,
+    );
+    final activeIds = activeIdsResult.data ?? [];
+
+    if (activeIds.isNotEmpty) {
+      const chunkSize = 50;
+      for (var i = 0; i < activeIds.length; i += chunkSize) {
+        final end = (i + chunkSize < activeIds.length)
+            ? i + chunkSize
+            : activeIds.length;
+        final chunk = activeIds.sublist(i, end);
+
+        await Future.wait([
+          _checklistAnswersBatchUseCase(
+            GetWorkOrderChecklistAnswersBatchParams(
+              workOrderIds: chunk,
+              since: lastSyncAt,
+            ),
+          ),
+          _attachmentsBatchUseCase(
+            GetAttachmentsBatchParams(workOrderIds: chunk, since: lastSyncAt),
+          ),
+          _observationsBatchUseCase(
+            GetWorkOrderObservationsBatchParams(
+              workOrderIds: chunk,
+              since: lastSyncAt,
+            ),
+          ),
+          _pauseRequestsBatchUseCase(
+            GetPauseRequestsBatchParams(workOrderIds: chunk, since: lastSyncAt),
+          ),
+        ]);
+      }
+    }
+
+    return const SuccessState(data: true);
   }
 
   @override
@@ -619,11 +690,30 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
 
   @override
+  Stream<RealtimeEvent<WorkOrderChangeRequestEntity>>
+  watchChangeRequestsRealtime({String? companyId}) {
+    final stream = _remoteDataSource.watchChangeRequestsRealtime(
+      companyId: companyId,
+    );
+    return RepositoryHandler.syncRealtimeStream<
+      WorkOrderChangeRequestModel,
+      WorkOrderChangeRequestEntity
+    >(
+      stream: stream,
+      saveLocal: _localDataSource.saveChangeRequest,
+      isDeleted: (model) => model.deletedAt != null,
+      toEntity: (model) => model,
+    );
+  }
+
+  @override
   Stream<RealtimeEvent<WorkOrderEntity>> watchRealtimeWorkOrders({
     String? companyId,
+    String? workOrderId,
   }) {
     final stream = _realtimeRemoteDataSource.watchWorkOrders(
       companyId: companyId,
+      workOrderId: workOrderId,
     );
     return RepositoryHandler.syncRealtimeStream<
       WorkOrderModel,
@@ -639,3 +729,4 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     );
   }
 }
+
