@@ -390,7 +390,7 @@ void main() {
     );
 
     test(
-      'should not return work order in getWorkOrders/getWorkOrderById when its location is soft-deleted',
+      'should return work order in getWorkOrders/getWorkOrderById even when its location is soft-deleted',
       () async {
         // Arrange
         await insertDependencies(
@@ -419,8 +419,10 @@ void main() {
 
         // Assert
         expect(getListResult, isA<SuccessState<List<WorkOrderModel>>>());
-        expect(getListResult.data, isEmpty);
-        expect(getSingleResult, isA<FailureState<WorkOrderModel>>());
+        expect(getListResult.data, isNotEmpty);
+        expect(getListResult.data!.first.id, tWorkOrderModel.id);
+        expect(getSingleResult, isA<SuccessState<WorkOrderModel>>());
+        expect(getSingleResult.data!.id, tWorkOrderModel.id);
       },
     );
 
@@ -669,6 +671,81 @@ void main() {
       expect(getListResult, isA<SuccessState<List<WorkOrderHistoryModel>>>());
       expect(getListResult.data, hasLength(1));
       expect(getListResult.data!.first, equals(tHistoryModel));
+    });
+  });
+
+  group('WorkOrdersLocalDataSourceImpl - getActiveWorkOrderIds & Left Join', () {
+    test('getActiveWorkOrderIds returns non-deleted work order ids', () async {
+      final companyId = faker.guid.guid();
+      final wo1 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        companyId: companyId,
+        status: WorkOrderStatus.open,
+        attachments: const [],
+      );
+      final wo2 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        companyId: companyId,
+        status: WorkOrderStatus.inProgress,
+        attachments: const [],
+      );
+      final wo3 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        companyId: companyId,
+        status: WorkOrderStatus.completed,
+        attachments: const [],
+      );
+
+      await insertDependencies(
+        companyId: companyId,
+        userId: wo1.createdById ?? faker.guid.guid(),
+        locationId: wo1.locationId,
+        areaId: faker.guid.guid(),
+        assetId: wo1.assetId ?? faker.guid.guid(),
+        providerProfileId: wo1.providerProfileId ?? faker.guid.guid(),
+        serviceProviderCompanyId:
+            wo1.serviceProviderCompanyId ?? faker.guid.guid(),
+      );
+
+      await dataSource.saveWorkOrders([
+        WorkOrderModel.fromEntity(wo1),
+        WorkOrderModel.fromEntity(wo2),
+        WorkOrderModel.fromEntity(wo3),
+      ]);
+
+      final result = await dataSource.getActiveWorkOrderIds(companyId);
+      expect(result, isA<SuccessState<List<String>>>());
+      expect(result.data, containsAll([wo1.id, wo2.id, wo3.id]));
+    });
+
+    test('getWorkOrders returns work orders even if location is soft deleted or missing in table', () async {
+      final companyId = faker.guid.guid();
+      final locationId = faker.guid.guid();
+      final wo = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        companyId: companyId,
+        locationId: locationId,
+        attachments: const [],
+      );
+
+      await insertDependencies(
+        companyId: companyId,
+        userId: wo.createdById ?? faker.guid.guid(),
+        locationId: locationId,
+        areaId: faker.guid.guid(),
+        assetId: wo.assetId ?? faker.guid.guid(),
+        providerProfileId: wo.providerProfileId ?? faker.guid.guid(),
+        serviceProviderCompanyId:
+            wo.serviceProviderCompanyId ?? faker.guid.guid(),
+      );
+
+      // Soft-delete the location
+      await (database.update(database.locations)
+            ..where((tbl) => tbl.id.equals(locationId)))
+          .write(LocationsCompanion(deletedAt: Value(DateTime.now())));
+
+      await dataSource.saveWorkOrders([WorkOrderModel.fromEntity(wo)]);
+
+      final result = await dataSource.getWorkOrders(companyId);
+      expect(result, isA<SuccessState<List<WorkOrderModel>>>());
+      expect(result.data, isNotEmpty);
+      expect(result.data!.first.id, wo.id);
     });
   });
 }

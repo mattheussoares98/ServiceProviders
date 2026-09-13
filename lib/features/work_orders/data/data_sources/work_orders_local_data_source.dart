@@ -30,6 +30,7 @@ abstract interface class WorkOrdersLocalDataSource {
   });
   FutureData<WorkOrderModel> getWorkOrderById(String id);
   Future<DateTime?> getLastUpdatedTimestamp(String companyId);
+  FutureList<String> getActiveWorkOrderIds(String companyId);
   FutureBool saveWorkOrder(WorkOrderModel workOrder);
   FutureBool saveWorkOrders(List<WorkOrderModel> workOrders);
   FutureBool deleteWorkOrder(String id);
@@ -58,7 +59,7 @@ abstract interface class WorkOrdersLocalDataSource {
 
 @LazySingleton(as: WorkOrdersLocalDataSource)
 final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
-  WorkOrdersLocalDataSourceImpl({required AppDatabase database})
+  const WorkOrdersLocalDataSourceImpl({required AppDatabase database})
     : _database = database;
 
   final AppDatabase _database;
@@ -66,6 +67,16 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   // ============================================
   // Work Orders
   // ============================================
+
+  @override
+  FutureList<String> getActiveWorkOrderIds(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.workOrders)
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull());
+      final rows = await query.get();
+      return SuccessState(data: rows.map((row) => row.id).toList());
+    });
+  }
 
   @override
   FutureList<WorkOrderModel> getWorkOrders(
@@ -76,7 +87,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   }) {
     return ErrorHandler.execute(() async {
       final query = _database.select(_database.workOrders).join([
-        innerJoin(
+        leftOuterJoin(
           _database.locations,
           _database.locations.id.equalsExp(_database.workOrders.locationId),
         ),
@@ -87,8 +98,7 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
           _database.workOrders.companyId.equals(companyId) &
           (filter.onlyDeleted
               ? _database.workOrders.deletedAt.isNotNull()
-              : _database.workOrders.deletedAt.isNull()) &
-          _database.locations.deletedAt.isNull();
+              : _database.workOrders.deletedAt.isNull());
 
       // Apply filters
       if (filter.statuses.isNotEmpty) {
@@ -244,14 +254,11 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
     return ErrorHandler.execute(() async {
       final query =
           _database.select(_database.workOrders).join([
-            innerJoin(
+            leftOuterJoin(
               _database.locations,
               _database.locations.id.equalsExp(_database.workOrders.locationId),
             ),
-          ])..where(
-            _database.workOrders.id.equals(id) &
-                _database.locations.deletedAt.isNull(),
-          );
+          ])..where(_database.workOrders.id.equals(id));
       final row = await query.getSingleOrNull();
 
       if (row == null) {
