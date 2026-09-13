@@ -42,12 +42,21 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
 
   final PauseWorkflowCubitUseCases _useCases;
   StreamSubscription<RealtimeEvent<PauseReasonEntity>>? _realtimeSubscription;
+  StreamSubscription<RealtimeEvent<PauseRequestEntity>>?
+  _pauseRequestsSubscription;
 
   void _initRealtime() {
     final companyId = _useCases.getActiveCompanyId();
     _realtimeSubscription = _useCases
         .watchPauseReasonsRealtime(companyId: companyId)
         .listen(_handleRealtimeEvent);
+  }
+
+  void _initPauseRequestsRealtime(String workOrderId) {
+    _pauseRequestsSubscription?.cancel();
+    _pauseRequestsSubscription = _useCases
+        .watchPauseRequestsRealtime(workOrderId: workOrderId)
+        .listen(_handlePauseRequestRealtimeEvent);
   }
 
   void _handleRealtimeEvent(RealtimeEvent<PauseReasonEntity> event) {
@@ -59,6 +68,18 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       isDeleted: (r) => r.deletedAt != null,
     );
     emit(state.copyWith(pauseReasons: updatedPauseReasons));
+  }
+
+  void _handlePauseRequestRealtimeEvent(
+    RealtimeEvent<PauseRequestEntity> event,
+  ) {
+    if (isClosed) return;
+
+    final updatedPauseRequests = state.pauseRequests.applyRealtimeEvent(
+      event: event,
+      idSelector: (r) => r.id,
+    );
+    emit(state.copyWith(pauseRequests: updatedPauseRequests));
   }
 
   Future<void> loadPauseReasons([bool force = false]) async {
@@ -118,6 +139,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
           pauseRequests: result.data ?? [],
         ),
       );
+      _initPauseRequestsRealtime(workOrderId);
     } else {
       final message =
           result.message ?? 'Erro ao carregar solicitações de pausa'.hardcoded;
@@ -535,6 +557,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
   @override
   Future<void> close() {
     _realtimeSubscription?.cancel();
+    _pauseRequestsSubscription?.cancel();
     return super.close();
   }
 }

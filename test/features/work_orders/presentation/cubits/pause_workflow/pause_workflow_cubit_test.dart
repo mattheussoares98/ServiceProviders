@@ -80,6 +80,7 @@ void main() {
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
   late MockWatchPauseReasonsRealtimeUseCase mockWatchPauseReasonsRealtime;
+  late MockWatchPauseRequestsRealtimeUseCase mockWatchPauseRequestsRealtime;
   late MockWorkOrdersCubit mockWorkOrdersCubit;
 
   late PauseWorkflowCubit cubit;
@@ -137,6 +138,7 @@ void main() {
     mockReviewCompletion = MockReviewCompletionUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockWatchPauseRequestsRealtime = MockWatchPauseRequestsRealtimeUseCase();
     mockWorkOrdersCubit = MockWorkOrdersCubit();
 
     when(
@@ -162,6 +164,12 @@ void main() {
       () => mockWatchPauseReasonsRealtime(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
     when(
+      () => mockWatchPauseRequestsRealtime(
+        companyId: any(named: 'companyId'),
+        workOrderId: any(named: 'workOrderId'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
       () => mockHasPermission.call(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
 
@@ -176,6 +184,7 @@ void main() {
       hasPermission: mockHasPermission,
       getSessionUser: mockGetSessionUser,
       watchPauseReasonsRealtime: mockWatchPauseReasonsRealtime,
+      watchPauseRequestsRealtime: mockWatchPauseRequestsRealtime,
     );
 
     cubit = PauseWorkflowCubit(useCases: useCases);
@@ -1108,6 +1117,7 @@ void main() {
             hasPermission: mockHasPermission,
             getSessionUser: mockGetSessionUser,
             watchPauseReasonsRealtime: mockWatchPauseReasonsRealtime,
+            watchPauseRequestsRealtime: mockWatchPauseRequestsRealtime,
           );
           final c = PauseWorkflowCubit(useCases: useCases);
 
@@ -1164,6 +1174,7 @@ void main() {
           hasPermission: mockHasPermission,
           getSessionUser: mockGetSessionUser,
           watchPauseReasonsRealtime: mockWatchPauseReasonsRealtime,
+          watchPauseRequestsRealtime: mockWatchPauseRequestsRealtime,
         );
         final c = PauseWorkflowCubit(useCases: useCases);
 
@@ -1198,6 +1209,61 @@ void main() {
         expect(c.state.pauseReasons, isEmpty);
 
         await c.close();
+        await streamController.close();
+      });
+
+      test('appends or updates pause request on realtime event', () async {
+        final streamController =
+            StreamController<RealtimeEvent<PauseRequestEntity>>();
+        when(
+          () => mockWatchPauseRequestsRealtime(
+            workOrderId: any(named: 'workOrderId'),
+          ),
+        ).thenAnswer((_) => streamController.stream);
+
+        final tRequests = WorkOrderFactory.makePauseRequestEntityList();
+        when(
+          () => mockGetPauseRequests.call(any()),
+        ).thenAnswer((_) async => SuccessState(data: tRequests));
+
+        await cubit.loadPauseRequests('wo-id');
+
+        final newRequest = WorkOrderFactory.makePauseRequestEntity().copyWith(
+          workOrderId: 'wo-id',
+        );
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.insert,
+            id: newRequest.id,
+            entity: newRequest,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(cubit.state.pauseRequests, contains(newRequest));
+
+        final updatedRequest = newRequest.copyWith(
+          status: PauseRequestStatus.approved,
+        );
+        streamController.add(
+          RealtimeEvent(
+            eventType: RealtimeEventType.update,
+            id: updatedRequest.id,
+            entity: updatedRequest,
+          ),
+        );
+
+        await pumpEventQueue();
+
+        expect(
+          cubit.state.pauseRequests
+              .firstWhere((r) => r.id == newRequest.id)
+              .status,
+          PauseRequestStatus.approved,
+        );
+
+        await cubit.close();
         await streamController.close();
       });
     });
