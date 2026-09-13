@@ -11,3 +11,10 @@ Proposed changes to finalized/closed work orders.
 | `status` | VARCHAR(50) | NO | 'pending' | pending / approved / rejected |
 | `reviewed_by_id` | UUID | YES | - | FK → `user_profiles.id` (Set Null) |
 | `rejection_reason` | VARCHAR(1000) | YES | - | Rejection description |
+
+---
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260912230000_publish_change_and_pause_requests_realtime.sql`).
+

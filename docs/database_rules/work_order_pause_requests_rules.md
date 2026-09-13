@@ -93,6 +93,10 @@ AFTER INSERT OR UPDATE OF status ON public.work_order_pause_requests
 FOR EACH ROW EXECUTE FUNCTION public.handle_notify_pause_request();
 ```
 
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260912230000_publish_change_and_pause_requests_realtime.sql`).
+
 ## History
 
 | Migration | Change |
@@ -109,4 +113,5 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_notify_pause_request();
 | `20260817220000_fix_pause_sync_trigger_custom_reason.sql` | Fixed sync trigger function `handle_work_order_pause_request_sync` to use `custom_reason` instead of non-existent `reason` column |
 | `20260822160000_add_push_notification_triggers.sql` | Added `tr_notify_pause_request` trigger to dispatch notifications for pause/completion creation and reviews |
 | `20260906230000_add_deleted_at_to_work_order_pause_requests.sql` | Added `deleted_at` column for soft delete, updated SELECT RLS to exclude soft-deleted rows, and cascaded work order soft-delete to pause requests |
+| `20260912230000_publish_change_and_pause_requests_realtime.sql` | Added `public.work_order_pause_requests` to `supabase_realtime` publication with `REPLICA IDENTITY FULL` |
 

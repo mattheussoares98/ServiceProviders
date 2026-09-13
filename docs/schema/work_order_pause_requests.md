@@ -24,3 +24,10 @@ Tracks requests to pause work orders or request completion authorization (`event
 **Indexes:** `idx_wopr_work_order`, `idx_wopr_company`, `idx_wopr_reason`, `idx_wopr_sector`, `idx_wopr_event_type`
 
 > **Audit trail**: `paused_at` + `requested_by_id` record who/when paused. `resumed_at` + `resumed_by_id` record who/when resumed. `reviewed_by_id` records the approver. All three FKs use `ON DELETE SET NULL` to preserve the record even if the user is deleted.
+
+---
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260912230000_publish_change_and_pause_requests_realtime.sql`).
+

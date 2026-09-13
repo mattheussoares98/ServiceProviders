@@ -25,3 +25,15 @@ CREATE POLICY "Users update own company work order change requests with permissi
     AND public.has_permission('work_orders.update')
   );
 ```
+
+## Realtime Publication
+
+Included in `supabase_realtime` publication with `REPLICA IDENTITY FULL` (migration `20260912230000_publish_change_and_pause_requests_realtime.sql`).
+
+## History
+
+| Migration | Change |
+|---|---|
+| `20260721215657_create_work_orders.sql` | Table created with RLS policies |
+| `20260912230000_publish_change_and_pause_requests_realtime.sql` | Added `public.work_order_change_requests` to `supabase_realtime` publication with `REPLICA IDENTITY FULL` |
+
