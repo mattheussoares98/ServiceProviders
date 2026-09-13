@@ -108,6 +108,51 @@ void main() {
         expect(result.data!.first.id, tObservationEntity.id);
       },
     );
+
+    test('should add updated_at filter when since is provided', () async {
+      final tSince = DateTime.utc(2026, 2);
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [tObservationModel.toJson()]);
+
+      final result = await dataSource.getObservationsByWorkOrderIds([
+        tObservationEntity.workOrderId,
+      ], since: tSince);
+
+      expect(result, isA<SuccessState<List<WorkOrderObservationModel>>>());
+      verify(
+        () => mockDatabase.selectList(
+          table: 'work_order_observations',
+          columns: any(named: 'columns'),
+          filters: any(
+            named: 'filters',
+            that: contains(
+              SupabaseFilter.gt('updated_at', tSince.toIso8601String()),
+            ),
+          ),
+        ),
+      ).called(1);
+    });
+
+    test('should return FailureState when database call fails', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenThrow(Exception('Database error'));
+
+      final result = await dataSource.getObservationsByWorkOrderIds([
+        tObservationEntity.workOrderId,
+      ]);
+
+      expect(result, isA<FailureState<List<WorkOrderObservationModel>>>());
+    });
   });
 
   group('watchObservationsRealtime', () {

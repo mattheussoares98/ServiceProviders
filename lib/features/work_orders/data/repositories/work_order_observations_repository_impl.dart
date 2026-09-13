@@ -50,8 +50,9 @@ final class WorkOrderObservationsRepositoryImpl
 
   @override
   FutureList<WorkOrderObservationEntity> getObservationsByWorkOrderIds(
-    List<String> workOrderIds,
-  ) {
+    List<String> workOrderIds, {
+    DateTime? since,
+  }) {
     final isProvider = _isProviderMode;
     return RepositoryHandler.fetchWithFallbackAndMapList<
       WorkOrderObservationModel,
@@ -62,7 +63,7 @@ final class WorkOrderObservationsRepositoryImpl
           ? null
           : () => _localDataSource.getObservationsByWorkOrderIds(workOrderIds),
       remoteCallback: () =>
-          _remoteDataSource.getObservationsByWorkOrderIds(workOrderIds),
+          _remoteDataSource.getObservationsByWorkOrderIds(workOrderIds, since: since),
       onRemoteSuccess: isProvider
           ? null
           : (list) async {

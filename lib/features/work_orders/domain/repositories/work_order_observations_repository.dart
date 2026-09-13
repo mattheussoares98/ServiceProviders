@@ -5,8 +5,9 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_o
 abstract interface class WorkOrderObservationsRepository {
   FutureList<WorkOrderObservationEntity> getObservations(String workOrderId);
   FutureList<WorkOrderObservationEntity> getObservationsByWorkOrderIds(
-    List<String> workOrderIds,
-  );
+    List<String> workOrderIds, {
+    DateTime? since,
+  });
   Stream<RealtimeEvent<WorkOrderObservationEntity>> watchObservationsRealtime({
     String? companyId,
     String? workOrderId,

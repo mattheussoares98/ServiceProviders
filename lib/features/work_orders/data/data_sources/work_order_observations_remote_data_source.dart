@@ -13,8 +13,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract interface class WorkOrderObservationsRemoteDataSource {
   FutureList<WorkOrderObservationModel> getObservations(String workOrderId);
   FutureList<WorkOrderObservationModel> getObservationsByWorkOrderIds(
-    List<String> workOrderIds,
-  );
+    List<String> workOrderIds, {
+    DateTime? since,
+  });
   Stream<RealtimeEvent<WorkOrderObservationModel>> watchObservationsRealtime({
     required String workOrderId,
   });
@@ -58,8 +59,9 @@ final class WorkOrderObservationsRemoteDataSourceImpl
 
   @override
   FutureList<WorkOrderObservationModel> getObservationsByWorkOrderIds(
-    List<String> workOrderIds,
-  ) => SupabaseHandler.call(() async {
+    List<String> workOrderIds, {
+    DateTime? since,
+  }) => SupabaseHandler.call(() async {
     if (workOrderIds.isEmpty) {
       return const [];
     }
@@ -69,6 +71,7 @@ final class WorkOrderObservationsRemoteDataSourceImpl
       filters: [
         SupabaseFilter.inList('work_order_id', workOrderIds),
         SupabaseFilter.isFilter('deleted_at', null),
+        if (since != null) SupabaseFilter.gt('updated_at', since.toIsoUtcString()),
       ],
     );
     return response.map(WorkOrderObservationModel.fromJson).toList();
