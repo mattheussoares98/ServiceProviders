@@ -11,6 +11,12 @@ class WatchWorkOrdersRealtimeUseCase {
 
   final WorkOrdersRepository _workOrdersRepository;
 
-  Stream<RealtimeEvent<WorkOrderEntity>> call({String? companyId}) =>
-      _workOrdersRepository.watchRealtimeWorkOrders(companyId: companyId);
+  Stream<RealtimeEvent<WorkOrderEntity>> call({
+    String? companyId,
+    String? workOrderId,
+  }) => _workOrdersRepository.watchRealtimeWorkOrders(
+    companyId: companyId,
+    workOrderId: workOrderId,
+  );
 }
+

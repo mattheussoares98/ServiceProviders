@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
@@ -25,21 +24,15 @@ part 'work_order_details_state.dart';
 class WorkOrderDetailsCubit extends BaseCubit<WorkOrderDetailsState> {
   WorkOrderDetailsCubit({required WorkOrderDetailsCubitUseCases useCases})
     : _useCases = useCases,
-      super(const WorkOrderDetailsState.initial()) {
-    _initRealtime();
-  }
+      super(const WorkOrderDetailsState.initial());
 
   final WorkOrderDetailsCubitUseCases _useCases;
   StreamSubscription<RealtimeEvent<WorkOrderEntity>>? _realtimeSubscription;
 
-  bool get _isProviderMode =>
-      AppMode.fromName(_useCases.getSelectedMode()) == AppMode.provider;
-
-  void _initRealtime() {
+  void _initRealtime(String workOrderId) {
     _realtimeSubscription?.cancel();
-    final companyId = _isProviderMode ? null : _useCases.getActiveCompanyId();
     _realtimeSubscription = _useCases
-        .watchWorkOrdersRealtime(companyId: companyId)
+        .watchWorkOrdersRealtime(workOrderId: workOrderId)
         .listen(_handleRealtimeEvent);
   }
 
@@ -79,6 +72,7 @@ class WorkOrderDetailsCubit extends BaseCubit<WorkOrderDetailsState> {
           sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
+      _initRealtime(id);
       return true;
     } else {
       if (showLoading) {

@@ -16,7 +16,11 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/a
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/factories/service_provider_factory.dart';
@@ -26,6 +30,7 @@ void main() {
   _providerWorkOrdersTests();
 
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late WorkOrdersRemoteDataSourceImpl dataSource;
 
   setUpAll(() {
@@ -37,7 +42,11 @@ void main() {
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = WorkOrdersRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = WorkOrdersRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   final tWorkOrderEntity = WorkOrderFactory.makeWorkOrderEntity();
@@ -614,6 +623,37 @@ void main() {
         ).called(1);
       },
     );
+
+    test('watchChangeRequestsRealtime should yield RealtimeEvent on stream', () async {
+      final payload = PostgresChangePayload(
+        eventType: PostgresChangeEvent.insert,
+        newRecord: tChangeModel.toJson(),
+        oldRecord: const <String, dynamic>{},
+        schema: 'public',
+        table: 'work_order_change_requests',
+        errors: <dynamic>[],
+        commitTimestamp: DateTime.now(),
+      );
+
+      when(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'work_order_change_requests',
+          filter: any(named: 'filter'),
+        ),
+      ).thenAnswer((_) => Stream.value(payload));
+
+      final stream = dataSource.watchChangeRequestsRealtime(companyId: tCompanyId);
+      final event = await stream.first;
+
+      expect(event.eventType, RealtimeEventType.insert);
+      expect(event.entity?.id, tChangeModel.id);
+      verify(
+        () => mockRealtimeClient.streamTableChanges(
+          table: 'work_order_change_requests',
+          filter: any(named: 'filter'),
+        ),
+      ).called(1);
+    });
   });
 
   group('WorkOrdersRemoteDataSourceImpl - History', () {
@@ -663,11 +703,16 @@ void main() {
 
 void _providerWorkOrdersTests() {
   late MockSupabaseDatabaseClient mockDatabase;
+  late MockSupabaseRealtimeClient mockRealtimeClient;
   late WorkOrdersRemoteDataSourceImpl dataSource;
 
   setUp(() {
     mockDatabase = MockSupabaseDatabaseClient();
-    dataSource = WorkOrdersRemoteDataSourceImpl(database: mockDatabase);
+    mockRealtimeClient = MockSupabaseRealtimeClient();
+    dataSource = WorkOrdersRemoteDataSourceImpl(
+      database: mockDatabase,
+      realtimeClient: mockRealtimeClient,
+    );
   });
 
   final tWorkOrderModel = WorkOrderModel.fromEntity(

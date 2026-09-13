@@ -2,7 +2,10 @@ import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
@@ -13,6 +16,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class WorkOrdersRemoteDataSource {
   FutureList<WorkOrderModel> getWorkOrders(
@@ -47,6 +51,8 @@ abstract interface class WorkOrdersRemoteDataSource {
   FutureBool deleteTask(String id);
 
   FutureList<WorkOrderChangeRequestModel> getChangeRequests(String companyId);
+  Stream<RealtimeEvent<WorkOrderChangeRequestModel>>
+  watchChangeRequestsRealtime({String? companyId});
   FutureBool createChangeRequest(WorkOrderChangeRequestRequestModel request);
   FutureBool reviewChangeRequest({
     required String id,
@@ -63,9 +69,12 @@ final class WorkOrdersRemoteDataSourceImpl
     implements WorkOrdersRemoteDataSource {
   const WorkOrdersRemoteDataSourceImpl({
     required SupabaseDatabaseClient database,
-  }) : _database = database;
+    required SupabaseRealtimeClient realtimeClient,
+  }) : _database = database,
+       _realtimeClient = realtimeClient;
 
   final SupabaseDatabaseClient _database;
+  final SupabaseRealtimeClient _realtimeClient;
 
   @override
   FutureList<WorkOrderModel> getWorkOrders(
@@ -336,6 +345,27 @@ final class WorkOrdersRemoteDataSourceImpl
         );
         return response.map(WorkOrderChangeRequestModel.fromJson).toList();
       });
+
+  @override
+  Stream<RealtimeEvent<WorkOrderChangeRequestModel>>
+  watchChangeRequestsRealtime({String? companyId}) {
+    final filter = companyId != null && companyId.isNotEmpty
+        ? PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'company_id',
+            value: companyId,
+          )
+        : null;
+
+    return _realtimeClient
+        .streamTableChanges(table: 'work_order_change_requests', filter: filter)
+        .map(
+          (payload) => RealtimePayloadMapper.map(
+            payload,
+            WorkOrderChangeRequestModel.fromJson,
+          ),
+        );
+  }
 
   @override
   FutureBool createChangeRequest(WorkOrderChangeRequestRequestModel request) =>

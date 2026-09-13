@@ -38,8 +38,9 @@ abstract interface class WorkOrdersRepository {
   FutureBool updateTask(TaskEntity task);
   FutureBool deleteTask(String id);
 
-  // Change Requests
   FutureList<WorkOrderChangeRequestEntity> getChangeRequests(String companyId);
+  Stream<RealtimeEvent<WorkOrderChangeRequestEntity>>
+  watchChangeRequestsRealtime({String? companyId});
   FutureBool createChangeRequest(WorkOrderChangeRequestEntity request);
   FutureBool reviewChangeRequest({
     required String id,
@@ -54,5 +55,6 @@ abstract interface class WorkOrdersRepository {
   // Realtime
   Stream<RealtimeEvent<WorkOrderEntity>> watchRealtimeWorkOrders({
     String? companyId,
+    String? workOrderId,
   });
 }

@@ -85,7 +85,10 @@ void main() {
       () => mockGetSessionUser.call(),
     ).thenReturn(UserFactory.makeUserProfileEntity());
     when(
-      () => mockWatchRealtime.call(companyId: any(named: 'companyId')),
+      () => mockWatchRealtime.call(
+        companyId: any(named: 'companyId'),
+        workOrderId: any(named: 'workOrderId'),
+      ),
     ).thenAnswer((_) => const Stream.empty());
 
     cubitUseCases = WorkOrderDetailsCubitUseCases(
