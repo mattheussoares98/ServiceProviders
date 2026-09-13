@@ -313,6 +313,36 @@ void main() {
       },
     );
 
+    test('should add updated_at filter when since is provided', () async {
+      final tSince = DateTime.utc(2026, 2);
+      when(
+        () => mockDatabase.selectList(
+          table: 'attachments',
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer(
+        (_) async => tAttachmentModels.map((m) => m.toJson()).toList(),
+      );
+
+      final result = await dataSource.getAttachmentsByWorkOrderIds(
+        tWorkOrderIds,
+        since: tSince,
+      );
+
+      expect(result, isA<SuccessState<List<AttachmentModel>>>());
+      verify(
+        () => mockDatabase.selectList(
+          table: 'attachments',
+          filters: any(
+            named: 'filters',
+            that: contains(
+              SupabaseFilter.gt('updated_at', tSince.toIso8601String()),
+            ),
+          ),
+        ),
+      ).called(1);
+    });
+
     test('should return FailureState when selectList fails', () async {
       when(
         () => mockDatabase.selectList(

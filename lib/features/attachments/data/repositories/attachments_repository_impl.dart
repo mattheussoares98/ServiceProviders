@@ -129,8 +129,9 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
 
   @override
   FutureList<AttachmentEntity> getAttachmentsByWorkOrderIds(
-    List<String> workOrderIds,
-  ) async {
+    List<String> workOrderIds, {
+    DateTime? since,
+  }) async {
     if (workOrderIds.isEmpty) {
       return const SuccessState(data: []);
     }
@@ -143,6 +144,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
     if (_internet.isConnected) {
       final remoteResult = await _remoteDataSource.getAttachmentsByWorkOrderIds(
         workOrderIds,
+        since: since,
       );
       if (remoteResult is! SuccessState<List<AttachmentModel>>) {
         if (_isProviderMode) {
