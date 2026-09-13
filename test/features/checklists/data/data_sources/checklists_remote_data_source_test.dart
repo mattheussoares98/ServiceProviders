@@ -416,7 +416,10 @@ void main() {
         final result = await dataSource.getResponsesByWorkOrderIds([]);
 
         expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
-        expect((result as SuccessState<List<ChecklistAnswerModel>>).data, isEmpty);
+        expect(
+          (result as SuccessState<List<ChecklistAnswerModel>>).data,
+          isEmpty,
+        );
         verifyNever(
           () => mockDatabase.selectList(
             table: any(named: 'table'),
@@ -427,31 +430,65 @@ void main() {
       },
     );
 
-    test('getResponsesByWorkOrderIds returns SuccessState with answers', () async {
-      when(
-        () => mockDatabase.selectList(
-          table: any(named: 'table'),
-          columns: any(named: 'columns'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenAnswer((_) async => [tAnswerModel.toJson()]);
+    test(
+      'getResponsesByWorkOrderIds returns SuccessState with answers',
+      () async {
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tAnswerModel.toJson()]);
 
-      final result = await dataSource.getResponsesByWorkOrderIds([
-        tAnswerEntity.workOrderId,
-      ]);
+        final result = await dataSource.getResponsesByWorkOrderIds([
+          tAnswerEntity.workOrderId,
+        ]);
 
-      expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
-      expect(
-        (result as SuccessState<List<ChecklistAnswerModel>>).data!.first.id,
-        tAnswerEntity.id,
-      );
-      verify(
-        () => mockDatabase.selectList(
-          table: 'checklist_answers',
-          filters: any(named: 'filters'),
-        ),
-      ).called(1);
-    });
+        expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
+        expect(
+          (result as SuccessState<List<ChecklistAnswerModel>>).data!.first.id,
+          tAnswerEntity.id,
+        );
+        verify(
+          () => mockDatabase.selectList(
+            table: 'checklist_answers',
+            filters: any(named: 'filters'),
+          ),
+        ).called(1);
+      },
+    );
+
+    test(
+      'getResponsesByWorkOrderIds with since adds updated_at filter',
+      () async {
+        final tSince = DateTime.utc(2026);
+        when(
+          () => mockDatabase.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [tAnswerModel.toJson()]);
+
+        final result = await dataSource.getResponsesByWorkOrderIds([
+          tAnswerEntity.workOrderId,
+        ], since: tSince);
+
+        expect(result, isA<SuccessState<List<ChecklistAnswerModel>>>());
+        verify(
+          () => mockDatabase.selectList(
+            table: 'checklist_answers',
+            filters: any(
+              named: 'filters',
+              that: contains(
+                SupabaseFilter.gt('updated_at', tSince.toIso8601String()),
+              ),
+            ),
+          ),
+        ).called(1);
+      },
+    );
 
     test('getResponsesByWorkOrderIds returns FailureState on error', () async {
       when(

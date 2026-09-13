@@ -35,8 +35,9 @@ abstract interface class ChecklistsRemoteDataSource {
   // Execution Responses / Tasks
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrder(String workOrderId);
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrderIds(
-    List<String> workOrderIds,
-  );
+    List<String> workOrderIds, {
+    DateTime? since,
+  });
   FutureBool saveResponse(ChecklistAnswerModel response);
   Stream<RealtimeEvent<ChecklistAnswerModel>> watchChecklistAnswersRealtime({
     required String workOrderId,
@@ -229,8 +230,9 @@ final class ChecklistsRemoteDataSourceImpl
 
   @override
   FutureList<ChecklistAnswerModel> getResponsesByWorkOrderIds(
-    List<String> workOrderIds,
-  ) => SupabaseHandler.call(() async {
+    List<String> workOrderIds, {
+    DateTime? since,
+  }) => SupabaseHandler.call(() async {
     if (workOrderIds.isEmpty) {
       return const [];
     }
@@ -239,6 +241,7 @@ final class ChecklistsRemoteDataSourceImpl
       filters: [
         SupabaseFilter.inList('work_order_id', workOrderIds),
         SupabaseFilter.isFilter('deleted_at', null),
+        if (since != null) SupabaseFilter.gt('updated_at', since.toIsoUtcString()),
       ],
     );
     return response.map(ChecklistAnswerModel.fromJson).toList();
