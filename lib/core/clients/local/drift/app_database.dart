@@ -73,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 33;
+  int get schemaVersion => 34;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -258,6 +258,12 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 33) {
         await m.addColumn(checklistAnswers, checklistAnswers.selectedOptions);
+      }
+      if (from < 34) {
+        await addColumnIfNotExists(
+          companyParameters,
+          companyParameters.allowProviderCreateWorkOrder,
+        );
       }
     },
   );

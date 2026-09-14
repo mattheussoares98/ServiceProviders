@@ -28,6 +28,8 @@ class CompanyParameters extends Table {
       integer().withDefault(const Constant(60))();
   TextColumn get escalationGroupIds =>
       text().withDefault(const Constant('[]'))();
+  BoolColumn get allowProviderCreateWorkOrder =>
+      boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
