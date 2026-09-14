@@ -168,6 +168,14 @@ class UserProfileModel extends UserProfileEntity
       flatPermissions['work_orders.manage_pending_requests'] =
           workOrdersPermissionOverrides.managePendingRequests;
     }
+    if (workOrdersPermissionOverrides.deleteObservation != null) {
+      flatPermissions['work_orders.delete_observation'] =
+          workOrdersPermissionOverrides.deleteObservation;
+    }
+    if (workOrdersPermissionOverrides.manageFinancials != null) {
+      flatPermissions['work_orders.manage_financials'] =
+          workOrdersPermissionOverrides.manageFinancials;
+    }
 
     return {
       'id': id,
@@ -274,6 +282,11 @@ class UserProfileModel extends UserProfileEntity
             decoded['work_orders.approve_pause'] as bool? ??
             decoded['work_orders.approve_completion'] as bool?;
 
+        final bool? deleteObservation =
+            decoded['work_orders.delete_observation'] as bool?;
+        final bool? manageFinancials =
+            decoded['work_orders.manage_financials'] as bool?;
+
         workOrders = UserWorkOrdersPermissionOverrideEntity(
           readScope: readScope,
           create: create,
@@ -282,7 +295,8 @@ class UserProfileModel extends UserProfileEntity
           changeStatus: changeStatus,
           reassign: reassign,
           managePendingRequests: managePendingRequests,
-          deleteObservation: null,
+          deleteObservation: deleteObservation,
+          manageFinancials: manageFinancials,
         );
       }
     }

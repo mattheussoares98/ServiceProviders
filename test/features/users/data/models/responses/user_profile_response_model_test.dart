@@ -28,6 +28,7 @@ void main() {
               managePendingRequests: null,
               deleteObservation: null,
               reassign: null,
+              manageFinancials: null,
             ),
           ),
         );

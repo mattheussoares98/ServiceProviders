@@ -154,6 +154,8 @@ class PermissionGroupModel extends PermissionGroupEntity
               data['work_orders.approve_completion'] == true;
           final deleteObservation =
               data['work_orders.delete_observation'] == true;
+          final manageFinancials =
+              data['work_orders.manage_financials'] == true;
 
           workOrders = WorkOrdersPermissionEntity(
             readScope: readScope,
@@ -164,6 +166,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             reassign: reassign,
             managePendingRequests: managePendingRequests,
             deleteObservation: deleteObservation,
+            manageFinancials: manageFinancials,
           );
         }
       } else if (data is List) {
@@ -199,21 +202,19 @@ class PermissionGroupModel extends PermissionGroupEntity
                   actionStr == 'view' ||
                   actionStr == 'view_assigned') {
                 action = PermissionAction.read;
-              } else if (actionStr == 'update' ||
-                  actionStr == 'update_status' ||
-                  actionStr == 'fill') {
+              } else if (actionStr == 'update' || actionStr == 'edit') {
                 action = PermissionAction.update;
               } else if (actionStr == 'delete') {
                 action = PermissionAction.delete;
               }
+
               if (resource != null && action != null) {
+                grouped.putIfAbsent(resource, () => {}).add(action);
                 if (resource == ResourceType.workOrders) {
                   if (action == PermissionAction.read) hasWorkOrderRead = true;
                   if (action == PermissionAction.update) {
                     hasWorkOrderUpdate = true;
                   }
-                } else {
-                  grouped.putIfAbsent(resource, () => {}).add(action);
                 }
               }
             }
@@ -238,6 +239,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             reassign: false,
             managePendingRequests: false,
             deleteObservation: false,
+            manageFinancials: false,
           );
         }
       }
@@ -265,6 +267,7 @@ class PermissionGroupModel extends PermissionGroupEntity
     flat['work_orders.manage_pending_requests'] =
         workOrders.managePendingRequests;
     flat['work_orders.delete_observation'] = workOrders.deleteObservation;
+    flat['work_orders.manage_financials'] = workOrders.manageFinancials;
 
     return {
       'id': id,

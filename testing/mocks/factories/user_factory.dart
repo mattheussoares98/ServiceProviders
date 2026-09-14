@@ -131,6 +131,7 @@ abstract final class UserFactory {
         'work_orders.reassign': false,
         'work_orders.manage_pending_requests': false,
         'work_orders.delete_observation': false,
+        'work_orders.manage_financials': false,
       },
     );
   }

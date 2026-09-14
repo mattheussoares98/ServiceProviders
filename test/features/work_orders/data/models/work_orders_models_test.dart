@@ -51,6 +51,10 @@ void main() {
       expect(resultEntity.advanceWarningSentAt, tEntity.advanceWarningSentAt);
       expect(resultEntity.lastEscalationLevel, tEntity.lastEscalationLevel);
       expect(resultEntity.lastEscalationAt, tEntity.lastEscalationAt);
+      expect(resultEntity.price, tEntity.price);
+      expect(resultEntity.currency, tEntity.currency);
+      expect(responseJson['price'], tEntity.price);
+      expect(responseJson['currency'], tEntity.currency);
     });
   });
 
