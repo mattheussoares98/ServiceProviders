@@ -18,5 +18,6 @@ Configuration limits governing client offline allowances, file upload thresholds
 | `advance_warning_group_ids` | JSONB | NO | '[]' | Permission groups to notify alongside assigned technician |
 | `delayed_notification_interval_minutes` | INT | NO | 60 | Overdue notification repetition interval |
 | `escalation_group_ids` | JSONB | NO | '[]' | Cascading escalation hierarchy group IDs |
+| `allow_provider_create_work_order` | BOOLEAN | NO | false | Whether service providers may create work orders directly for this company |
 
 **Note**: `company_id` has a UNIQUE constraint (one row per company).

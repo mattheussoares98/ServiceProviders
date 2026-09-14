@@ -32,3 +32,12 @@ Work order pauses and completion requests are tracked in `work_order_pause_reque
   - When the supervisor/admin reviews the pending pause, they designate the `responsibility` without having to change the work order status again.
 - **Locking & Blocking:**
   - When a work order has status `pendingConclusionApproval`, it cannot be manually switched to other statuses via dropdowns until the pending conclusion request is reviewed (approved or rejected).
+
+---
+
+## 3. Work Order Items & Materials (Future Roadmap)
+
+- **Line Items & Bill of Materials:** In a future version, work orders will allow attaching itemized records (parts, materials, replacement tools, and specific services).
+- **Use Case:** Track specific components replaced or sold during execution (e.g., replacement parts in vehicle or machine repair).
+- **Integration:** These items will feed into the work order price/cost calculation and support review/approval alongside the completion workflow.
+

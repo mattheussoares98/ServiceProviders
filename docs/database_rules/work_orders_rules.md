@@ -25,7 +25,7 @@ CREATE POLICY "Users insert own company work orders with permission"
   );
 
 -- A provider opens the work order as its own provider profile, assigned to its
--- own provider company, under the tenant that hired it.
+-- own provider company, under the tenant that hired it (requires company parameter allow_provider_create_work_order = true).
 CREATE POLICY "Providers insert work orders for their companies"
   ON public.work_orders FOR INSERT
   TO authenticated
@@ -34,6 +34,12 @@ CREATE POLICY "Providers insert work orders for their companies"
     AND public.is_provider_company_of_company(service_provider_company_id, company_id)
     AND created_by_id IS NULL
     AND public.is_own_provider_profile(created_by_provider_profile_id)
+    AND EXISTS (
+      SELECT 1 FROM public.company_parameters cp
+      WHERE cp.company_id = work_orders.company_id
+        AND cp.allow_provider_create_work_order = TRUE
+        AND cp.deleted_at IS NULL
+    )
   );
 
 CREATE POLICY "Users update own company work orders with permission"
