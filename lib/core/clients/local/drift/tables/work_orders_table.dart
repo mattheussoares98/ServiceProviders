@@ -64,6 +64,8 @@ class WorkOrders extends Table {
   RealColumn get laborCost => real().nullable()();
   RealColumn get partsCost => real().nullable()();
   RealColumn get totalCost => real().nullable()();
+  RealColumn get price => real().nullable()();
+  TextColumn get currency => text().withDefault(const Constant('BRL'))();
   TextColumn get notes => text().nullable()();
   TextColumn get serviceProviderCompanyId => text().nullable().references(
     ServiceProviderCompanies,
