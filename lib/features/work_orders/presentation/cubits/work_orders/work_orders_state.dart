@@ -10,7 +10,7 @@ class WorkOrdersState extends BaseState {
     this.hasMorePages = true,
     this.isLoadingMore = false,
     this.providerCompanies = const [],
-    this.canProviderCreateWorkOrder = true,
+    this.canProviderCreateWorkOrder = false,
     super.sections = const {},
   });
 
@@ -21,7 +21,7 @@ class WorkOrdersState extends BaseState {
       hasMorePages = true,
       isLoadingMore = false,
       providerCompanies = const [],
-      canProviderCreateWorkOrder = true,
+      canProviderCreateWorkOrder = false,
       super();
 
   final List<WorkOrderEntity> workOrders;
