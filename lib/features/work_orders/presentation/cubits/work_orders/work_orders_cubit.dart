@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
@@ -215,6 +216,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     );
     if (isClosed) return false;
 
+    final canCreate = await _checkCanProviderCreateWorkOrder(
+      companies: companies,
+      selectedCompanyId: activeFilter.serviceProviderCompanyIds.length == 1
+          ? activeFilter.serviceProviderCompanyIds.first
+          : null,
+    );
+    if (isClosed) return false;
+
     if (result is SuccessState<List<WorkOrderEntity>>) {
       final fetched = result.data ?? [];
       emit(
@@ -223,6 +232,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           workOrders: fetched,
           changeRequests: const [],
           providerCompanies: companies,
+          canProviderCreateWorkOrder: canCreate,
           activeFilter: activeFilter,
           hasMorePages: fetched.length == _pageSize,
           isLoadingMore: false,
@@ -239,8 +249,54 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           errorMessage: result.message,
         ),
         providerCompanies: companies,
+        canProviderCreateWorkOrder: canCreate,
       ),
     );
+    return false;
+  }
+
+  Future<bool> _checkCanProviderCreateWorkOrder({
+    required List<ServiceProviderCompanyEntity> companies,
+    required String? selectedCompanyId,
+  }) async {
+    if (companies.isEmpty) return false;
+
+    if (selectedCompanyId != null) {
+      final selected = companies.firstWhereOrNull(
+        (c) => c.id == selectedCompanyId,
+      );
+      if (selected == null) return false;
+      final paramsResult = await _useCases.getCompanyParameters(
+        selected.companyId,
+      );
+      if (paramsResult is SuccessState<CompanyParameterEntity>) {
+        return paramsResult.data?.allowProviderCreateWorkOrder ?? false;
+      }
+      return false;
+    }
+
+    // When all companies are selected or only 1 company exists:
+    // If provider belongs to only 1 company, evaluate that company.
+    if (companies.length == 1) {
+      final paramsResult = await _useCases.getCompanyParameters(
+        companies.first.companyId,
+      );
+      if (paramsResult is SuccessState<CompanyParameterEntity>) {
+        return paramsResult.data?.allowProviderCreateWorkOrder ?? false;
+      }
+      return false;
+    }
+
+    // Multiple companies and none selected: check if AT LEAST one allows it.
+    for (final company in companies) {
+      final paramsResult = await _useCases.getCompanyParameters(
+        company.companyId,
+      );
+      if (paramsResult is SuccessState<CompanyParameterEntity> &&
+          paramsResult.data?.allowProviderCreateWorkOrder == true) {
+        return true;
+      }
+    }
     return false;
   }
 
@@ -664,6 +720,23 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final company = _providerCompanyToOpenFor(serviceProviderCompanyId);
     if (company == null) {
       showErrorToast('Selecione a empresa contratante'.hardcoded);
+      return false;
+    }
+
+    final paramsResult = await _useCases.getCompanyParameters(
+      company.companyId,
+    );
+    if (isClosed) return false;
+
+    final allowsCreation =
+        paramsResult is SuccessState<CompanyParameterEntity> &&
+        paramsResult.data?.allowProviderCreateWorkOrder == true;
+
+    if (!allowsCreation) {
+      showErrorToast(
+        'A empresa contratante não permite abertura de ordens de serviço por prestadores.'
+            .hardcoded,
+      );
       return false;
     }
 

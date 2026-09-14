@@ -132,6 +132,7 @@ void main() {
   late MockWatchWorkOrdersRealtimeUseCase mockWatchWorkOrdersRealtime;
   late MockWatchWorkOrderChangeRequestsRealtimeUseCase
   mockWatchChangeRequestsRealtime;
+  late MockGetCompanyParametersUseCase mockGetCompanyParameters;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -200,6 +201,7 @@ void main() {
     mockWatchWorkOrdersRealtime = MockWatchWorkOrdersRealtimeUseCase();
     mockWatchChangeRequestsRealtime =
         MockWatchWorkOrderChangeRequestsRealtimeUseCase();
+    mockGetCompanyParameters = MockGetCompanyParametersUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -229,6 +231,13 @@ void main() {
     when(
       () => mockWatchChangeRequestsRealtime(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
+    when(() => mockGetCompanyParameters(any())).thenAnswer(
+      (_) async => SuccessState(
+        data: UserFactory.makeCompanyParameterEntity().copyWith(
+          allowProviderCreateWorkOrder: true,
+        ),
+      ),
+    );
 
     useCases = WorkOrdersCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -252,6 +261,7 @@ void main() {
       getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
+      getCompanyParameters: mockGetCompanyParameters,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -1691,6 +1701,7 @@ void main() {
                   mockGetServiceProviderCompaniesByIds,
               getSessionUser: mockGetSessionUser,
               getSelectedMode: mockGetSelectedMode,
+              getCompanyParameters: mockGetCompanyParameters,
             );
 
             final testCubit = WorkOrdersCubit(useCases: useCases);
@@ -1761,6 +1772,7 @@ void providerModeTests() {
   late WorkOrderEntity tWorkOrder;
   late MockGetAttachmentsUseCase mockGetAttachments;
   late MockSyncEngine mockSyncEngine;
+  late MockGetCompanyParametersUseCase mockGetCompanyParameters;
   late UserProfileEntity tUserProfile;
   late List<ServiceProviderCompanyEntity> tCompanies;
   late List<ServiceProviderProfileEntity> tProfiles;
@@ -1789,6 +1801,7 @@ void providerModeTests() {
       getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
+      getCompanyParameters: mockGetCompanyParameters,
     ),
   );
 
@@ -1816,6 +1829,14 @@ void providerModeTests() {
       mockCreateWorkOrder = MockCreateWorkOrderUseCase();
       mockGetAttachments = MockGetAttachmentsUseCase();
       mockSyncEngine = MockSyncEngine();
+      mockGetCompanyParameters = MockGetCompanyParametersUseCase();
+      when(() => mockGetCompanyParameters(any())).thenAnswer(
+        (_) async => SuccessState(
+          data: UserFactory.makeCompanyParameterEntity().copyWith(
+            allowProviderCreateWorkOrder: true,
+          ),
+        ),
+      );
       when(
         () => mockSyncEngine.onSyncCompleted,
       ).thenAnswer((_) => const Stream.empty());
@@ -2120,6 +2141,51 @@ void providerModeTests() {
             cubit.state.sections[WorkOrdersSections.saveWorkOrder],
             const SectionState.error('Perfil de prestador não encontrado.'),
           );
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'refuses to create when contracting company does not allow provider to create work orders',
+        build: () {
+          stubCreation();
+          when(() => mockGetCompanyParameters(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: false,
+              ),
+            ),
+          );
+          return buildCubit();
+        },
+        act: (cubit) async {
+          await cubit.loadProviderWorkOrders();
+          await cubit.selectProviderCompany(tCompanies.first.id);
+          await create(cubit);
+        },
+        verify: (_) {
+          verifyNever(() => mockCreateWorkOrder(any()));
+          verifyNever(() => mockGetSessionProviderProfile(any()));
+        },
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'sets canProviderCreateWorkOrder to false when company parameter prohibits it',
+        build: () {
+          stubCreation();
+          when(() => mockGetCompanyParameters(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: false,
+              ),
+            ),
+          );
+          return buildCubit();
+        },
+        act: (cubit) async {
+          await cubit.loadProviderWorkOrders();
+        },
+        verify: (cubit) {
+          expect(cubit.state.canProviderCreateWorkOrder, isFalse);
         },
       );
     });

@@ -47,13 +47,18 @@ class ProviderWorkOrdersPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: cubit.navigateToCreateProviderWorkOrder,
-        child: const PlatformIcon(
-          materialIcon: Icons.add,
-          cupertinoIcon: CupertinoIcons.add,
-        ),
-      ),
+      floatingActionButton:
+          context.select<WorkOrdersCubit, bool>(
+            (c) => c.state.canProviderCreateWorkOrder,
+          )
+          ? FloatingActionButton(
+              onPressed: cubit.navigateToCreateProviderWorkOrder,
+              child: const PlatformIcon(
+                materialIcon: Icons.add,
+                cupertinoIcon: CupertinoIcons.add,
+              ),
+            )
+          : null,
       body: const ProviderLookupsLoader(
         child: Column(
           children: [

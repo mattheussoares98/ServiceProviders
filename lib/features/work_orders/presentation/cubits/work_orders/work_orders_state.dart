@@ -10,6 +10,7 @@ class WorkOrdersState extends BaseState {
     this.hasMorePages = true,
     this.isLoadingMore = false,
     this.providerCompanies = const [],
+    this.canProviderCreateWorkOrder = true,
     super.sections = const {},
   });
 
@@ -20,6 +21,7 @@ class WorkOrdersState extends BaseState {
       hasMorePages = true,
       isLoadingMore = false,
       providerCompanies = const [],
+      canProviderCreateWorkOrder = true,
       super();
 
   final List<WorkOrderEntity> workOrders;
@@ -31,6 +33,10 @@ class WorkOrdersState extends BaseState {
   /// Provider mode only. The provider companies the signed-in user belongs to.
   /// The company filter is offered only when this holds more than one entry.
   final List<ServiceProviderCompanyEntity> providerCompanies;
+
+  /// Provider mode only. Whether the current selection (or any company if none selected)
+  /// allows the provider to create work orders according to company_parameters.
+  final bool canProviderCreateWorkOrder;
 
   /// Provider mode only. Null means "Todas as empresas".
   String? get selectedProviderCompanyId =>
@@ -50,6 +56,7 @@ class WorkOrdersState extends BaseState {
     bool? hasMorePages,
     bool? isLoadingMore,
     List<ServiceProviderCompanyEntity>? providerCompanies,
+    bool? canProviderCreateWorkOrder,
     Map<SectionKey, SectionState>? sections,
   }) {
     return WorkOrdersState(
@@ -59,6 +66,8 @@ class WorkOrdersState extends BaseState {
       hasMorePages: hasMorePages ?? this.hasMorePages,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       providerCompanies: providerCompanies ?? this.providerCompanies,
+      canProviderCreateWorkOrder:
+          canProviderCreateWorkOrder ?? this.canProviderCreateWorkOrder,
       sections: sections ?? this.sections,
     );
   }
@@ -71,6 +80,7 @@ class WorkOrdersState extends BaseState {
     hasMorePages,
     isLoadingMore,
     providerCompanies,
+    canProviderCreateWorkOrder,
     sections,
   ];
 }
