@@ -50,8 +50,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       _realtimeEventsController.stream;
 
   void _initRealtime() {
+    _realtimeSubscription?.cancel();
     _changeRequestsSubscription?.cancel();
     final companyId = _isProviderMode ? null : _useCases.getActiveCompanyId();
+
+    _realtimeSubscription = _useCases
+        .watchWorkOrdersRealtime(companyId: companyId)
+        .listen(_handleRealtimeEvent);
 
     if (companyId != null && companyId.isNotEmpty) {
       _changeRequestsSubscription = _useCases
