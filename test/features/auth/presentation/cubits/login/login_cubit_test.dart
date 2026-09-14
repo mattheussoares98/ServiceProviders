@@ -6,6 +6,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/create_access_log_request_entity.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/authentication_entity.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
@@ -161,7 +162,43 @@ void main() {
       verify(
         () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
       ).called(1);
+      verify(() => mockCreateAccessLogUseCase.call(any())).called(1);
       verify(() => mockNavigationClient.replaceAllRoute(any())).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'login should fallback to user.companyId for access log when getActiveCompanyId is empty',
+    build: () {
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: userData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(locator<GetActiveCompanyIdUseCase>().call).thenReturn('');
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        email: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    verify: (_) {
+      verify(
+        () => mockCreateAccessLogUseCase.call(
+          any(
+            that: isA<CreateAccessLogRequestEntity>().having(
+              (r) => r.companyId,
+              'companyId',
+              userData.user.companyId,
+            ),
+          ),
+        ),
+      ).called(1);
     },
   );
 

@@ -69,7 +69,10 @@ class LoginCubit extends BaseCubit<LoginState> {
       await _useCases.saveUserData(dataState.data!);
       unawaited(NotificationsService.instance.syncDeviceToken());
 
-      final companyId = _useCases.getActiveCompanyId.call();
+      final activeCompanyId = _useCases.getActiveCompanyId.call();
+      final companyId = activeCompanyId.isNotEmpty
+          ? activeCompanyId
+          : dataState.data!.user.companyId;
       if (companyId.isNotEmpty) {
         unawaited(
           _useCases.createAccessLog.call(

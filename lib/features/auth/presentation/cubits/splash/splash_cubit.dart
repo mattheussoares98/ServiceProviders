@@ -37,7 +37,10 @@ class SplashCubit extends BaseCubit<SplashState> {
     // 2. If fully logged in, route according to user type/mode
     if (_useCases.sessionRepository.isLoggedIn) {
       final user = _useCases.getSessionUser.call();
-      final companyId = _useCases.getActiveCompanyId.call();
+      final activeCompanyId = _useCases.getActiveCompanyId.call();
+      final companyId = activeCompanyId.isNotEmpty
+          ? activeCompanyId
+          : user.companyId;
       if (user.id.isNotEmpty && companyId.isNotEmpty) {
         await _useCases.createAccessLog.call(
           CreateAccessLogRequestEntity(
