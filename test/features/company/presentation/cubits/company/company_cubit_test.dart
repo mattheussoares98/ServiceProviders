@@ -694,4 +694,70 @@ void main() {
       ],
     );
   });
+
+  group('updateAllowProviderCreateWorkOrder', () {
+    final tParams = UserFactory.makeCompanyParameterEntity();
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should do nothing when parameters in state is null',
+      build: () => companyCubit,
+      act: (cubit) => cubit.updateAllowProviderCreateWorkOrder(true),
+      expect: () => <CompanyState>[],
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit running and success with updated allowProviderCreateWorkOrder on success',
+      build: () {
+        when(
+          () => mockSaveCompanyParametersUseCase.call(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return companyCubit..emit(CompanyState(parameters: tParams));
+      },
+      act: (cubit) => cubit.updateAllowProviderCreateWorkOrder(true),
+      expect: () => [
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateGovernanceParameters],
+          'sections[updateGovernanceParameters]',
+          const SectionState.running(),
+        ),
+        isA<CompanyState>()
+            .having(
+              (s) => s.sections[CompanySections.updateGovernanceParameters],
+              'sections[updateGovernanceParameters]',
+              const SectionState.success(),
+            )
+            .having(
+              (s) => s.parameters?.allowProviderCreateWorkOrder,
+              'allowProviderCreateWorkOrder',
+              true,
+            ),
+      ],
+      verify: (_) {
+        verify(() => mockSaveCompanyParametersUseCase.call(any())).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit running and error on save failure',
+      build: () {
+        when(
+          () => mockSaveCompanyParametersUseCase.call(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Save failed'));
+        return companyCubit..emit(CompanyState(parameters: tParams));
+      },
+      act: (cubit) => cubit.updateAllowProviderCreateWorkOrder(true),
+      expect: () => [
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateGovernanceParameters],
+          'sections[updateGovernanceParameters]',
+          const SectionState.running(),
+        ),
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateGovernanceParameters],
+          'sections[updateGovernanceParameters]',
+          const SectionState.error(),
+        ),
+      ],
+    );
+  });
 }

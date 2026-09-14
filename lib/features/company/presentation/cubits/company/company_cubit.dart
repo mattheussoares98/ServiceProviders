@@ -17,6 +17,7 @@ part 'company_state.dart';
 enum CompanySections implements SectionKey {
   switchCompany,
   updateEscalationParameters,
+  updateGovernanceParameters,
   changeLogo,
 }
 
@@ -239,6 +240,50 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         state.copyWith(
           sections: withSection(
             CompanySections.updateEscalationParameters,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      showDataStateToast(result);
+    }
+  }
+
+  Future<void> updateAllowProviderCreateWorkOrder(bool allow) async {
+    final params = state.parameters;
+    if (params == null) return;
+
+    emit(
+      state.copyWith(
+        sections: withSection(
+          CompanySections.updateGovernanceParameters,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final updated = params.copyWith(
+      allowProviderCreateWorkOrder: allow,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    final result = await _useCases.saveCompanyParameters(updated);
+    if (isClosed) return;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySections.updateGovernanceParameters,
+            SectionStatus.success,
+          ),
+          parameters: updated,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySections.updateGovernanceParameters,
             SectionStatus.error,
           ),
         ),
