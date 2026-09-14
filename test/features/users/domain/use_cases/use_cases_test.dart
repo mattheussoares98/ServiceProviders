@@ -522,6 +522,58 @@ void main() {
 
         expect(result, const SuccessState(data: false));
       });
+
+      test('should allow manageFinancials for admin users', () async {
+        final adminUser =
+            UserFactory.makeUserProfileEntity().copyWith(isAdmin: true);
+        when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.manageFinancials,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: true));
+      });
+
+      test('should return manageFinancials user override when present', () async {
+        final regularUser = UserFactory.makeUserProfileEntity().copyWith(
+          isAdmin: false,
+          workOrders: const UserWorkOrdersPermissionOverrideEntity.empty()
+              .copyWith(manageFinancials: true),
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(regularUser);
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.manageFinancials,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: true));
+      });
+
+      test('should deny manageFinancials in provider mode regardless of admin status', () async {
+        final adminUser =
+            UserFactory.makeUserProfileEntity().copyWith(isAdmin: true);
+        when(() => mockGetSessionUser.call()).thenReturn(adminUser);
+        when(() => mockGetSelectedMode.call()).thenReturn('provider');
+
+        final result = await hasPermissionUseCase(
+          const HasPermissionParams(
+            permission: ActionPermission.workOrderSubAction(
+              WorkOrderSubAction.manageFinancials,
+            ),
+          ),
+        );
+
+        expect(result, const SuccessState(data: false));
+      });
     });
 
     group('WatchUserProfilesRealtimeUseCase', () {
