@@ -29,6 +29,8 @@ Instances of preventive, corrective, or inspection tasks.
 | `labor_cost` | REAL | YES | - | Labor costs |
 | `parts_cost` | REAL | YES | - | Parts cost |
 | `total_cost` | REAL | YES | - | Total labor + parts |
+| `price` | NUMERIC(12,2) | YES | - | Contracted / billed price for the work order |
+| `currency` | VARCHAR(3) | NO | 'BRL' | ISO 4217 currency code |
 | `notes` | VARCHAR(2000) | YES | - | Closing notes / technician remarks |
 | `service_provider_company_id` | UUID | YES | - | FK → `service_provider_companies.id` (Set Null) |
 | `provider_profile_id` | UUID | YES | - | FK → `service_provider_profiles.id` (Set Null) |
