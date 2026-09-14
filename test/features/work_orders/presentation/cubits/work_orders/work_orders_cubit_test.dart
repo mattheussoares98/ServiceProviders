@@ -722,6 +722,7 @@ void main() {
               providerProfileId: tWorkOrderWithSla.providerProfileId,
               slaPolicyId: tWorkOrderWithSla.slaPolicyId,
               openedBy: tWorkOrderWithSla.openedBy,
+              price: 1500.50,
             );
 
             expect(result, isTrue);
@@ -752,7 +753,9 @@ void main() {
                         actual.priority == tWorkOrder.priority &&
                         actual.type == tWorkOrder.type &&
                         actual.locationId == tWorkOrder.locationId &&
-                        actual.slaPolicyId == 'sla-policy-id-123';
+                        actual.slaPolicyId == 'sla-policy-id-123' &&
+                        actual.price == 1500.50 &&
+                        actual.currency == 'BRL';
                   }),
                 ),
               ),
