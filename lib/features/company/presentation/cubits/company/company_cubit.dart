@@ -248,9 +248,9 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     }
   }
 
-  Future<void> updateAllowProviderCreateWorkOrder(bool allow) async {
+  Future<bool> updateAllowProviderCreateWorkOrder(bool allow) async {
     final params = state.parameters;
-    if (params == null) return;
+    if (params == null) return false;
 
     emit(
       state.copyWith(
@@ -267,7 +267,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     );
 
     final result = await _useCases.saveCompanyParameters(updated);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (result is SuccessState<bool> && result.data == true) {
       emit(
@@ -279,6 +279,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
           parameters: updated,
         ),
       );
+      return true;
     } else {
       emit(
         state.copyWith(
@@ -289,6 +290,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         ),
       );
       showDataStateToast(result);
+      return false;
     }
   }
 

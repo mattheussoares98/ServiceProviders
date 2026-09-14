@@ -106,11 +106,15 @@ class WorkOrderGovernanceParametersCard extends HookWidget {
                   BaseSwitch(
                     value: allowProviderCreate.value,
                     onChanged: isAdmin
-                        ? (value) {
+                        ? (value) async {
+                            final previousValue = allowProviderCreate.value;
                             allowProviderCreate.value = value;
-                            context
+                            final success = await context
                                 .read<CompanyCubit>()
                                 .updateAllowProviderCreateWorkOrder(value);
+                            if (!success && context.mounted) {
+                              allowProviderCreate.value = previousValue;
+                            }
                           }
                         : null,
                   ),
