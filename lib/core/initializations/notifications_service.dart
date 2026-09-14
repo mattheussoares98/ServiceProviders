@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/register_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/firebase_options.dart';
+import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
 /// PERFORMANCE: Using a dedicated service for notifications ensures
 /// that Firebase listeners are registered exactly once and do not
@@ -152,20 +157,28 @@ class NotificationsService {
     await _localNotifications.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (details) {
-        // Handle notification click here
+        if (details.payload != null && details.payload!.isNotEmpty) {
+          try {
+            final data = jsonDecode(details.payload!) as Map<String, dynamic>;
+            _handleNotificationData(data);
+          } catch (e) {
+            debugPrint('NotificationsService: payload parse error - $e');
+          }
+        }
       },
     );
   }
 
   void _showForegroundNotification(RemoteMessage message) {
     final notification = message.notification;
-    final android = message.notification?.android;
+    final title = notification?.title ?? message.data['title'] as String?;
+    final body = notification?.body ?? message.data['body'] as String?;
 
-    if (notification != null && android != null && !kIsWeb) {
+    if (!kIsWeb && title != null) {
       _localNotifications.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
+        message.hashCode,
+        title,
+        body,
         const NotificationDetails(
           android: AndroidNotificationDetails(
             'high_importance_channel',
@@ -179,6 +192,25 @@ class NotificationsService {
             presentSound: true,
           ),
         ),
+        payload: jsonEncode(message.data),
+      );
+    }
+
+    // In addition to the local notification, emit an in-app interactive banner/toast
+    if (title != null && body != null) {
+      final workOrderId =
+          (message.data['work_order_id'] ?? message.data['workOrderId'])
+              as String?;
+
+      ToastUtil.showNotificationBanner(
+        title: title,
+        body: body,
+        actionLabel: workOrderId != null ? 'Ver OS'.hardcoded : null,
+        onAction: workOrderId != null
+            ? () => NavigationUtil.I.pushRoute(
+                WorkOrderDetailsRoute(workOrderId: workOrderId),
+              )
+            : null,
       );
     }
   }
@@ -190,6 +222,7 @@ class NotificationsService {
         debugPrint(
           'Notifications: App opened from terminated state via: ${message.messageId}',
         );
+        _handleNotificationData(message.data);
       }
     });
 
@@ -198,6 +231,21 @@ class NotificationsService {
       debugPrint(
         'Notifications: App opened from background via: ${message.messageId}',
       );
+      _handleNotificationData(message.data);
     });
+  }
+
+  void _handleNotificationData(Map<String, dynamic> data) {
+    try {
+      final workOrderId =
+          (data['work_order_id'] ?? data['workOrderId']) as String?;
+      if (workOrderId != null && workOrderId.isNotEmpty) {
+        NavigationUtil.I.pushRoute(
+          WorkOrderDetailsRoute(workOrderId: workOrderId),
+        );
+      }
+    } catch (e) {
+      debugPrint('NotificationsService: navigation error - $e');
+    }
   }
 }

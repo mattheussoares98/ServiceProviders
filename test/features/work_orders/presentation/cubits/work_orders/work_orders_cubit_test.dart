@@ -131,7 +131,7 @@ void main() {
   late MockGetSelectedModeUseCase mockGetSelectedMode;
   late MockWatchWorkOrdersRealtimeUseCase mockWatchWorkOrdersRealtime;
   late MockWatchWorkOrderChangeRequestsRealtimeUseCase
-      mockWatchChangeRequestsRealtime;
+  mockWatchChangeRequestsRealtime;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -553,6 +553,62 @@ void main() {
                 const WorkOrderFilter(),
               ),
         ],
+      );
+
+      blocTest<WorkOrdersCubit, WorkOrdersState>(
+        'filterByPendingConclusion should call loadWorkOrdersAndChangeRequests with pendingConclusionApproval status',
+        build: () {
+          when(
+            () => mockGetWorkOrders.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockGetChangeRequests.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.filterByPendingConclusion(),
+        expect: () => [
+          isA<WorkOrdersState>()
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.running(),
+              )
+              .having((s) => s.activeFilter.statuses, 'statuses', [
+                WorkOrderStatus.pendingConclusionApproval,
+              ]),
+          isA<WorkOrdersState>()
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.activeFilter.statuses, 'statuses', [
+                WorkOrderStatus.pendingConclusionApproval,
+              ]),
+        ],
+      );
+
+      test(
+        'pendingConclusionCount returns correct number of pending approval orders',
+        () {
+          final order1 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+            status: WorkOrderStatus.pendingConclusionApproval,
+          );
+          final order2 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+            status: WorkOrderStatus.inProgress,
+          );
+          final order3 = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+            status: WorkOrderStatus.pendingConclusionApproval,
+          );
+
+          final state = WorkOrdersState(
+            workOrders: [order1, order2, order3],
+            changeRequests: const [],
+          );
+
+          expect(state.pendingConclusionCount, equals(2));
+        },
       );
 
       blocTest<WorkOrdersCubit, WorkOrdersState>(
@@ -1652,11 +1708,12 @@ void main() {
         test(
           'updates changeRequests in state when real-time event is emitted',
           () async {
-            final tChange =
-                WorkOrderFactory.makeWorkOrderChangeRequestEntity();
+            final tChange = WorkOrderFactory.makeWorkOrderChangeRequestEntity();
 
             final changeRequestController =
-                StreamController<RealtimeEvent<WorkOrderChangeRequestEntity>>.broadcast();
+                StreamController<
+                  RealtimeEvent<WorkOrderChangeRequestEntity>
+                >.broadcast();
             when(
               () => mockWatchChangeRequestsRealtime(
                 companyId: any(named: 'companyId'),

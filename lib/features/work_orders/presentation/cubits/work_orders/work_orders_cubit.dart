@@ -362,6 +362,13 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       ? applyProviderFilter(const WorkOrderFilter())
       : loadWorkOrdersAndChangeRequests(filter: const WorkOrderFilter());
 
+  /// Quick filter to display only work orders pending conclusion approval.
+  Future<void> filterByPendingConclusion() => applyFilter(
+    state.activeFilter.copyWith(
+      statuses: [WorkOrderStatus.pendingConclusionApproval],
+    ),
+  );
+
   Future<void> loadNextPage() async {
     // isLoadingMore prevents duplicate concurrent requests for the same page
     // when multiple scroll trigger events fire within a short timeframe.

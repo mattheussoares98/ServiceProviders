@@ -38,6 +38,11 @@ class WorkOrdersState extends BaseState {
       ? activeFilter.serviceProviderCompanyIds.first
       : null;
 
+  /// The count of active work orders currently waiting for conclusion approval.
+  int get pendingConclusionCount => workOrders
+      .where((wo) => wo.status == WorkOrderStatus.pendingConclusionApproval)
+      .length;
+
   WorkOrdersState copyWith({
     List<WorkOrderEntity>? workOrders,
     List<WorkOrderChangeRequestEntity>? changeRequests,

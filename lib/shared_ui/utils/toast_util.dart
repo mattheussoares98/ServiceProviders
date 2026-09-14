@@ -87,4 +87,59 @@ abstract interface class ToastUtil {
       showSuccess(message);
     }
   }
+
+  /// Shows an in-app interactive notification banner with title, body and action
+  static void showNotificationBanner({
+    required String title,
+    required String body,
+    String? actionLabel,
+    VoidCallback? onAction,
+    Duration? duration,
+  }) {
+    InteractiveToast.closeAllToast();
+    InteractiveToast.slide(
+      overlayState: _navigationClient.navigatorKey.currentState?.overlay,
+      leading: const PlatformIcon(
+        materialIcon: Icons.notifications_active_rounded,
+        cupertinoIcon: CupertinoIcons.bell_fill,
+        color: AppColors.warning,
+        size: 24,
+      ),
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          BaseText.bodyMedium(title, fontWeight: FontWeight.bold),
+          gapH4,
+          BaseText.bodySmall(
+            body,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+      trailing: onAction != null && actionLabel != null
+          ? CupertinoButton(
+              padding: const EdgeInsets.symmetric(horizontal: Sizes.p8),
+              onPressed: () {
+                InteractiveToast.closeAllToast();
+                onAction();
+              },
+              child: BaseText.bodySmall(
+                actionLabel,
+                color: AppColors.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          : null,
+      toastSetting: _toastSetting.copyWith(
+        displayDuration: duration ?? const Duration(milliseconds: 7000),
+      ),
+      toastStyle: const ToastStyle(
+        padding: _padding,
+        progressBarColor: AppColors.warning,
+        boxShadow: [_boxShadow],
+      ),
+    );
+  }
 }

@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
@@ -21,12 +22,52 @@ class WorkOrderItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isPendingApproval = workOrder.status.isPendingConclusionApproval;
+
     return Card(
+      shape: isPendingApproval
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(Sizes.p12),
+              side: const BorderSide(color: AppColors.warning, width: 2),
+            )
+          : null,
       child: Padding(
         padding: const EdgeInsets.all(Sizes.p8),
         child: Column(
           crossAxisAlignment: .start,
           children: [
+            if (isPendingApproval) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: Sizes.p8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: Sizes.p8,
+                  vertical: Sizes.p4,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(Sizes.p8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const PlatformIcon(
+                      materialIcon: Icons.pending_actions,
+                      cupertinoIcon: CupertinoIcons.clock_fill,
+                      color: AppColors.warning,
+                      size: 16,
+                    ),
+                    gapW8,
+                    Flexible(
+                      child: BaseText.caption(
+                        'Aguardando aprovação de conclusão'.hardcoded,
+                        color: AppColors.warning,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             BaseText.title(workOrder.title),
             gapH4,
             if (workOrder.description != null)
