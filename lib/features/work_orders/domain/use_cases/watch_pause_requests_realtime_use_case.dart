@@ -12,10 +12,6 @@ class WatchPauseRequestsRealtimeUseCase {
   final PauseRepository _pauseRepository;
 
   Stream<RealtimeEvent<PauseRequestEntity>> call({
-    String? companyId,
-    String? workOrderId,
-  }) => _pauseRepository.watchPauseRequestsRealtime(
-    companyId: companyId,
-    workOrderId: workOrderId,
-  );
+    required String workOrderId,
+  }) => _pauseRepository.watchPauseRequestsRealtime(workOrderId: workOrderId);
 }

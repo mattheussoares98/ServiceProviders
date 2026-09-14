@@ -583,7 +583,6 @@ void main() {
     test('mirrors insert/update events to local data source', () async {
       when(
         () => mockRemoteDataSource.watchPauseRequestsRealtime(
-          companyId: any(named: 'companyId'),
           workOrderId: any(named: 'workOrderId'),
         ),
       ).thenAnswer(
@@ -605,31 +604,38 @@ void main() {
       );
       await stream.first;
 
-      verify(() => mockLocalDataSource.savePauseRequest(tRequestModel)).called(1);
+      verify(
+        () => mockLocalDataSource.savePauseRequest(tRequestModel),
+      ).called(1);
     });
   });
 
   group('getPauseRequestsByWorkOrderIds', () {
-    test('fetches remotely and saves to local data source when online', () async {
-      when(() => mockInternetClient.isConnected).thenReturn(true);
-      when(
-        () => mockRemoteDataSource.getPauseRequestsByWorkOrderIds(
-          any(),
-          since: any(named: 'since'),
-        ),
-      ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
-      when(
-        () => mockLocalDataSource.savePauseRequests(any()),
-      ).thenAnswer((_) async => const SuccessState(data: true));
+    test(
+      'fetches remotely and saves to local data source when online',
+      () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getPauseRequestsByWorkOrderIds(
+            any(),
+            since: any(named: 'since'),
+          ),
+        ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
+        when(
+          () => mockLocalDataSource.savePauseRequests(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
 
-      final result = await repository.getPauseRequestsByWorkOrderIds(
-        [tRequestEntity.workOrderId],
-      );
+        final result = await repository.getPauseRequestsByWorkOrderIds([
+          tRequestEntity.workOrderId,
+        ]);
 
-      expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
-      expect(result.data?.first.id, tRequestEntity.id);
-      verify(() => mockLocalDataSource.savePauseRequests([tRequestModel])).called(1);
-    });
+        expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
+        expect(result.data?.first.id, tRequestEntity.id);
+        verify(
+          () => mockLocalDataSource.savePauseRequests([tRequestModel]),
+        ).called(1);
+      },
+    );
 
     test('fetches from local data source when offline', () async {
       when(() => mockInternetClient.isConnected).thenReturn(false);
@@ -637,13 +643,17 @@ void main() {
         () => mockLocalDataSource.getPauseRequestsByWorkOrderIds(any()),
       ).thenAnswer((_) async => SuccessState(data: [tRequestModel]));
 
-      final result = await repository.getPauseRequestsByWorkOrderIds(
-        [tRequestEntity.workOrderId],
-      );
+      final result = await repository.getPauseRequestsByWorkOrderIds([
+        tRequestEntity.workOrderId,
+      ]);
 
       expect(result, isA<SuccessState<List<PauseRequestEntity>>>());
       expect(result.data?.first.id, tRequestEntity.id);
-      verify(() => mockLocalDataSource.getPauseRequestsByWorkOrderIds([tRequestEntity.workOrderId])).called(1);
+      verify(
+        () => mockLocalDataSource.getPauseRequestsByWorkOrderIds([
+          tRequestEntity.workOrderId,
+        ]),
+      ).called(1);
     });
   });
 }

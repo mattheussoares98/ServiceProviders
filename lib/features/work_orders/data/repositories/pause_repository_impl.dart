@@ -139,12 +139,10 @@ final class PauseRepositoryImpl implements PauseRepository {
 
   @override
   Stream<RealtimeEvent<PauseRequestEntity>> watchPauseRequestsRealtime({
-    String? companyId,
-    String? workOrderId,
+    required String workOrderId,
   }) {
     return RepositoryHandler.syncRealtimeStream(
       stream: _remoteDataSource.watchPauseRequestsRealtime(
-        companyId: companyId,
         workOrderId: workOrderId,
       ),
       saveLocal: _localDataSource.savePauseRequest,

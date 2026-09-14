@@ -1111,7 +1111,6 @@ void main() {
       const tStream = Stream<RealtimeEvent<PauseRequestEntity>>.empty();
       when(
         () => mockPauseRepository.watchPauseRequestsRealtime(
-          companyId: any(named: 'companyId'),
           workOrderId: any(named: 'workOrderId'),
         ),
       ).thenAnswer((_) => tStream);
@@ -1120,14 +1119,12 @@ void main() {
         pauseRepository: mockPauseRepository,
       );
 
-      final result = useCase(companyId: 'company-1', workOrderId: 'wo-1');
+      final result = useCase(workOrderId: 'wo-1');
 
       expect(result, tStream);
       verify(
-        () => mockPauseRepository.watchPauseRequestsRealtime(
-          companyId: 'company-1',
-          workOrderId: 'wo-1',
-        ),
+        () =>
+            mockPauseRepository.watchPauseRequestsRealtime(workOrderId: 'wo-1'),
       ).called(1);
     });
   });
