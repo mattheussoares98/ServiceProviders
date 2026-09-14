@@ -165,7 +165,6 @@ void main() {
     ).thenAnswer((_) => const Stream.empty());
     when(
       () => mockWatchPauseRequestsRealtime(
-        companyId: any(named: 'companyId'),
         workOrderId: any(named: 'workOrderId'),
       ),
     ).thenAnswer((_) => const Stream.empty());
