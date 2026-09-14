@@ -84,6 +84,12 @@ class InfoItems extends StatelessWidget {
             ),
           );
 
+    final canManageFinancials = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.manageFinancials,
+      ),
+    );
+
     final items = [
       WorkOrderSyncErrorBanner(workOrder: workOrder),
       if (canManagePendingRequests)
@@ -115,6 +121,16 @@ class InfoItems extends StatelessWidget {
           );
         },
       ),
+      if (canManageFinancials && workOrder.price != null)
+        TitleAndSubtitle(
+          title: 'Valor / Preço'.hardcoded,
+          subtitle: workOrder.price!.toStringAsFixed(2).toBRL(),
+          type: TitleAndSubtitleType.money,
+          icon: const PlatformIcon(
+            materialIcon: Icons.attach_money,
+            cupertinoIcon: CupertinoIcons.money_dollar,
+          ),
+        ),
       TitleAndSubtitle(
         title: 'Título'.hardcoded,
         subtitle: workOrder.title,

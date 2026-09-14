@@ -24,6 +24,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
@@ -61,6 +62,7 @@ part './widgets/checklist_template_dropdown.dart';
 part './widgets/description_field.dart';
 part './widgets/duration_field.dart';
 part './widgets/location_dropdown.dart';
+part './widgets/price_field.dart';
 part './widgets/priority_dropdown.dart';
 part './widgets/programmed_data.dart';
 part './widgets/responsible_dropdown.dart';
@@ -182,6 +184,12 @@ class _CreateUpdatePage extends HookWidget {
     final initialTitle = workOrder?.title ?? '';
     final initialDescription = workOrder?.description ?? '';
     final initialDuration = workOrder?.estimatedDuration?.toString() ?? '';
+    final currentPrice = workOrder?.price;
+    final initialPrice = currentPrice != null
+        ? (currentPrice % 1 == 0
+            ? currentPrice.toInt().toString()
+            : currentPrice.toString())
+        : '';
     final initialLocationId = workOrder?.locationId;
     final initialAreaId = workOrder?.areaId;
     final initialAssetId = workOrder?.assetId;
@@ -195,6 +203,12 @@ class _CreateUpdatePage extends HookWidget {
     final initialSlaPolicyId = workOrder?.slaPolicyId;
     final initialChecklistTemplateId = workOrder?.checklistTemplateId;
 
+    final canManageFinancials = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.manageFinancials,
+      ),
+    );
+
     final isProviderCreator =
         isEditing &&
         (workOrder?.openedBy == AppMode.provider ||
@@ -207,7 +221,9 @@ class _CreateUpdatePage extends HookWidget {
     final titleController = useTextEditingController(text: initialTitle);
     final descController = useTextEditingController(text: initialDescription);
     final durationController = useTextEditingController(text: initialDuration);
+    final priceController = useTextEditingController(text: initialPrice);
     final descFocusNode = useFocusNode();
+    final priceFocusNode = useFocusNode();
     final selectedLocationId = useState<String?>(initialLocationId);
     final selectedAreaId = useState<String?>(initialAreaId);
     final selectedAssetId = useState<String?>(initialAssetId);
@@ -232,6 +248,11 @@ class _CreateUpdatePage extends HookWidget {
       titleController.text = updated.title;
       descController.text = updated.description ?? '';
       durationController.text = updated.estimatedDuration?.toString() ?? '';
+      priceController.text = updated.price != null
+          ? (updated.price! % 1 == 0
+              ? updated.price!.toInt().toString()
+              : updated.price!.toString())
+          : '';
       selectedLocationId.value = updated.locationId;
       selectedAreaId.value = updated.areaId;
       selectedAssetId.value = updated.assetId;
@@ -284,6 +305,7 @@ class _CreateUpdatePage extends HookWidget {
           titleController.text.trim() != initialTitle ||
           descController.text.trim() != initialDescription ||
           durationController.text.trim() != initialDuration ||
+          (canManageFinancials && priceController.text.trim() != initialPrice) ||
           selectedLocationId.value != initialLocationId ||
           selectedAreaId.value != initialAreaId ||
           (selectedAssetId.value == '' ? null : selectedAssetId.value) !=
@@ -357,6 +379,11 @@ class _CreateUpdatePage extends HookWidget {
         partsCost: workOrder?.partsCost,
         startedAt: workOrder?.startedAt,
         totalCost: workOrder?.totalCost,
+        price: canManageFinancials
+            ? double.tryParse(
+                priceController.text.trim().replaceAll(',', '.'),
+              )
+            : workOrder?.price,
         attachmentsCubit: context.read<AttachmentsCubit>(),
         serviceProviderCompanyId: selectedServiceProviderCompanyId.value,
         providerProfileId: selectedProviderProfileId.value,
@@ -542,6 +569,16 @@ class _CreateUpdatePage extends HookWidget {
           ),
         ),
       ),
+      if (canManageFinancials)
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _PriceField(
+            controller: priceController,
+            focusNode: priceFocusNode,
+            onSubmit: onSubmit,
+            enabled: true,
+          ),
+        ),
     ];
 
     return BaseScaffold(
