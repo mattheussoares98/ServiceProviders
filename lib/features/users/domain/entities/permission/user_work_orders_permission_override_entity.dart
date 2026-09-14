@@ -12,6 +12,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     required this.reassign,
     required this.managePendingRequests,
     required this.deleteObservation,
+    required this.manageFinancials,
   });
 
   const UserWorkOrdersPermissionOverrideEntity.empty()
@@ -22,7 +23,8 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
       changeStatus = null,
       reassign = null,
       managePendingRequests = null,
-      deleteObservation = null;
+      deleteObservation = null,
+      manageFinancials = null;
 
   final WorkOrderReadScope? readScope;
   final bool? create;
@@ -32,6 +34,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
   final bool? reassign;
   final bool? managePendingRequests;
   final bool? deleteObservation;
+  final bool? manageFinancials;
 
   @override
   List<Object?> get props => [
@@ -43,6 +46,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     reassign,
     managePendingRequests,
     deleteObservation,
+    manageFinancials,
   ];
 
   UserWorkOrdersPermissionOverrideEntity copyWith({
@@ -54,6 +58,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     bool? reassign,
     bool? managePendingRequests,
     bool? deleteObservation,
+    bool? manageFinancials,
     bool? annulReadScope,
     bool? annulCreate,
     bool? annulUpdateScope,
@@ -62,6 +67,7 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
     bool? annulReassign,
     bool? annulManagePendingRequests,
     bool? annulDeleteObservation,
+    bool? annulManageFinancials,
   }) {
     return UserWorkOrdersPermissionOverrideEntity(
       readScope: annulReadScope == true ? null : readScope ?? this.readScope,
@@ -80,6 +86,9 @@ class UserWorkOrdersPermissionOverrideEntity extends Equatable {
       deleteObservation: annulDeleteObservation == true
           ? null
           : deleteObservation ?? this.deleteObservation,
+      manageFinancials: annulManageFinancials == true
+          ? null
+          : manageFinancials ?? this.manageFinancials,
     );
   }
 }

@@ -30,6 +30,8 @@ class WorkOrderEntity extends Equatable {
     required this.laborCost,
     required this.partsCost,
     required this.totalCost,
+    this.price,
+    this.currency = 'BRL',
     required this.notes,
     required this.createdAt,
     required this.updatedAt,
@@ -78,6 +80,8 @@ class WorkOrderEntity extends Equatable {
   final double? laborCost;
   final double? partsCost;
   final double? totalCost;
+  final double? price;
+  final String currency;
   final String? notes;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -124,6 +128,8 @@ class WorkOrderEntity extends Equatable {
     laborCost,
     partsCost,
     totalCost,
+    price,
+    currency,
     notes,
     createdAt,
     updatedAt,
@@ -168,6 +174,8 @@ class WorkOrderEntity extends Equatable {
     double? laborCost,
     double? partsCost,
     double? totalCost,
+    double? price,
+    String? currency,
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -201,6 +209,7 @@ class WorkOrderEntity extends Equatable {
     bool? annulLaborCost,
     bool? annulPartsCost,
     bool? annulTotalCost,
+    bool? annulPrice,
     bool? annulNotes,
     bool? annulDeletedAt,
     bool? annulServiceProviderCompanyId,
@@ -254,6 +263,8 @@ class WorkOrderEntity extends Equatable {
       laborCost: annulLaborCost == true ? null : laborCost ?? this.laborCost,
       partsCost: annulPartsCost == true ? null : partsCost ?? this.partsCost,
       totalCost: annulTotalCost == true ? null : totalCost ?? this.totalCost,
+      price: annulPrice == true ? null : price ?? this.price,
+      currency: currency ?? this.currency,
       notes: annulNotes == true ? null : notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

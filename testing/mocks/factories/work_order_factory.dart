@@ -46,6 +46,7 @@ abstract final class WorkOrderFactory {
       laborCost: FactoryHelpers.makeDouble(),
       partsCost: FactoryHelpers.makeDouble(),
       totalCost: FactoryHelpers.makeDouble(),
+      price: FactoryHelpers.makeDouble(),
       notes: FactoryHelpers.makePhrase(),
       createdAt: FactoryHelpers.makeDateTime(),
       updatedAt: FactoryHelpers.makeDateTime(),

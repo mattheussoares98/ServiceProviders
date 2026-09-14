@@ -28,6 +28,7 @@ bool providerModeAllows(ActionPermission permission) {
       WorkOrderSubAction.managePendingRequests => false,
       WorkOrderSubAction.reassign => false,
       WorkOrderSubAction.deleteObservation => false,
+      WorkOrderSubAction.manageFinancials => false,
     },
   };
 }

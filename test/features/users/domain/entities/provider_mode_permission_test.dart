@@ -91,6 +91,14 @@ void main() {
         ),
         isFalse,
       );
+      expect(
+        providerModeAllows(
+          const ActionPermission.workOrderSubAction(
+            WorkOrderSubAction.manageFinancials,
+          ),
+        ),
+        isFalse,
+      );
     });
 
     test('denies the administration surfaces of the contracting company', () {

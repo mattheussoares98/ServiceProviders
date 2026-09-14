@@ -3,4 +3,5 @@ enum WorkOrderSubAction {
   changeStatus,
   reassign,
   managePendingRequests,
+  manageFinancials,
 }

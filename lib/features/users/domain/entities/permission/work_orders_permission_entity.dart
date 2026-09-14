@@ -12,6 +12,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     required this.reassign,
     required this.managePendingRequests,
     required this.deleteObservation,
+    required this.manageFinancials,
   });
 
   const WorkOrdersPermissionEntity.defaultTechnical()
@@ -22,7 +23,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       changeStatus = true,
       reassign = false,
       managePendingRequests = false,
-      deleteObservation = false;
+      deleteObservation = false,
+      manageFinancials = false;
 
   const WorkOrdersPermissionEntity.defaultSupervisor()
     : readScope = WorkOrderReadScope.all,
@@ -32,7 +34,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       changeStatus = true,
       reassign = true,
       managePendingRequests = true,
-      deleteObservation = true;
+      deleteObservation = true,
+      manageFinancials = true;
 
   const WorkOrdersPermissionEntity.defaultAdmin()
     : readScope = WorkOrderReadScope.all,
@@ -42,7 +45,8 @@ class WorkOrdersPermissionEntity extends Equatable {
       changeStatus = true,
       reassign = true,
       managePendingRequests = true,
-      deleteObservation = true;
+      deleteObservation = true,
+      manageFinancials = true;
 
   final WorkOrderReadScope readScope;
   final bool create;
@@ -52,6 +56,7 @@ class WorkOrdersPermissionEntity extends Equatable {
   final bool reassign;
   final bool managePendingRequests;
   final bool deleteObservation;
+  final bool manageFinancials;
 
   @override
   List<Object?> get props => [
@@ -63,6 +68,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     reassign,
     managePendingRequests,
     deleteObservation,
+    manageFinancials,
   ];
 
   WorkOrdersPermissionEntity copyWith({
@@ -74,6 +80,7 @@ class WorkOrdersPermissionEntity extends Equatable {
     bool? reassign,
     bool? managePendingRequests,
     bool? deleteObservation,
+    bool? manageFinancials,
   }) {
     return WorkOrdersPermissionEntity(
       readScope: readScope ?? this.readScope,
@@ -85,6 +92,7 @@ class WorkOrdersPermissionEntity extends Equatable {
       managePendingRequests:
           managePendingRequests ?? this.managePendingRequests,
       deleteObservation: deleteObservation ?? this.deleteObservation,
+      manageFinancials: manageFinancials ?? this.manageFinancials,
     );
   }
 }
