@@ -6,8 +6,10 @@ import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
+import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_queue_item_entity.dart';
@@ -21,8 +23,6 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/audit_
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/task_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_change_request_model.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_order_model.dart';
-import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachments_batch_use_case.dart';
-import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/get_work_order_checklist_answers_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
@@ -729,4 +729,3 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
     );
   }
 }
-

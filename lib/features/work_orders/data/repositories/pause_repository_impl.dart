@@ -133,9 +133,7 @@ final class PauseRepositoryImpl implements PauseRepository {
         workOrderIds,
         since: since,
       ),
-      onRemoteSuccess: isProvider
-          ? null
-          : (list) => _localDataSource.savePauseRequests(list),
+      onRemoteSuccess: isProvider ? null : _localDataSource.savePauseRequests,
     );
   }
 

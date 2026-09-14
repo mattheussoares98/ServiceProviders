@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_order.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/task_request_model.dart';
@@ -16,9 +17,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/a
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
-import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -624,36 +622,41 @@ void main() {
       },
     );
 
-    test('watchChangeRequestsRealtime should yield RealtimeEvent on stream', () async {
-      final payload = PostgresChangePayload(
-        eventType: PostgresChangeEvent.insert,
-        newRecord: tChangeModel.toJson(),
-        oldRecord: const <String, dynamic>{},
-        schema: 'public',
-        table: 'work_order_change_requests',
-        errors: <dynamic>[],
-        commitTimestamp: DateTime.now(),
-      );
-
-      when(
-        () => mockRealtimeClient.streamTableChanges(
+    test(
+      'watchChangeRequestsRealtime should yield RealtimeEvent on stream',
+      () async {
+        final payload = PostgresChangePayload(
+          eventType: PostgresChangeEvent.insert,
+          newRecord: tChangeModel.toJson(),
+          oldRecord: const <String, dynamic>{},
+          schema: 'public',
           table: 'work_order_change_requests',
-          filter: any(named: 'filter'),
-        ),
-      ).thenAnswer((_) => Stream.value(payload));
+          errors: <dynamic>[],
+          commitTimestamp: DateTime.now(),
+        );
 
-      final stream = dataSource.watchChangeRequestsRealtime(companyId: tCompanyId);
-      final event = await stream.first;
+        when(
+          () => mockRealtimeClient.streamTableChanges(
+            table: 'work_order_change_requests',
+            filter: any(named: 'filter'),
+          ),
+        ).thenAnswer((_) => Stream.value(payload));
 
-      expect(event.eventType, RealtimeEventType.insert);
-      expect(event.entity?.id, tChangeModel.id);
-      verify(
-        () => mockRealtimeClient.streamTableChanges(
-          table: 'work_order_change_requests',
-          filter: any(named: 'filter'),
-        ),
-      ).called(1);
-    });
+        final stream = dataSource.watchChangeRequestsRealtime(
+          companyId: tCompanyId,
+        );
+        final event = await stream.first;
+
+        expect(event.eventType, RealtimeEventType.insert);
+        expect(event.entity?.id, tChangeModel.id);
+        verify(
+          () => mockRealtimeClient.streamTableChanges(
+            table: 'work_order_change_requests',
+            filter: any(named: 'filter'),
+          ),
+        ).called(1);
+      },
+    );
   });
 
   group('WorkOrdersRemoteDataSourceImpl - History', () {
