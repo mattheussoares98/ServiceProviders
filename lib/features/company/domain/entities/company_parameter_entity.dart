@@ -18,6 +18,7 @@ class CompanyParameterEntity extends Equatable {
     this.advanceWarningGroupIds = const [],
     this.delayedNotificationIntervalMinutes = 60,
     this.escalationGroupIds = const [],
+    this.allowProviderCreateWorkOrder = false,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -39,6 +40,7 @@ class CompanyParameterEntity extends Equatable {
   final List<String> advanceWarningGroupIds;
   final int delayedNotificationIntervalMinutes;
   final List<String> escalationGroupIds;
+  final bool allowProviderCreateWorkOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -66,6 +68,7 @@ class CompanyParameterEntity extends Equatable {
     List<String>? advanceWarningGroupIds,
     int? delayedNotificationIntervalMinutes,
     List<String>? escalationGroupIds,
+    bool? allowProviderCreateWorkOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -95,6 +98,8 @@ class CompanyParameterEntity extends Equatable {
           delayedNotificationIntervalMinutes ??
           this.delayedNotificationIntervalMinutes,
       escalationGroupIds: escalationGroupIds ?? this.escalationGroupIds,
+      allowProviderCreateWorkOrder:
+          allowProviderCreateWorkOrder ?? this.allowProviderCreateWorkOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : (deletedAt ?? this.deletedAt),
@@ -119,6 +124,7 @@ class CompanyParameterEntity extends Equatable {
     advanceWarningGroupIds,
     delayedNotificationIntervalMinutes,
     escalationGroupIds,
+    allowProviderCreateWorkOrder,
     createdAt,
     updatedAt,
     deletedAt,

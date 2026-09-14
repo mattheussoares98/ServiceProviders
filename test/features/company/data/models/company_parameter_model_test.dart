@@ -36,6 +36,10 @@ void main() {
         tEntity.maxOfflineDurationHours,
       );
       expect(resultEntity.maxImageSizeMb, tEntity.maxImageSizeMb);
+      expect(
+        resultEntity.allowProviderCreateWorkOrder,
+        tEntity.allowProviderCreateWorkOrder,
+      );
     });
   });
 }

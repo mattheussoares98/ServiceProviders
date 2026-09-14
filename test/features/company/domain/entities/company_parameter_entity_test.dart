@@ -30,6 +30,7 @@ void main() {
         expect(entity.advanceWarningGroupIds, isEmpty);
         expect(entity.delayedNotificationIntervalMinutes, 60);
         expect(entity.escalationGroupIds, isEmpty);
+        expect(entity.allowProviderCreateWorkOrder, isFalse);
       },
     );
 
@@ -42,12 +43,14 @@ void main() {
           advanceWarningGroupIds: ['group-1', 'group-2'],
           delayedNotificationIntervalMinutes: 45,
           escalationGroupIds: ['group-a', 'group-b', 'group-c'],
+          allowProviderCreateWorkOrder: true,
         );
 
         expect(updated.advanceWarningMinutes, 30);
         expect(updated.advanceWarningGroupIds, ['group-1', 'group-2']);
         expect(updated.delayedNotificationIntervalMinutes, 45);
         expect(updated.escalationGroupIds, ['group-a', 'group-b', 'group-c']);
+        expect(updated.allowProviderCreateWorkOrder, isTrue);
       },
     );
 

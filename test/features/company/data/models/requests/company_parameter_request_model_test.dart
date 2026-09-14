@@ -30,6 +30,10 @@ void main() {
         tEntity.delayedNotificationIntervalMinutes,
       );
       expect(resultEntity.escalationGroupIds, tEntity.escalationGroupIds);
+      expect(
+        resultEntity.allowProviderCreateWorkOrder,
+        tEntity.allowProviderCreateWorkOrder,
+      );
     });
   });
 }

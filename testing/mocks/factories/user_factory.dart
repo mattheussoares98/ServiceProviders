@@ -49,8 +49,16 @@ abstract final class UserFactory {
       sandboxQuotaMb: 1024,
       maxSyncAttempts: 3,
       inviteExpiryHours: 24,
-      advanceWarningGroupIds: [FactoryHelpers.makeId(), FactoryHelpers.makeId(), FactoryHelpers.makeId()],
-      escalationGroupIds: [FactoryHelpers.makeId(), FactoryHelpers.makeId(), FactoryHelpers.makeId()],
+      advanceWarningGroupIds: [
+        FactoryHelpers.makeId(),
+        FactoryHelpers.makeId(),
+        FactoryHelpers.makeId(),
+      ],
+      escalationGroupIds: [
+        FactoryHelpers.makeId(),
+        FactoryHelpers.makeId(),
+        FactoryHelpers.makeId(),
+      ],
       createdAt: FactoryHelpers.makeDateTime(),
       updatedAt: FactoryHelpers.makeDateTime(),
       deletedAt: null,
@@ -165,7 +173,10 @@ abstract final class UserFactory {
   }
 
   static AuthenticationEntity makeAuthentication() {
-    return AuthenticationEntity(email: FactoryHelpers.makeEmail(), password: FactoryHelpers.makePassword());
+    return AuthenticationEntity(
+      email: FactoryHelpers.makeEmail(),
+      password: FactoryHelpers.makePassword(),
+    );
   }
 
   static SignUpEntity makeSignUp() {
@@ -231,5 +242,4 @@ abstract final class UserFactory {
       makeUserInvitationEntity(),
     ];
   }
-
 }

@@ -27,9 +27,10 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
   @override
   FutureData<CompanyModel> getCompany(String id) {
     return ErrorHandler.execute(() async {
-      final company = await (_database.select(
-        _database.companies,
-      )..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+      final company =
+          await (_database.select(_database.companies)
+                ..where((t) => t.id.equals(id) & t.deletedAt.isNull()))
+              .getSingleOrNull();
 
       if (company != null) {
         return SuccessState(
@@ -54,9 +55,11 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
   @override
   FutureData<CompanyParameterModel> getCompanyParameters(String companyId) {
     return ErrorHandler.execute(() async {
-      final params = await (_database.select(
-        _database.companyParameters,
-      )..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())).getSingleOrNull();
+      final params =
+          await (_database.select(_database.companyParameters)..where(
+                (t) => t.companyId.equals(companyId) & t.deletedAt.isNull(),
+              ))
+              .getSingleOrNull();
 
       if (params != null) {
         List<String> parseGroupIds(String raw) {
@@ -85,10 +88,13 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
             maxSyncAttempts: params.maxSyncAttempts,
             inviteExpiryHours: params.inviteExpiryHours,
             advanceWarningMinutes: params.advanceWarningMinutes,
-            advanceWarningGroupIds: parseGroupIds(params.advanceWarningGroupIds),
+            advanceWarningGroupIds: parseGroupIds(
+              params.advanceWarningGroupIds,
+            ),
             delayedNotificationIntervalMinutes:
                 params.delayedNotificationIntervalMinutes,
             escalationGroupIds: parseGroupIds(params.escalationGroupIds),
+            allowProviderCreateWorkOrder: params.allowProviderCreateWorkOrder,
             createdAt: params.createdAt.toUtc(),
             updatedAt: params.updatedAt.toUtc(),
             deletedAt: params.deletedAt?.toUtc(),
@@ -156,6 +162,9 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
               ),
               escalationGroupIds: Value(
                 jsonEncode(parameters.escalationGroupIds),
+              ),
+              allowProviderCreateWorkOrder: Value(
+                parameters.allowProviderCreateWorkOrder,
               ),
               createdAt: Value(parameters.createdAt.toUtc()),
               updatedAt: Value(parameters.updatedAt.toUtc()),

@@ -22,6 +22,7 @@ class CompanyParameterModel extends CompanyParameterEntity
     super.advanceWarningGroupIds = const [],
     super.delayedNotificationIntervalMinutes = 60,
     super.escalationGroupIds = const [],
+    super.allowProviderCreateWorkOrder = false,
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
@@ -56,9 +57,13 @@ class CompanyParameterModel extends CompanyParameterEntity
               ?.map((e) => e.toString())
               .toList() ??
           const [],
-      createdAt: (json['created_at'] as String?).toUtcDateTime() ??
+      allowProviderCreateWorkOrder:
+          json['allow_provider_create_work_order'] as bool? ?? false,
+      createdAt:
+          (json['created_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
-      updatedAt: (json['updated_at'] as String?).toUtcDateTime() ??
+      updatedAt:
+          (json['updated_at'] as String?).toUtcDateTime() ??
           DateTime.now().toUtc(),
       deletedAt: (json['deleted_at'] as String?).toUtcDateTime(),
     );
@@ -83,6 +88,7 @@ class CompanyParameterModel extends CompanyParameterEntity
       delayedNotificationIntervalMinutes:
           entity.delayedNotificationIntervalMinutes,
       escalationGroupIds: entity.escalationGroupIds,
+      allowProviderCreateWorkOrder: entity.allowProviderCreateWorkOrder,
       createdAt: entity.createdAt,
       updatedAt: entity.updatedAt,
       deletedAt: entity.deletedAt,
@@ -107,6 +113,7 @@ class CompanyParameterModel extends CompanyParameterEntity
     'advance_warning_group_ids': advanceWarningGroupIds,
     'delayed_notification_interval_minutes': delayedNotificationIntervalMinutes,
     'escalation_group_ids': escalationGroupIds,
+    'allow_provider_create_work_order': allowProviderCreateWorkOrder,
     'created_at': createdAt.toIsoUtcString(),
     'updated_at': updatedAt.toIsoUtcString(),
     'deleted_at': deletedAt?.toIsoUtcString(),
@@ -131,6 +138,7 @@ class CompanyParameterModel extends CompanyParameterEntity
       advanceWarningGroupIds: advanceWarningGroupIds,
       delayedNotificationIntervalMinutes: delayedNotificationIntervalMinutes,
       escalationGroupIds: escalationGroupIds,
+      allowProviderCreateWorkOrder: allowProviderCreateWorkOrder,
       createdAt: createdAt,
       updatedAt: updatedAt,
       deletedAt: deletedAt,
