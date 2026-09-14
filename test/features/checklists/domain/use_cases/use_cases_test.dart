@@ -264,7 +264,9 @@ void main() {
             () => mockRepository.getResponsesByWorkOrderIds(any()),
           ).thenAnswer((_) async => SuccessState(data: answers));
 
-          final result = await useCase(workOrderIds);
+          final result = await useCase(
+            GetWorkOrderChecklistAnswersBatchParams(workOrderIds: workOrderIds),
+          );
 
           expect(result, isA<SuccessState<List<ChecklistAnswerEntity>>>());
           expect(result.data, equals(answers));

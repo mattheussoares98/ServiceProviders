@@ -496,7 +496,9 @@ void main() {
           final useCase = GetAttachmentsBatchUseCase(
             attachmentsRepository: mockRepository,
           );
-          final result = await useCase(workOrderIds);
+          final result = await useCase(
+            GetAttachmentsBatchParams(workOrderIds: workOrderIds),
+          );
 
           expect(result, isA<SuccessState<List<AttachmentEntity>>>());
           expect(result.data, tAttachments);

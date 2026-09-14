@@ -60,7 +60,9 @@ void main() {
         () => repository.getObservationsByWorkOrderIds(any()),
       ).thenAnswer((_) async => SuccessState(data: list));
 
-      final result = await getBatchUseCase(ids);
+      final result = await getBatchUseCase(
+        GetWorkOrderObservationsBatchParams(workOrderIds: ids),
+      );
 
       expect(result, isA<SuccessState<List<WorkOrderObservationEntity>>>());
       verify(() => repository.getObservationsByWorkOrderIds(ids)).called(1);

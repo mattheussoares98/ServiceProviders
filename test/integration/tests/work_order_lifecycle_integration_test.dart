@@ -78,7 +78,10 @@ void main() {
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
     );
-    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(database: db);
+    workOrdersRemote = WorkOrdersRemoteDataSourceImpl(
+      database: db,
+      realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+    );
     pauseRemote = PauseRemoteDataSourceImpl(
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
