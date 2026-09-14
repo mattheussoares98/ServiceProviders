@@ -71,6 +71,12 @@ Fires `AFTER INSERT OR UPDATE OF assigned_to_id, provider_profile_id, service_pr
 - Resolves recipient user IDs (internal assignee or provider technician/company).
 - Calls `public.dispatch_push_notification()` to notify the assigned technician, excluding `auth.uid()`.
 
+### `tr_notify_work_order_pending_conclusion`
+Fires `AFTER INSERT OR UPDATE OF status ON public.work_orders`.
+- Triggered when `status` transitions to `pending_conclusion`.
+- Resolves managers/supervisors with `work_orders.manage_pending_requests` permission in the company.
+- Calls `public.dispatch_push_notification()` with type `work_order_pending_conclusion`.
+
 ---
 
 ## Realtime Publication
