@@ -79,7 +79,7 @@ class ChecklistEvidenceInput extends HookWidget {
       if (isUploading.value) return;
 
       if (sources.length == 1) {
-        return _attach(context, sources.first, isUploading);
+        return await _attach(context, sources.first, isUploading);
       }
 
       final chosen = await showModalBottomSheet<AttachmentSource>(

@@ -155,7 +155,7 @@ class NotificationsService {
     );
 
     await _localNotifications.initialize(
-      initializationSettings,
+      settings: initializationSettings,
       onDidReceiveNotificationResponse: (details) {
         if (details.payload != null && details.payload!.isNotEmpty) {
           try {
@@ -176,10 +176,10 @@ class NotificationsService {
 
     if (!kIsWeb && title != null) {
       _localNotifications.show(
-        message.hashCode,
-        title,
-        body,
-        const NotificationDetails(
+        id: message.hashCode,
+        title: title,
+        body: body,
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             'high_importance_channel',
             'Celta Mobile Notifications',

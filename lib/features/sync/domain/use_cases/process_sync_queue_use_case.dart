@@ -256,7 +256,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     SyncQueueItemEntity item,
     MapDynamic payloadMap,
   ) async {
-    return switch (item.operation) {
+    return await switch (item.operation) {
       SyncOperationType.create => () async {
         final res = await _observationsRemoteDataSource.createObservation(
           WorkOrderObservationModel.fromJson(payloadMap),

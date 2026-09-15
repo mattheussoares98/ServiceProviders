@@ -109,6 +109,6 @@ final class ConfigurationsRepositoryImpl implements ConfigurationsRepository {
   @override
   FutureVoid clearAppCache() async {
     await _sessionRepository.logout();
-    return _localDataSource.clearAll();
+    return await _localDataSource.clearAll();
   }
 }

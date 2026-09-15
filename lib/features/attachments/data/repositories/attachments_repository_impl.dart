@@ -403,7 +403,7 @@ final class AttachmentsRepositoryImpl implements AttachmentsRepository {
       if (!_internet.isConnected) {
         return FailureState.noInternet();
       }
-      return _remoteDataSource.deleteAttachment(id);
+      return await _remoteDataSource.deleteAttachment(id);
     }
     try {
       final localResult = await _localDataSource.getAttachment(id);

@@ -73,7 +73,10 @@ final class CompanyRepositoryImpl implements CompanyRepository {
 
   @override
   FutureList<CompanyEntity> getAllCompanies() =>
-      RepositoryHandler.fetchWithFallbackAndMapList<CompanyModel, CompanyEntity>(
+      RepositoryHandler.fetchWithFallbackAndMapList<
+        CompanyModel,
+        CompanyEntity
+      >(
         isInternetConnected: _internet.isConnected,
         remoteCallback: _remoteDataSource.getAllCompanies,
       );
@@ -125,7 +128,6 @@ final class CompanyRepositoryImpl implements CompanyRepository {
         );
       }
     }
-    return _localDataSource.saveCompanyParameters(model);
+    return await _localDataSource.saveCompanyParameters(model);
   }
 }
-

@@ -731,7 +731,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
     final profileId = profileResult.data!.id;
 
-    return saveWorkOrder(
+    return await saveWorkOrder(
       id: id,
       isEditing: false,
       companyId: company.companyId,

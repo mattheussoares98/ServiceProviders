@@ -130,7 +130,7 @@ final class NavigationClientImpl implements NavigationClient {
       if (routeToPush == null) {
         return null;
       }
-      return _appRouter.push(routeToPush);
+      return await _appRouter.push(routeToPush);
     }, valueOnError: null);
   }
 

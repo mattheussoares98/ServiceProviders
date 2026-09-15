@@ -112,19 +112,30 @@ final class FileServiceMobile implements FileServicePlatformHelper {
     Set<FileExtension>? allowedExtensions,
     bool multiple = true,
   }) async {
-    final effectiveExtensions = (allowedExtensions ??
-            (PlatformUtil.isMobile
-                ? FileExtension.documents
-                : FileExtension.values.toSet()))
-        .map((e) => e.value)
-        .toList();
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: multiple,
-      type: FileType.custom,
-      allowedExtensions: effectiveExtensions,
-    );
-    if (result == null || result.files.isEmpty) return null;
-    return result.files
+    final effectiveExtensions =
+        (allowedExtensions ??
+                (PlatformUtil.isMobile
+                    ? FileExtension.documents
+                    : FileExtension.values.toSet()))
+            .map((e) => e.value)
+            .toList();
+    List<PlatformFile> result;
+    if (multiple) {
+      result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: effectiveExtensions,
+      );
+    } else {
+      result = [
+        ?await FilePicker.pickFile(
+          type: FileType.custom,
+          allowedExtensions: effectiveExtensions,
+        ),
+      ];
+    }
+
+    if (result.isEmpty) return null;
+    return result
         .where((f) => f.path != null)
         .map((f) => (path: f.path!, name: f.name, bytes: null))
         .toList();

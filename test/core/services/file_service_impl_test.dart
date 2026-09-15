@@ -25,15 +25,43 @@ class MockFlutterImageCompressPlatform extends Mock
 class MockFlutterImageCompressValidator extends Mock
     implements FlutterImageCompressValidator {}
 
-class MockFilePicker extends Mock
+class MockFilePickerPlatform extends Mock
     with MockPlatformInterfaceMixin
-    implements FilePicker {}
+    implements FilePickerPlatform {}
+
+final class TestPlatformFile extends PlatformFile {
+  TestPlatformFile({required this.name, required String path, this.size = 100})
+    : uri = Uri.file(path);
+
+  @override
+  final String name;
+
+  @override
+  final Uri uri;
+
+  final int size;
+
+  @override
+  XFile get xFile => XFile(path!, name: name);
+
+  @override
+  int? lengthSync() => size;
+
+  @override
+  Future<int?> length() async => size;
+
+  @override
+  Future<Uint8List> readAsBytes() async => Uint8List(0);
+
+  @override
+  Stream<Uint8List> readAsByteStream() => const Stream.empty();
+}
 
 void main() {
   final faker = Faker();
   late MockImagePicker mockImagePicker;
   late MockHttpClient mockHttpClient;
-  late MockFilePicker mockFilePicker;
+  late MockFilePickerPlatform mockFilePickerPlatform;
   late FileServiceImpl service;
   late Directory tempDir;
   late bool urlLaunchSuccess;
@@ -52,8 +80,8 @@ void main() {
   setUp(() async {
     mockImagePicker = MockImagePicker();
     mockHttpClient = MockHttpClient();
-    mockFilePicker = MockFilePicker();
-    FilePicker.platform = mockFilePicker;
+    mockFilePickerPlatform = MockFilePickerPlatform();
+    FilePickerPlatform.instance = mockFilePickerPlatform;
     service = FileServiceImpl(
       imagePicker: mockImagePicker,
       client: mockHttpClient,
@@ -320,23 +348,19 @@ void main() {
         final fileName = faker.lorem.word();
         final filePath = '${tempDir.path}/$fileName';
         when(
-          () => mockFilePicker.pickFiles(
-            allowMultiple: any(named: 'allowMultiple'),
+          () => mockFilePickerPlatform.pickFiles(
             type: any(named: 'type'),
             allowedExtensions: any(named: 'allowedExtensions'),
           ),
         ).thenAnswer(
-          (_) async => FilePickerResult([
-            PlatformFile(name: fileName, path: filePath, size: 100),
-          ]),
+          (_) async => [TestPlatformFile(name: fileName, path: filePath)],
         );
 
         final result = await service.pickDocuments();
 
         expect(result, [(path: filePath, name: fileName, bytes: null)]);
         verify(
-          () => mockFilePicker.pickFiles(
-            allowMultiple: true,
+          () => mockFilePickerPlatform.pickFiles(
             type: FileType.custom,
             allowedExtensions: ['pdf', 'docx', 'xlsx'],
           ),
@@ -351,23 +375,19 @@ void main() {
         final fileName = faker.lorem.word();
         final filePath = '${tempDir.path}/$fileName';
         when(
-          () => mockFilePicker.pickFiles(
-            allowMultiple: any(named: 'allowMultiple'),
+          () => mockFilePickerPlatform.pickFiles(
             type: any(named: 'type'),
             allowedExtensions: any(named: 'allowedExtensions'),
           ),
         ).thenAnswer(
-          (_) async => FilePickerResult([
-            PlatformFile(name: fileName, path: filePath, size: 100),
-          ]),
+          (_) async => [TestPlatformFile(name: fileName, path: filePath)],
         );
 
         final result = await service.pickDocuments();
 
         expect(result, [(path: filePath, name: fileName, bytes: null)]);
         verify(
-          () => mockFilePicker.pickFiles(
-            allowMultiple: true,
+          () => mockFilePickerPlatform.pickFiles(
             type: FileType.custom,
             allowedExtensions: [
               'pdf',
@@ -397,15 +417,12 @@ void main() {
           FileExtension.png,
         };
         when(
-          () => mockFilePicker.pickFiles(
-            allowMultiple: any(named: 'allowMultiple'),
+          () => mockFilePickerPlatform.pickFile(
             type: any(named: 'type'),
             allowedExtensions: any(named: 'allowedExtensions'),
           ),
         ).thenAnswer(
-          (_) async => FilePickerResult([
-            PlatformFile(name: fileName, path: filePath, size: 100),
-          ]),
+          (_) async => TestPlatformFile(name: fileName, path: filePath),
         );
 
         final result = await service.pickDocuments(
@@ -415,7 +432,7 @@ void main() {
 
         expect(result, [(path: filePath, name: fileName, bytes: null)]);
         verify(
-          () => mockFilePicker.pickFiles(
+          () => mockFilePickerPlatform.pickFile(
             type: FileType.custom,
             allowedExtensions: ['jpg', 'jpeg', 'png'],
           ),
@@ -426,12 +443,11 @@ void main() {
     test('returns null when user cancels document picker', () async {
       debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       when(
-        () => mockFilePicker.pickFiles(
-          allowMultiple: any(named: 'allowMultiple'),
+        () => mockFilePickerPlatform.pickFiles(
           type: any(named: 'type'),
           allowedExtensions: any(named: 'allowedExtensions'),
         ),
-      ).thenAnswer((_) async => null);
+      ).thenAnswer((_) async => []);
 
       final result = await service.pickDocuments();
 

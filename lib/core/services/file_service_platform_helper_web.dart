@@ -97,28 +97,36 @@ final class FileServiceWeb implements FileServicePlatformHelper {
     Set<FileExtension>? allowedExtensions,
     bool multiple = true,
   }) async {
-    final effectiveExtensions = (allowedExtensions ??
-            (PlatformUtil.isMobile
-                ? FileExtension.documents
-                : FileExtension.values.toSet()))
-        .map((e) => e.value)
-        .toList();
-    final result = await FilePicker.platform.pickFiles(
-      allowMultiple: multiple,
-      type: FileType.custom,
-      allowedExtensions: effectiveExtensions,
-    );
-    if (result == null || result.files.isEmpty) return null;
+    final effectiveExtensions =
+        (allowedExtensions ??
+                (PlatformUtil.isMobile
+                    ? FileExtension.documents
+                    : FileExtension.values.toSet()))
+            .map((e) => e.value)
+            .toList();
+    List<PlatformFile> result;
+    if (multiple) {
+      result = await FilePicker.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: effectiveExtensions,
+      );
+    } else {
+      result = [
+        ?await FilePicker.pickFile(
+          type: FileType.custom,
+          allowedExtensions: effectiveExtensions,
+        ),
+      ];
+    }
+    if (result.isEmpty) return null;
 
     final picked = <PickedFile>[];
-    for (final file in result.files) {
-      final bytes = file.bytes;
-      if (bytes != null) {
-        // file.path is null on Web. We generate a virtual path key.
-        final virtualPath = 'virtual_file://${file.name}';
-        _webCache[virtualPath] = bytes;
-        picked.add((path: virtualPath, name: file.name, bytes: bytes));
-      }
+    for (final file in result) {
+      final bytes = await file.xFile.readAsBytes();
+      // file.path is null on Web. We generate a virtual path key.
+      final virtualPath = 'virtual_file://${file.name}';
+      _webCache[virtualPath] = bytes;
+      picked.add((path: virtualPath, name: file.name, bytes: bytes));
     }
     return picked;
   }

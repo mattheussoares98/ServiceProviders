@@ -11,7 +11,7 @@ dependencies:
   alice: ^1.0.0
   alice_dio: ^1.0.6
   auto_route: ^11.1.0
-  cached_network_image: ^3.3.1
+  cached_network_image: ^4.0.0
   collection: ^1.19.1
   cpf_cnpj_validator: ^2.0.0
   cupertino_icons: ^1.0.8
@@ -20,7 +20,7 @@ dependencies:
   encrypt: ^5.0.3
   equatable: ^2.0.8
   ffmpeg_kit_flutter_new: ^4.4.0
-  file_picker: ^9.0.0
+  file_picker: ^13.1.0
   firebase_analytics: ^12.4.0
   firebase_core: ^4.8.0
   firebase_crashlytics: ^5.2.1
@@ -31,7 +31,7 @@ dependencies:
   flutter_dotenv: ^6.0.0
   flutter_hooks: ^0.21.2
   flutter_image_compress: ^2.3.0
-  flutter_local_notifications: ^19.5.0
+  flutter_local_notifications: ^22.3.1
   flutter_localizations:
     sdk: flutter
   flutter_sliding_toast: ^1.5.2
@@ -48,7 +48,7 @@ dependencies:
   open_filex: ^4.6.0
   path: ^1.9.0
   path_provider: ^2.1.5
-  permission_handler: ^12.0.3
+  permission_handler: ^13.0.2
   sqlite3: ^3.3.0
   sqlite3_flutter_libs: ^0.6.0+eol
   supabase_flutter: ^2.12.4
@@ -69,7 +69,7 @@ dev_dependencies:
   injectable_generator: ^3.0.2
   integration_test:
     sdk: flutter
-  leancode_lint: ^22.0.1
+  leancode_lint: ^27.0.0
   mocktail: ^1.0.4
   patrol: ^4.1.0
   patrol_finders: ^3.0.0

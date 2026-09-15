@@ -9,7 +9,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_e
 @LazySingleton()
 class OpenAttachmentUseCase implements UseCase<void, AttachmentEntity> {
   OpenAttachmentUseCase({required FileService fileService})
-      : _fileService = fileService;
+    : _fileService = fileService;
 
   final FileService _fileService;
 
@@ -21,6 +21,6 @@ class OpenAttachmentUseCase implements UseCase<void, AttachmentEntity> {
         message: 'Nenhum caminho ou link disponível para abrir.'.hardcoded,
       );
     }
-    return _fileService.openFile(path);
+    return await _fileService.openFile(path);
   }
 }
