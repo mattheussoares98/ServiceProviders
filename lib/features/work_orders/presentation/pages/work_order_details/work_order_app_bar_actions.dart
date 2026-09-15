@@ -23,6 +23,9 @@ class WorkOrderAppBarActions extends StatelessWidget {
       ),
     );
     final canEdit = !workOrder.status.isClosed || canManagePendingRequests;
+    final canDelete =
+        !workOrder.status.isCompleted &&
+        !workOrder.status.isPendingConclusionApproval;
 
     return Row(
       mainAxisSize: .min,
@@ -66,34 +69,35 @@ class WorkOrderAppBarActions extends StatelessWidget {
               ),
             ),
           ),
-        Flexible(
-          child: BaseIconButton(
-            permission: const ActionPermission.resource(
-              resourceType: ResourceType.workOrders,
-              permissionAction: PermissionAction.delete,
-            ),
-            onPressed: () async {
-              final bool? ok = await showAlertDialog(
-                context: context,
-                title: 'Atenção!'.hardcoded,
-                contentText:
-                    'Deseja realmente excluir a ordem de serviço?'.hardcoded,
-                defaultActionText: 'Sim'.hardcoded,
-                cancelActionText: 'Não'.hardcoded,
-              );
-              if (ok == true && context.mounted) {
-                await context.read<WorkOrderDetailsCubit>().deleteWorkOrder(
-                  workOrder.id,
+        if (canDelete)
+          Flexible(
+            child: BaseIconButton(
+              permission: const ActionPermission.resource(
+                resourceType: ResourceType.workOrders,
+                permissionAction: PermissionAction.delete,
+              ),
+              onPressed: () async {
+                final bool? ok = await showAlertDialog(
+                  context: context,
+                  title: 'Atenção!'.hardcoded,
+                  contentText:
+                      'Deseja realmente excluir a ordem de serviço?'.hardcoded,
+                  defaultActionText: 'Sim'.hardcoded,
+                  cancelActionText: 'Não'.hardcoded,
                 );
-              }
-            },
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.delete,
-              cupertinoIcon: CupertinoIcons.delete,
-              color: Colors.red,
+                if (ok == true && context.mounted) {
+                  await context.read<WorkOrderDetailsCubit>().deleteWorkOrder(
+                    workOrder.id,
+                  );
+                }
+              },
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.delete,
+                cupertinoIcon: CupertinoIcons.delete,
+                color: Colors.red,
+              ),
             ),
           ),
-        ),
       ],
     );
   }

@@ -49,28 +49,57 @@ CREATE POLICY "Users update own company work orders with permission"
     (
       company_id = public.get_user_company_id()
       AND (
-        public.get_work_orders_update_scope() = 'all'
-        OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid())
-        OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid())
+        (
+          status NOT IN ('completed', 'cancelled')
+          AND (
+            public.get_work_orders_update_scope() = 'all'
+            OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid())
+            OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid())
+          )
+        )
+        OR (
+          status IN ('completed', 'cancelled')
+          AND public.has_permission('work_orders.manage_pending_requests')
+        )
       )
     )
-    OR public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
+    OR (
+      status NOT IN ('completed', 'cancelled')
+      AND public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
+    )
   )
   WITH CHECK (
     (
       company_id = public.get_user_company_id()
       AND (
-        public.get_work_orders_update_scope() = 'all'
-        OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid())
-        OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid())
+        (
+          status NOT IN ('completed', 'cancelled')
+          AND (
+            public.get_work_orders_update_scope() = 'all'
+            OR (public.get_work_orders_update_scope() = 'assigned' AND assigned_to_id = auth.uid())
+            OR (public.get_work_orders_update_scope() = 'own' AND created_by_id = auth.uid())
+          )
+        )
+        OR (
+          status IN ('completed', 'cancelled')
+          AND public.has_permission('work_orders.manage_pending_requests')
+        )
       )
     )
-    OR public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
+    OR (
+      status NOT IN ('completed', 'cancelled')
+      AND public.is_provider_member_of_work_order(service_provider_company_id, provider_profile_id)
+    )
   );
 ```
 ---
 
 ## Triggers
+
+### `tr_prevent_delete_work_orders_with_status`
+Fires `BEFORE UPDATE ON public.work_orders`.
+- Executed on soft deletion (`NEW.deleted_at IS NOT NULL AND OLD.deleted_at IS NULL`).
+- Blocks deletion if the work order status is `completed` or `pending_conclusion`, or if there are pending pause/conclusion requests.
 
 ### `tr_notify_work_order_assigned`
 Fires `AFTER INSERT OR UPDATE OF assigned_to_id, provider_profile_id, service_provider_company_id ON public.work_orders`.

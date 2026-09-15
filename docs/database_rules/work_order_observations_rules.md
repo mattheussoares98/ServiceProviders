@@ -26,21 +26,44 @@ CREATE POLICY "Users can insert observations into work orders of their company"
     )
   );
 
--- UPDATE: author OR approver (company), or author (provider)
+-- UPDATE: author OR approver (company), or author (provider), restricted on closed/pending WO
 CREATE POLICY "Users can update observations of their company"
   ON public.work_order_observations FOR UPDATE
+  TO authenticated
   USING (
     (
       company_id = public.get_user_company_id()
       AND (
-        author_id = auth.uid()
-        OR public.has_permission('work_orders.delete_observation')
-        OR public.has_permission('work_orders.update')
+        -- If parent work order is closed or pending conclusion, require manage_pending_requests
+        EXISTS (
+          SELECT 1 FROM public.work_orders wo
+          WHERE wo.id = work_order_observations.work_order_id
+            AND wo.status IN ('completed', 'cancelled', 'pending_conclusion')
+        )
+        AND public.has_permission('work_orders.manage_pending_requests')
+      )
+      OR (
+        company_id = public.get_user_company_id()
+        AND NOT EXISTS (
+          SELECT 1 FROM public.work_orders wo
+          WHERE wo.id = work_order_observations.work_order_id
+            AND wo.status IN ('completed', 'cancelled', 'pending_conclusion')
+        )
+        AND (
+          author_id = auth.uid()
+          OR public.has_permission('work_orders.delete_observation')
+          OR public.has_permission('work_orders.update')
+        )
       )
     )
     OR (
       public.is_provider_member_of_work_order_id(work_order_id)
       AND public.is_own_provider_profile(author_provider_profile_id)
+      AND NOT EXISTS (
+        SELECT 1 FROM public.work_orders wo
+        WHERE wo.id = work_order_observations.work_order_id
+          AND wo.status IN ('completed', 'cancelled', 'pending_conclusion')
+      )
     )
   )
   WITH CHECK (

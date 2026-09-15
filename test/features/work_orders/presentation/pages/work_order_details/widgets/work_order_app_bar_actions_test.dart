@@ -149,5 +149,71 @@ void main() {
         );
       },
     );
+
+    testWidgets('hides delete button when work order is completed', (
+      tester,
+    ) async {
+      when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.completed,
+      );
+
+      await tester.pumpWidget(
+        buildTestableWidget(WorkOrderAppBarActions(workOrder: workOrder)),
+      );
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Icon &&
+              (w.icon == Icons.delete || w.icon == CupertinoIcons.delete),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('hides delete button when work order is pending conclusion', (
+      tester,
+    ) async {
+      when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.pendingConclusionApproval,
+      );
+
+      await tester.pumpWidget(
+        buildTestableWidget(WorkOrderAppBarActions(workOrder: workOrder)),
+      );
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Icon &&
+              (w.icon == Icons.delete || w.icon == CupertinoIcons.delete),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('shows delete button when work order is in progress', (
+      tester,
+    ) async {
+      when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
+      final workOrder = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+        status: WorkOrderStatus.inProgress,
+      );
+
+      await tester.pumpWidget(
+        buildTestableWidget(WorkOrderAppBarActions(workOrder: workOrder)),
+      );
+
+      expect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Icon &&
+              (w.icon == Icons.delete || w.icon == CupertinoIcons.delete),
+        ),
+        findsOneWidget,
+      );
+    });
   });
 }

@@ -52,6 +52,10 @@ class ObservationsSection extends HookWidget {
       }
     }
 
+    final canDeleteObservation =
+        !workOrder.status.isClosed &&
+        !workOrder.status.isPendingConclusionApproval;
+
     return SliverMainAxisGroup(
       slivers: [
         SliverToBoxAdapter(child: BaseText.title('Observações'.hardcoded)),
@@ -96,43 +100,44 @@ class ObservationsSection extends HookWidget {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            BlocSelector<
-                              WorkOrderObservationsCubit,
-                              WorkOrderObservationsState,
-                              bool
-                            >(
-                              selector: (state) =>
-                                  state.sections[WorkOrderObservationsSections
-                                      .deleteObservation] ==
-                                  const SectionState.running(),
-                              builder: (context, isDeleting) {
-                                return BaseIconButton(
-                                  isLoading: isDeleting,
-                                  onPressed: () {
-                                    showAlertDialog(
-                                      context: context,
-                                      title: 'Excluir observação'.hardcoded,
-                                      contentText:
-                                          'Deseja realmente excluir a observação?'
-                                              .hardcoded,
-                                      cancelActionText: 'Não'.hardcoded,
-                                      defaultActionText: 'Sim'.hardcoded,
-                                      onOkPressed: () =>
-                                          cubit.deleteObservation(item.id),
-                                    );
-                                  },
-                                  permission:
-                                      const ActionPermission.workOrderSubAction(
-                                        WorkOrderSubAction.deleteObservation,
-                                      ),
-                                  platformIcon: const PlatformIcon(
-                                    materialIcon: Icons.delete_outline,
-                                    cupertinoIcon: CupertinoIcons.trash,
-                                    color: Colors.red,
-                                  ),
-                                );
-                              },
-                            ),
+                            if (canDeleteObservation)
+                              BlocSelector<
+                                WorkOrderObservationsCubit,
+                                WorkOrderObservationsState,
+                                bool
+                              >(
+                                selector: (state) =>
+                                    state.sections[WorkOrderObservationsSections
+                                        .deleteObservation] ==
+                                    const SectionState.running(),
+                                builder: (context, isDeleting) {
+                                  return BaseIconButton(
+                                    isLoading: isDeleting,
+                                    onPressed: () {
+                                      showAlertDialog(
+                                        context: context,
+                                        title: 'Excluir observação'.hardcoded,
+                                        contentText:
+                                            'Deseja realmente excluir a observação?'
+                                                .hardcoded,
+                                        cancelActionText: 'Não'.hardcoded,
+                                        defaultActionText: 'Sim'.hardcoded,
+                                        onOkPressed: () =>
+                                            cubit.deleteObservation(item.id),
+                                      );
+                                    },
+                                    permission:
+                                        const ActionPermission.workOrderSubAction(
+                                          WorkOrderSubAction.deleteObservation,
+                                        ),
+                                    platformIcon: const PlatformIcon(
+                                      materialIcon: Icons.delete_outline,
+                                      cupertinoIcon: CupertinoIcons.trash,
+                                      color: Colors.red,
+                                    ),
+                                  );
+                                },
+                              ),
                           ],
                         ),
                         BaseText(
