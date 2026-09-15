@@ -136,12 +136,14 @@ class Attachments extends StatelessWidget {
           itemBuilder: (context, index) {
             if (index < attachments.length) {
               final attachment = attachments[index];
-              final isEvidence = (attachment.remoteUrl != null &&
+              final isEvidence =
+                  (attachment.remoteUrl != null &&
                       checklistEvidenceUrls.contains(attachment.remoteUrl)) ||
                   (attachment.localPath != null &&
                       checklistEvidenceUrls.contains(attachment.localPath));
               return AttachmentItem(
                 attachment: attachment,
+                isWorkOrderActive: isWorkOrderActive,
                 autoDelete: autoUpload,
                 isChecklistEvidence: isEvidence,
               );

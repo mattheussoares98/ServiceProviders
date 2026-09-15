@@ -207,14 +207,14 @@ void main() {
       expect(find.text('Adicionar'), findsOneWidget);
     });
 
-    testWidgets('keeps Remover anexo on a closed work order', (tester) async {
+    testWidgets('hides Remover anexo on a closed or inactive work order', (
+      tester,
+    ) async {
       arrangeState(attachments: [documentAttachment()]);
 
       await pumpAttachments(tester, isWorkOrderActive: false);
 
-      // The status gate freezes additions only; the contracting company can
-      // still clean up evidence after the fact.
-      expect(find.text('Remover anexo'), findsOneWidget);
+      expect(find.text('Remover anexo'), findsNothing);
     });
 
     testWidgets('renders safely when attachment fileSizeBytes is null', (

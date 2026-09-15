@@ -28,11 +28,13 @@ class AttachmentItem extends StatelessWidget {
   const AttachmentItem({
     super.key,
     required this.attachment,
+    this.isWorkOrderActive = true,
     this.autoDelete = false,
     this.isChecklistEvidence = false,
   });
 
   final AttachmentEntity attachment;
+  final bool isWorkOrderActive;
   final bool autoDelete;
   final bool isChecklistEvidence;
 
@@ -41,12 +43,14 @@ class AttachmentItem extends StatelessWidget {
     // Read here rather than taken as a parameter: there is no caller that
     // legitimately wants the remove affordance without `attachments.delete`,
     // and provider mode denies it through `providerModeAllows`.
-    final canDelete = context.hasPermission(
-      const ActionPermission.resource(
-        resourceType: ResourceType.attachments,
-        permissionAction: PermissionAction.delete,
-      ),
-    );
+    final canDelete =
+        isWorkOrderActive &&
+        context.hasPermission(
+          const ActionPermission.resource(
+            resourceType: ResourceType.attachments,
+            permissionAction: PermissionAction.delete,
+          ),
+        );
 
     void onDelete() {
       showAlertDialog(
@@ -54,7 +58,7 @@ class AttachmentItem extends StatelessWidget {
         title: 'Remover anexo'.hardcoded,
         contentText: isChecklistEvidence
             ? 'Este anexo é uma evidência do checklist. Deseja realmente removê-lo?'
-                .hardcoded
+                  .hardcoded
             : 'Deseja realmente remover o anexo?'.hardcoded,
         defaultActionText: 'Sim'.hardcoded,
         cancelActionText: 'Não'.hardcoded,
