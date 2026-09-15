@@ -270,6 +270,14 @@ extension AuditLogUiExtension on AuditLogEntity {
         _ => summary ?? action.hardcoded,
       };
     }
+    if (entityType == AuditEntityType.workOrderPauseRequests) {
+      if (action == 'created') {
+        final eventType = metadata?.eventType?.toLowerCase();
+        return eventType == 'completion'
+            ? 'Solicitação de conclusão enviada'.hardcoded
+            : 'Solicitação de pausa enviada'.hardcoded;
+      }
+    }
     if (summary != null && summary!.trim().isNotEmpty) {
       return summary!;
     }

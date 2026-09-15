@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/assets/presentation/pages/create_update_
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_change_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_entity_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_log_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/audit_metadata_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -258,6 +259,36 @@ void main() {
           createdAt: DateTime(2026, 9, 3),
         );
         expect(deletedObsLog.displayTitle, equals('Observação removida'));
+
+        final createdCompletionPauseLog = AuditLogEntity(
+          id: '7',
+          companyId: 'comp-1',
+          entityType: AuditEntityType.workOrderPauseRequests,
+          entityId: 'pause-1',
+          action: 'created',
+          summary: 'Solicitação de conclusão enviada: concluded service',
+          metadata: const AuditMetadataEntity(eventType: 'completion'),
+          createdAt: DateTime(2026, 9, 3),
+        );
+        expect(
+          createdCompletionPauseLog.displayTitle,
+          equals('Solicitação de conclusão enviada'),
+        );
+
+        final createdPauseLog = AuditLogEntity(
+          id: '8',
+          companyId: 'comp-1',
+          entityType: AuditEntityType.workOrderPauseRequests,
+          entityId: 'pause-2',
+          action: 'created',
+          summary: 'Solicitação de pausa enviada: awaiting parts',
+          metadata: const AuditMetadataEntity(eventType: 'pause'),
+          createdAt: DateTime(2026, 9, 3),
+        );
+        expect(
+          createdPauseLog.displayTitle,
+          equals('Solicitação de pausa enviada'),
+        );
       },
     );
   });
