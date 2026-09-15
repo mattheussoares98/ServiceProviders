@@ -3,11 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_action.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/entities/create_access_log_request_entity.dart';
+import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/change_password_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/log_out_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/login_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/save_user_data_use_case.dart';
@@ -18,8 +22,10 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_auth_user_us
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/watch_session_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockAuthRepository mockAuthRepository;
@@ -39,18 +45,24 @@ void main() {
   late SetSelectedCompanyIdUseCase setSelectedCompanyIdUseCase;
   late SaveSelectedModeUseCase saveSelectedModeUseCase;
   late GetSelectedModeUseCase getSelectedModeUseCase;
+  late CreateAccessLogUseCase mockCreateAccessLogUseCase;
+  late GetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+  late LogOutUseCase logOutUseCase;
 
   setUpAll(() {
     registerFallbackValue(UserFactory.makeAuthentication());
     registerFallbackValue(UserFactory.makeSignUp());
     registerFallbackValue(UserFactory.makeUserDataEntity());
     registerFallbackValue(UserFactory.makeVerifyOtpRequestEntity());
+    registerFallbackValue(SystemFactory.makeCreateAccessLogRequestEntity());
   });
 
   setUp(() {
     mockAuthRepository = MockAuthRepository();
     mockSessionRepository = MockSessionRepository();
     mockLocalStorageClient = MockLocalStorageClient();
+    mockCreateAccessLogUseCase = MockCreateAccessLogUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     loginUseCase = LoginUseCase(authRepository: mockAuthRepository);
     signUpUseCase = SignUpUseCase(authRepository: mockAuthRepository);
     verifyOtpUseCase = VerifyOtpUseCase(authRepository: mockAuthRepository);
@@ -75,6 +87,11 @@ void main() {
     );
     saveSelectedModeUseCase = SaveSelectedModeUseCase(mockLocalStorageClient);
     getSelectedModeUseCase = GetSelectedModeUseCase(mockLocalStorageClient);
+    logOutUseCase = LogOutUseCase(
+      mockSessionRepository,
+      mockCreateAccessLogUseCase,
+      mockGetActiveCompanyIdUseCase,
+    );
   });
 
   // Test data
@@ -473,6 +490,52 @@ void main() {
 
           expect(result, AppMode.provider.name);
           verify(() => mockLocalStorageClient.getSelectedMode()).called(1);
+        },
+      );
+    });
+
+    group('LogOutUseCase', () {
+      test(
+        'should create access log with companyId from getActiveCompanyId and call logout',
+        () async {
+          final tCompanyId = faker.guid.guid();
+          when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+          when(() => mockSessionRepository.userData).thenReturn(tUserData);
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tCompanyId);
+          when(
+            () => mockCreateAccessLogUseCase.call(any()),
+          ).thenAnswer((_) async => SuccessState.nil);
+          when(() => mockSessionRepository.logout()).thenAnswer((_) async {});
+
+          await logOutUseCase.call();
+
+          verify(
+            () => mockCreateAccessLogUseCase.call(
+              CreateAccessLogRequestEntity(
+                companyId: tCompanyId,
+                userId: tUserData.user.id,
+                action: AccessLogAction.logout,
+              ),
+            ),
+          ).called(1);
+          verify(() => mockSessionRepository.logout()).called(1);
+        },
+      );
+
+      test(
+        'should not create access log when user is not logged in or companyId is empty, but still logout',
+        () async {
+          when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
+          when(() => mockSessionRepository.userData).thenReturn(tUserData);
+          when(() => mockGetActiveCompanyIdUseCase.call()).thenReturn('');
+          when(() => mockSessionRepository.logout()).thenAnswer((_) async {});
+
+          await logOutUseCase.call();
+
+          verifyNever(() => mockCreateAccessLogUseCase.call(any()));
+          verify(() => mockSessionRepository.logout()).called(1);
         },
       );
     });

@@ -20,10 +20,7 @@ class LogOutUseCase {
 
   Future<void> call() async {
     final user = _sessionRepository.userData.user;
-    final activeCompanyId = _getActiveCompanyId.call();
-    final companyId = activeCompanyId.isNotEmpty
-        ? activeCompanyId
-        : user.companyId;
+    final companyId = _getActiveCompanyId.call();
     final isLoggedIn = _sessionRepository.isLoggedIn;
     if (isLoggedIn && user.id.isNotEmpty && companyId.isNotEmpty) {
       await _createAccessLog.call(
