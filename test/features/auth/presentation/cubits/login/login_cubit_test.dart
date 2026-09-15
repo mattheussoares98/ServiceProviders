@@ -49,6 +49,7 @@ void main() {
   late MockGetServiceProviderProfilesByAuthUserUseCase
   mockGetServiceProviderProfilesByAuthUserUseCase;
   late MockLocalStorageClient mockLocalStorageClient;
+  late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
 
   setUpAll(() {
     userData = UserFactory.makeUserDataEntity().copyWith(
@@ -70,7 +71,7 @@ void main() {
     mockGetUserDataUseCase = MockGetUserDataUseCase();
     mockSaveUserDataUseCase = MockSaveUserDataUseCase();
     mockCreateAccessLogUseCase = MockCreateAccessLogUseCase();
-    final mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+    mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
     mockGetServiceProviderProfilesByAuthUserUseCase =
         MockGetServiceProviderProfilesByAuthUserUseCase();
     mockLocalStorageClient = MockLocalStorageClient();
@@ -167,8 +168,10 @@ void main() {
     },
   );
 
+  final tActiveCompanyId = faker.guid.guid();
+
   blocTest<LoginCubit, LoginState>(
-    'login should fallback to user.companyId for access log when getActiveCompanyId is empty',
+    'login should use getActiveCompanyId for access log',
     build: () {
       when(
         () => mockLoginUseCase.call(any()),
@@ -177,7 +180,7 @@ void main() {
       when(
         () => mockSaveUserDataUseCase.call(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));
-      when(locator<GetActiveCompanyIdUseCase>().call).thenReturn('');
+      when(mockGetActiveCompanyIdUseCase.call).thenReturn(tActiveCompanyId);
 
       return loginCubit;
     },
@@ -194,11 +197,36 @@ void main() {
             that: isA<CreateAccessLogRequestEntity>().having(
               (r) => r.companyId,
               'companyId',
-              userData.user.companyId,
+              tActiveCompanyId,
             ),
           ),
         ),
       ).called(1);
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'login should not call createAccessLog when getActiveCompanyId is empty',
+    build: () {
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: userData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(mockGetActiveCompanyIdUseCase.call).thenReturn('');
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        email: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    verify: (_) {
+      verifyNever(() => mockCreateAccessLogUseCase.call(any()));
     },
   );
 
