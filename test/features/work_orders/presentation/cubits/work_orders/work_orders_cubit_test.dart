@@ -15,6 +15,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachm
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
@@ -132,7 +133,7 @@ void main() {
   late MockWatchWorkOrdersRealtimeUseCase mockWatchWorkOrdersRealtime;
   late MockWatchWorkOrderChangeRequestsRealtimeUseCase
   mockWatchChangeRequestsRealtime;
-  late MockGetCompanyParametersUseCase mockGetCompanyParameters;
+  late MockCanProviderCreateWorkOrderUseCase mockCanProviderCreateWorkOrder;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -173,6 +174,9 @@ void main() {
     registerFallbackValue(
       const DeleteAttachmentParams(attachmentId: 'fallback-id'),
     );
+    registerFallbackValue(
+      const CanProviderCreateWorkOrderParams(companies: []),
+    );
   });
 
   setUp(() {
@@ -201,7 +205,7 @@ void main() {
     mockWatchWorkOrdersRealtime = MockWatchWorkOrdersRealtimeUseCase();
     mockWatchChangeRequestsRealtime =
         MockWatchWorkOrderChangeRequestsRealtimeUseCase();
-    mockGetCompanyParameters = MockGetCompanyParametersUseCase();
+    mockCanProviderCreateWorkOrder = MockCanProviderCreateWorkOrderUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -231,12 +235,8 @@ void main() {
     when(
       () => mockWatchChangeRequestsRealtime(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
-    when(() => mockGetCompanyParameters(any())).thenAnswer(
-      (_) async => SuccessState(
-        data: UserFactory.makeCompanyParameterEntity().copyWith(
-          allowProviderCreateWorkOrder: true,
-        ),
-      ),
+    when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
+      (_) async => const SuccessState(data: true),
     );
 
     useCases = WorkOrdersCubitUseCases(
@@ -261,7 +261,7 @@ void main() {
       getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
-      getCompanyParameters: mockGetCompanyParameters,
+      canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -1704,7 +1704,7 @@ void main() {
                   mockGetServiceProviderCompaniesByIds,
               getSessionUser: mockGetSessionUser,
               getSelectedMode: mockGetSelectedMode,
-              getCompanyParameters: mockGetCompanyParameters,
+              canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
             );
 
             final testCubit = WorkOrdersCubit(useCases: useCases);
@@ -1775,7 +1775,7 @@ void providerModeTests() {
   late WorkOrderEntity tWorkOrder;
   late MockGetAttachmentsUseCase mockGetAttachments;
   late MockSyncEngine mockSyncEngine;
-  late MockGetCompanyParametersUseCase mockGetCompanyParameters;
+  late MockCanProviderCreateWorkOrderUseCase mockCanProviderCreateWorkOrder;
   late UserProfileEntity tUserProfile;
   late List<ServiceProviderCompanyEntity> tCompanies;
   late List<ServiceProviderProfileEntity> tProfiles;
@@ -1804,7 +1804,7 @@ void providerModeTests() {
       getServiceProviderCompaniesByIds: mockGetServiceProviderCompaniesByIds,
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
-      getCompanyParameters: mockGetCompanyParameters,
+      canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
     ),
   );
 
@@ -1814,6 +1814,9 @@ void providerModeTests() {
         const GetProviderWorkOrdersParams(serviceProviderCompanyIds: []),
       );
       registerFallbackValue(const WorkOrderFilter());
+      registerFallbackValue(
+        const CanProviderCreateWorkOrderParams(companies: []),
+      );
     });
 
     setUp(() {
@@ -1832,13 +1835,9 @@ void providerModeTests() {
       mockCreateWorkOrder = MockCreateWorkOrderUseCase();
       mockGetAttachments = MockGetAttachmentsUseCase();
       mockSyncEngine = MockSyncEngine();
-      mockGetCompanyParameters = MockGetCompanyParametersUseCase();
-      when(() => mockGetCompanyParameters(any())).thenAnswer(
-        (_) async => SuccessState(
-          data: UserFactory.makeCompanyParameterEntity().copyWith(
-            allowProviderCreateWorkOrder: true,
-          ),
-        ),
+      mockCanProviderCreateWorkOrder = MockCanProviderCreateWorkOrderUseCase();
+      when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
+        (_) async => const SuccessState(data: true),
       );
       when(
         () => mockSyncEngine.onSyncCompleted,
@@ -2151,12 +2150,8 @@ void providerModeTests() {
         'refuses to create when contracting company does not allow provider to create work orders',
         build: () {
           stubCreation();
-          when(() => mockGetCompanyParameters(any())).thenAnswer(
-            (_) async => SuccessState(
-              data: UserFactory.makeCompanyParameterEntity().copyWith(
-                allowProviderCreateWorkOrder: false,
-              ),
-            ),
+          when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
+            (_) async => const SuccessState(data: false),
           );
           return buildCubit();
         },
@@ -2175,12 +2170,8 @@ void providerModeTests() {
         'sets canProviderCreateWorkOrder to false when company parameter prohibits it',
         build: () {
           stubCreation();
-          when(() => mockGetCompanyParameters(any())).thenAnswer(
-            (_) async => SuccessState(
-              data: UserFactory.makeCompanyParameterEntity().copyWith(
-                allowProviderCreateWorkOrder: false,
-              ),
-            ),
+          when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
+            (_) async => const SuccessState(data: false),
           );
           return buildCubit();
         },

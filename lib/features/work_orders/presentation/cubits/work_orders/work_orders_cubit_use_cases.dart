@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachm
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
-import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_companies_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_service_provider_profiles_by_auth_user_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/use_cases/get_session_provider_profile_use_case.dart';
@@ -44,7 +44,7 @@ class WorkOrdersCubitUseCases {
     required this.getServiceProviderCompaniesByIds,
     required this.getSessionUser,
     required this.getSelectedMode,
-    required this.getCompanyParameters,
+    required this.canProviderCreateWorkOrder,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -71,5 +71,5 @@ class WorkOrdersCubitUseCases {
   getServiceProviderCompaniesByIds;
   final GetSessionUserUseCase getSessionUser;
   final GetSelectedModeUseCase getSelectedMode;
-  final GetCompanyParametersUseCase getCompanyParameters;
+  final CanProviderCreateWorkOrderUseCase canProviderCreateWorkOrder;
 }

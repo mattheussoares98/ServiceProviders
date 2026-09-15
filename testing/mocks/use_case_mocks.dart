@@ -37,6 +37,7 @@ import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/update_check
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_answers_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_items_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/use_cases/watch_checklist_templates_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
@@ -273,6 +274,9 @@ class MockWatchServiceProviderProfilesRealtimeUseCase extends Mock
 
 class MockGetCompanyParametersUseCase extends Mock
     implements GetCompanyParametersUseCase {}
+
+class MockCanProviderCreateWorkOrderUseCase extends Mock
+    implements CanProviderCreateWorkOrderUseCase {}
 
 class MockSaveCompanyParametersUseCase extends Mock
     implements SaveCompanyParametersUseCase {}

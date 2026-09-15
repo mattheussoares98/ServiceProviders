@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
@@ -13,6 +14,7 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_us
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/factories/service_provider_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
@@ -393,5 +395,233 @@ void main() {
         expect(result, isA<FailureState<List<CompanyEntity>>>());
       });
     });
+
+    group('CanProviderCreateWorkOrderUseCase', () {
+      late CanProviderCreateWorkOrderUseCase canProviderCreateWorkOrderUseCase;
+      final tCompany1 =
+          ServiceProviderFactory.makeServiceProviderCompanyEntity();
+      final tCompany2 =
+          ServiceProviderFactory.makeServiceProviderCompanyEntity();
+
+      setUp(() {
+        canProviderCreateWorkOrderUseCase = CanProviderCreateWorkOrderUseCase(
+          companyRepository: mockRepository,
+        );
+      });
+
+      test('returns false when companies list is empty', () async {
+        final result = await canProviderCreateWorkOrderUseCase(
+          const CanProviderCreateWorkOrderParams(companies: []),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+        verifyZeroInteractions(mockRepository);
+      });
+
+      test(
+        'returns true when selected company allows work order creation',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: true,
+              ),
+            ),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(
+              companies: [tCompany1, tCompany2],
+              selectedCompanyId: tCompany1.id,
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).called(1);
+        },
+      );
+
+      test(
+        'returns false when selected company forbids work order creation',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: false,
+              ),
+            ),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(
+              companies: [tCompany1, tCompany2],
+              selectedCompanyId: tCompany1.id,
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isFalse);
+          verify(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).called(1);
+        },
+      );
+
+      test(
+        'returns false when selectedCompanyId is not found in companies list',
+        () async {
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(
+              companies: [tCompany1],
+              selectedCompanyId: 'unknown-id',
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isFalse);
+          verifyZeroInteractions(mockRepository);
+        },
+      );
+
+      test(
+        'returns true when single company allows work order creation',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: true,
+              ),
+            ),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(companies: [tCompany1]),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).called(1);
+        },
+      );
+
+      test(
+        'returns false when single company forbids work order creation',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: false,
+              ),
+            ),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(companies: [tCompany1]),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isFalse);
+          verify(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).called(1);
+        },
+      );
+
+      test(
+        'returns true when multiple companies and at least one allows it',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: false,
+              ),
+            ),
+          );
+          when(
+            () => mockRepository.getCompanyParameters(tCompany2.companyId),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: true,
+              ),
+            ),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(
+              companies: [tCompany1, tCompany2],
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verify(
+            () => mockRepository.getCompanyParameters(tCompany1.companyId),
+          ).called(1);
+          verify(
+            () => mockRepository.getCompanyParameters(tCompany2.companyId),
+          ).called(1);
+        },
+      );
+
+      test(
+        'returns false when multiple companies and none allows it',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(any()),
+          ).thenAnswer(
+            (_) async => SuccessState(
+              data: UserFactory.makeCompanyParameterEntity().copyWith(
+                allowProviderCreateWorkOrder: false,
+              ),
+            ),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(
+              companies: [tCompany1, tCompany2],
+            ),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isFalse);
+        },
+      );
+
+      test(
+        'returns false when getCompanyParameters fails',
+        () async {
+          when(
+            () => mockRepository.getCompanyParameters(any()),
+          ).thenAnswer(
+            (_) async => FailureState(message: 'Error fetching parameters'),
+          );
+
+          final result = await canProviderCreateWorkOrderUseCase(
+            CanProviderCreateWorkOrderParams(companies: [tCompany1]),
+          );
+
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isFalse);
+        },
+      );
+    });
   });
 }
+
