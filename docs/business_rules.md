@@ -32,6 +32,7 @@ Work order pauses and completion requests are tracked in `work_order_pause_reque
   - When the supervisor/admin reviews the pending pause, they designate the `responsibility` without having to change the work order status again.
 - **Locking & Blocking:**
   - When a work order has status `pendingConclusionApproval`, it cannot be manually switched to other statuses via dropdowns until the pending conclusion request is reviewed (approved or rejected).
+  - When a work order is already closed (`completed` or `cancelled`), standard users/technicians cannot update it. Only users with supervisory permissions (`managePendingRequests`) may edit or update it, with an explicit advisory confirmation explaining that modifying a closed order affects SLA tracking and historical records.
 
 ---
 

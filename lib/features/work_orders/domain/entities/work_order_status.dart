@@ -12,6 +12,7 @@ enum WorkOrderStatus {
   bool get isOpen => this == WorkOrderStatus.open;
   bool get isCompleted => this == WorkOrderStatus.completed;
   bool get isCancelled => this == WorkOrderStatus.cancelled;
+  bool get isClosed => isCompleted || isCancelled;
   bool get isPaused => this == WorkOrderStatus.onHold;
   bool get isPendingConclusionApproval =>
       this == WorkOrderStatus.pendingConclusionApproval;

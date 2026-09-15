@@ -18,4 +18,15 @@ void main() {
       expect(WorkOrderStatus.cancelled.acceptsAttachments, isFalse);
     });
   });
+
+  group('WorkOrderStatus.isClosed', () {
+    test('returns true for completed and cancelled, false otherwise', () {
+      expect(WorkOrderStatus.completed.isClosed, isTrue);
+      expect(WorkOrderStatus.cancelled.isClosed, isTrue);
+      expect(WorkOrderStatus.open.isClosed, isFalse);
+      expect(WorkOrderStatus.inProgress.isClosed, isFalse);
+      expect(WorkOrderStatus.onHold.isClosed, isFalse);
+      expect(WorkOrderStatus.pendingConclusionApproval.isClosed, isFalse);
+    });
+  });
 }
