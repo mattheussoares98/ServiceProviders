@@ -13,6 +13,7 @@ class _WorkOrderStatusDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final isPendingConclusion =
         selectedStatus == WorkOrderStatus.pendingConclusionApproval;
+    final isClosed = selectedStatus?.isClosed ?? false;
 
     final items = isPendingConclusion
         ? [
@@ -31,14 +32,18 @@ class _WorkOrderStatusDropdown extends StatelessWidget {
             })
             .toList();
 
+    final adviceMessage = isPendingConclusion
+        ? 'Ordem de serviço aguardando aprovação de conclusão. Não é possível alterar o status diretamente.'.hardcoded
+        : isClosed
+        ? 'Atenção: alterar o status de uma ordem encerrada reinicia o fluxo e afeta o SLA e o histórico.'.hardcoded
+        : null;
+
     return BaseDropDown<WorkOrderStatus>(
       key: const ValueKey('WorkOrderStatus'),
       label: 'Status *'.hardcoded,
       selectedItem: selectedStatus,
       showLabelAtTopLeft: true,
-      adviceMessage: isPendingConclusion
-          ? 'Ordem de serviço aguardando aprovação de conclusão. Não é possível alterar o status diretamente.'.hardcoded
-          : null,
+      adviceMessage: adviceMessage,
       items: items,
       onChanged: isPendingConclusion ? null : onChanged,
     );

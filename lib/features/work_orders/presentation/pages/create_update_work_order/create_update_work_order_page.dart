@@ -187,8 +187,8 @@ class _CreateUpdatePage extends HookWidget {
     final currentPrice = workOrder?.price;
     final initialPrice = currentPrice != null
         ? (currentPrice % 1 == 0
-            ? currentPrice.toInt().toString()
-            : currentPrice.toString())
+              ? currentPrice.toInt().toString()
+              : currentPrice.toString())
         : '';
     final initialLocationId = workOrder?.locationId;
     final initialAreaId = workOrder?.areaId;
@@ -250,8 +250,8 @@ class _CreateUpdatePage extends HookWidget {
       durationController.text = updated.estimatedDuration?.toString() ?? '';
       priceController.text = updated.price != null
           ? (updated.price! % 1 == 0
-              ? updated.price!.toInt().toString()
-              : updated.price!.toString())
+                ? updated.price!.toInt().toString()
+                : updated.price!.toString())
           : '';
       selectedLocationId.value = updated.locationId;
       selectedAreaId.value = updated.areaId;
@@ -305,7 +305,8 @@ class _CreateUpdatePage extends HookWidget {
           titleController.text.trim() != initialTitle ||
           descController.text.trim() != initialDescription ||
           durationController.text.trim() != initialDuration ||
-          (canManageFinancials && priceController.text.trim() != initialPrice) ||
+          (canManageFinancials &&
+              priceController.text.trim() != initialPrice) ||
           selectedLocationId.value != initialLocationId ||
           selectedAreaId.value != initialAreaId ||
           (selectedAssetId.value == '' ? null : selectedAssetId.value) !=
@@ -334,9 +335,37 @@ class _CreateUpdatePage extends HookWidget {
         return;
       }
 
+      final canManagePendingRequests = context.hasPermission(
+        const ActionPermission.workOrderSubAction(
+          WorkOrderSubAction.managePendingRequests,
+        ),
+      );
+
+      final isClosedOrder = workOrder?.status.isClosed ?? false;
+      if (isClosedOrder && !canManagePendingRequests) {
+        await showAlertDialog(
+          context: context,
+          title: 'Ordem de serviço encerrada'.hardcoded,
+          contentText:
+              'Esta ordem de serviço está finalizada ou cancelada e não pode ser alterada. Somente o administrador ou usuário com devida permissão pode fazer essa alteração'
+                  .hardcoded,
+          defaultActionText: 'OK'.hardcoded,
+        );
+        return;
+      }
+
+      final dialogTitle = isClosedOrder
+          ? 'Atenção: Ordem de serviço encerrada!'.hardcoded
+          : 'Salvar alterações?'.hardcoded;
+      final dialogContent = isClosedOrder
+          ? 'Esta ordem de serviço já está finalizada ou cancelada. Alterá-la pode impactar o histórico e o cálculo de SLA. Deseja realmente salvar as alterações?'
+                .hardcoded
+          : null;
+
       final pressedOk = await showAlertDialog(
         context: context,
-        title: 'Salvar alterações?'.hardcoded,
+        title: dialogTitle,
+        contentText: dialogContent,
         defaultActionText: 'Sim'.hardcoded,
         cancelActionText: 'Não'.hardcoded,
       );
@@ -380,9 +409,7 @@ class _CreateUpdatePage extends HookWidget {
         startedAt: workOrder?.startedAt,
         totalCost: workOrder?.totalCost,
         price: canManageFinancials
-            ? double.tryParse(
-                priceController.text.trim().replaceAll(',', '.'),
-              )
+            ? double.tryParse(priceController.text.trim().replaceAll(',', '.'))
             : workOrder?.price,
         attachmentsCubit: context.read<AttachmentsCubit>(),
         serviceProviderCompanyId: selectedServiceProviderCompanyId.value,

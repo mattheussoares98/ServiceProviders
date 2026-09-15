@@ -4,22 +4,30 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_details/work_order_details_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
-class EditAndDeleteIcons extends StatelessWidget {
-  const EditAndDeleteIcons({super.key, required this.workOrderId});
-  final String workOrderId;
+class WorkOrderAppBarActions extends StatelessWidget {
+  const WorkOrderAppBarActions({super.key, required this.workOrder});
+  final WorkOrderEntity workOrder;
 
   @override
   Widget build(BuildContext context) {
+    final canManagePendingRequests = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.managePendingRequests,
+      ),
+    );
+    final canEdit = !workOrder.status.isClosed || canManagePendingRequests;
+
     return Row(
       mainAxisSize: .min,
       mainAxisAlignment: .end,
       children: [
-        //TODO change this widget name
         Flexible(
           child: BaseIconButton(
             permission: const ActionPermission.resource(
@@ -28,7 +36,7 @@ class EditAndDeleteIcons extends StatelessWidget {
             ),
             onPressed: () {
               context.read<WorkOrderDetailsCubit>().navigateToWorkOrderHistory(
-                workOrderId,
+                workOrder.id,
               );
             },
             platformIcon: const PlatformIcon(
@@ -37,26 +45,27 @@ class EditAndDeleteIcons extends StatelessWidget {
             ),
           ),
         ),
-        Flexible(
-          child: BaseIconButton(
-            permission: const ActionPermission.resource(
-              resourceType: ResourceType.workOrders,
-              permissionAction: PermissionAction.update,
-            ),
-            onPressed: () {
-              context
-                  .read<WorkOrderDetailsCubit>()
-                  .navigateToCreateUpdateWorkOrder(
-                    workOrderId,
-                    attachmentsCubit: context.read<AttachmentsCubit>(),
-                  );
-            },
-            platformIcon: const PlatformIcon(
-              materialIcon: Icons.edit_outlined,
-              cupertinoIcon: CupertinoIcons.pencil,
+        if (canEdit)
+          Flexible(
+            child: BaseIconButton(
+              permission: const ActionPermission.resource(
+                resourceType: ResourceType.workOrders,
+                permissionAction: PermissionAction.update,
+              ),
+              onPressed: () {
+                context
+                    .read<WorkOrderDetailsCubit>()
+                    .navigateToCreateUpdateWorkOrder(
+                      workOrder.id,
+                      attachmentsCubit: context.read<AttachmentsCubit>(),
+                    );
+              },
+              platformIcon: const PlatformIcon(
+                materialIcon: Icons.edit_outlined,
+                cupertinoIcon: CupertinoIcons.pencil,
+              ),
             ),
           ),
-        ),
         Flexible(
           child: BaseIconButton(
             permission: const ActionPermission.resource(
@@ -74,7 +83,7 @@ class EditAndDeleteIcons extends StatelessWidget {
               );
               if (ok == true && context.mounted) {
                 await context.read<WorkOrderDetailsCubit>().deleteWorkOrder(
-                  workOrderId,
+                  workOrder.id,
                 );
               }
             },
