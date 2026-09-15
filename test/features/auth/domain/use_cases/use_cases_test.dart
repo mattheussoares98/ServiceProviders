@@ -339,39 +339,96 @@ void main() {
     });
 
     group('GetActiveCompanyIdUseCase', () {
+      test('1. Internal mode -> returns user.companyId', () {
+        when(
+          () => mockSessionRepository.getSelectedMode(),
+        ).thenReturn(AppMode.internal.name);
+        when(() => mockSessionRepository.userData).thenReturn(tUserData);
+
+        final result = getActiveCompanyIdUseCase();
+
+        expect(result, tUserData.user.companyId);
+      });
+
       test(
-        'should return selectedCompanyId from sessionRepository when user is super admin',
+        '2. Provider mode with selected company -> returns selectedCompanyId',
+        () {
+          when(
+            () => mockSessionRepository.getSelectedMode(),
+          ).thenReturn(AppMode.provider.name);
+          when(() => mockSessionRepository.userData).thenReturn(tUserData);
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn('selected_provider_comp');
+
+          final result = getActiveCompanyIdUseCase();
+
+          expect(result, 'selected_provider_comp');
+        },
+      );
+
+      test(
+        '3. Provider mode with null or empty selected company -> falls back to user.companyId',
+        () {
+          when(
+            () => mockSessionRepository.getSelectedMode(),
+          ).thenReturn(AppMode.provider.name);
+          when(() => mockSessionRepository.userData).thenReturn(tUserData);
+
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn(null);
+          expect(getActiveCompanyIdUseCase(), tUserData.user.companyId);
+
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn('');
+          expect(getActiveCompanyIdUseCase(), tUserData.user.companyId);
+        },
+      );
+
+      test(
+        '4. Super admin with selected company -> returns selectedCompanyId',
         () {
           final superAdminUser = tUserData.copyWith(
             user: tUserData.user.copyWith(email: 'mattheussbarosa98@gmail.com'),
           );
           when(
             () => mockSessionRepository.getSelectedMode(),
-          ).thenReturn('internal');
+          ).thenReturn(AppMode.internal.name);
           when(() => mockSessionRepository.userData).thenReturn(superAdminUser);
           when(
             () => mockSessionRepository.getSelectedCompanyId(),
-          ).thenReturn('selected_comp_123');
+          ).thenReturn('selected_super_admin_comp');
 
           final result = getActiveCompanyIdUseCase();
 
-          expect(result, 'selected_comp_123');
+          expect(result, 'selected_super_admin_comp');
         },
       );
 
-      test('should return user.companyId when selectedCompanyId is null', () {
-        when(
-          () => mockSessionRepository.getSelectedMode(),
-        ).thenReturn('internal');
-        when(() => mockSessionRepository.userData).thenReturn(tUserData);
-        when(
-          () => mockSessionRepository.getSelectedCompanyId(),
-        ).thenReturn(null);
+      test(
+        '5. Super admin with null or empty selected company -> falls back to user.companyId',
+        () {
+          final superAdminUser = tUserData.copyWith(
+            user: tUserData.user.copyWith(email: 'mattheussbarosa98@gmail.com'),
+          );
+          when(
+            () => mockSessionRepository.getSelectedMode(),
+          ).thenReturn(AppMode.internal.name);
+          when(() => mockSessionRepository.userData).thenReturn(superAdminUser);
 
-        final result = getActiveCompanyIdUseCase();
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn(null);
+          expect(getActiveCompanyIdUseCase(), superAdminUser.user.companyId);
 
-        expect(result, tUserData.user.companyId);
-      });
+          when(
+            () => mockSessionRepository.getSelectedCompanyId(),
+          ).thenReturn('');
+          expect(getActiveCompanyIdUseCase(), superAdminUser.user.companyId);
+        },
+      );
     });
 
     group('SetSelectedCompanyIdUseCase', () {
