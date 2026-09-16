@@ -331,6 +331,11 @@ class _WorkOrdersCard extends StatelessWidget {
                     selectedValue: draft.deleteObservation,
                     onChanged: cubit.toggleUserWorkOrdersDeleteObservation,
                   ),
+                  buildToggleRow(
+                    label: 'Editar valores e custos'.hardcoded,
+                    selectedValue: draft.manageFinancials,
+                    onChanged: cubit.toggleUserWorkOrdersManageFinancials,
+                  ),
                   gapH8,
                 ],
               );

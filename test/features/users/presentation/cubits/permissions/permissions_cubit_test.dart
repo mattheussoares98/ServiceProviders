@@ -434,6 +434,19 @@ void main() {
           ),
         ],
       );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleGroupWorkOrdersManageFinancials updates draftGroupWorkOrders manageFinancials',
+        build: () => cubit..initGroup(tGroup),
+        act: (c) => c.toggleGroupWorkOrdersManageFinancials(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftGroupWorkOrders.manageFinancials,
+            'manageFinancials',
+            true,
+          ),
+        ],
+      );
     });
 
     group('PermissionsCubit User Work Orders Overrides Logic', () {
@@ -523,6 +536,32 @@ void main() {
           isA<PermissionsState>().having(
             (s) => s.draftUserWorkOrders.managePendingRequests,
             'managePendingRequests override',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersDeleteObservation updates draftUserWorkOrders deleteObservation override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersDeleteObservation(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.deleteObservation,
+            'deleteObservation override',
+            true,
+          ),
+        ],
+      );
+
+      blocTest<PermissionsCubit, PermissionsState>(
+        'toggleUserWorkOrdersManageFinancials updates draftUserWorkOrders manageFinancials override',
+        build: () => cubit..initUser(tUser),
+        act: (c) => c.toggleUserWorkOrdersManageFinancials(true),
+        expect: () => [
+          isA<PermissionsState>().having(
+            (s) => s.draftUserWorkOrders.manageFinancials,
+            'manageFinancials override',
             true,
           ),
         ],

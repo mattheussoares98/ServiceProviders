@@ -94,6 +94,13 @@ class _GroupWorkOrdersCard extends StatelessWidget {
                           ? null
                           : cubit.toggleGroupWorkOrdersDeleteObservation,
                     ),
+                    BaseSwitch(
+                      title: 'Editar valores e custos'.hardcoded,
+                      value: draft.manageFinancials,
+                      onChanged: isAdmin
+                          ? null
+                          : cubit.toggleGroupWorkOrdersManageFinancials,
+                    ),
                   ],
                 );
               },
