@@ -134,7 +134,7 @@ class _QuantityBadgeState extends State<QuantityBadge>
               materialIcon: widget.platformIcon.materialIcon,
               color: widget.isSelected
                   ? context.theme.primaryColor
-                  : context.theme.disabledColor,
+                  : widget.platformIcon.color ?? context.theme.disabledColor,
             ),
             if (widget.totalPrice != null)
               AnimatedBuilder(
