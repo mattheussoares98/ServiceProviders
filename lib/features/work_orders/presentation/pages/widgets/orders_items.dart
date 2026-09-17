@@ -87,45 +87,50 @@ class _OrdersItemsState extends State<OrdersItems> {
                       ],
                     );
                   }
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ResponsiveListFlow(
-                          scrollController: _scrollController,
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: workOrders.length,
-                          itemBuilder: (context, index) {
-                            final workOrder = workOrders[index];
-                            return WorkOrderItem(workOrder: workOrder);
-                          },
-                        ),
-                      ),
-                      // Pagination footer
-                      BlocBuilder<WorkOrdersCubit, WorkOrdersState>(
-                        buildWhen: (prev, curr) =>
-                            prev.isLoadingMore != curr.isLoadingMore,
-                        builder: (context, state) {
-                          if (state.isLoadingMore) {
-                            return const Padding(
+                  return BlocBuilder<WorkOrdersCubit, WorkOrdersState>(
+                    buildWhen: (prev, curr) =>
+                        prev.isLoadingMore != curr.isLoadingMore,
+                    builder: (context, state) {
+                      final allLoadedWorkOrdersWidget =
+                          !state.hasMorePages && workOrders.isNotEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.all(Sizes.p12),
+                              child: BaseText.bodySmall(
+                                'Todas as ordens foram carregadas'.hardcoded,
+                                textAlign: .center,
+                                color: context.colorScheme.onSurface.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink();
+
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: ResponsiveListFlow(
+                              padding: .zero,
+                              scrollController: _scrollController,
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              itemCount: workOrders.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index == workOrders.length) {
+                                  return allLoadedWorkOrdersWidget;
+                                }
+
+                                final workOrder = workOrders[index];
+                                return WorkOrderItem(workOrder: workOrder);
+                              },
+                            ),
+                          ),
+                          if (state.isLoadingMore)
+                            const Padding(
                               padding: EdgeInsets.all(Sizes.p16),
                               child: LoadingCircle(),
-                            );
-                          }
-                          // if (!state.hasMorePages && workOrders.isNotEmpty) {
-                          //   return Padding(
-                          //     padding: const EdgeInsets.all(Sizes.p12),
-                          //     child: BaseText.bodySmall(
-                          //       'Todas as ordens foram carregadas'.hardcoded,
-                          //       color: context.colorScheme.onSurface.withValues(
-                          //         alpha: 0.5,
-                          //       ),
-                          //     ),
-                          //   );
-                          // }
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    ],
+                            ),
+                        ],
+                      );
+                    },
                   );
                 },
               ),

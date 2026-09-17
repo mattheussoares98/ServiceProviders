@@ -86,60 +86,45 @@ class WorkOrderItem extends StatelessWidget {
               ],
             ),
             gapH8,
-            RichText(
-              text: TextSpan(
-                children: [
-                  WidgetSpan(
-                    child: BaseIndicationItem(
-                      label: workOrder.type.label,
-                      color: workOrder.type.color,
-                    ),
+            Wrap(
+              spacing: Sizes.p4,
+              runSpacing: Sizes.p4,
+              children: [
+                BaseIndicationItem(
+                  label: workOrder.type.label,
+                  color: workOrder.type.color,
+                ),
+
+                BaseIndicationItem(
+                  label: workOrder.priority.label,
+                  color: workOrder.priority.color,
+                ),
+
+                BaseIndicationItem(
+                  label: workOrder.status.label,
+                  color: workOrder.status.color,
+                ),
+                if (workOrder.isDeleted) ...[
+                  BaseIndicationItem(
+                    label: 'Excluída'.hardcoded,
+                    color: Colors.red,
                   ),
-                  const WidgetSpan(child: gapW4),
-                  WidgetSpan(
-                    child: BaseIndicationItem(
-                      label: workOrder.priority.label,
-                      color: workOrder.priority.color,
-                    ),
-                  ),
-                  const WidgetSpan(child: gapW4),
-                  WidgetSpan(
-                    child: BaseIndicationItem(
-                      label: workOrder.status.label,
-                      color: workOrder.status.color,
-                    ),
-                  ),
-                  if (workOrder.isDeleted) ...[
-                    const WidgetSpan(child: gapW4),
-                    WidgetSpan(
-                      child: BaseIndicationItem(
-                        label: 'Excluída'.hardcoded,
-                        color: Colors.red,
-                      ),
-                    ),
-                  ],
-                  if (workOrder.estimatedDuration != null) ...[
-                    const WidgetSpan(child: gapW4),
-                    WidgetSpan(
-                      child: BaseIndicationItem(
-                        label: '${workOrder.estimatedDuration} min',
-                        color: workOrder.status.color,
-                      ),
-                    ),
-                  ],
-                  if (workOrder.scheduledDate != null) ...[
-                    const WidgetSpan(child: gapW4),
-                    WidgetSpan(
-                      child: BaseIndicationItem(
-                        label: workOrder.scheduledDate!.formatDate(
-                          DateFormatType.yMMMMd,
-                        ),
-                        color: workOrder.status.color,
-                      ),
-                    ),
-                  ],
                 ],
-              ),
+                if (workOrder.estimatedDuration != null) ...[
+                  BaseIndicationItem(
+                    label: '${workOrder.estimatedDuration} min',
+                    color: workOrder.status.color,
+                  ),
+                ],
+                if (workOrder.scheduledDate != null) ...[
+                  BaseIndicationItem(
+                    label: workOrder.scheduledDate!.formatDate(
+                      DateFormatType.yMMMMd,
+                    ),
+                    color: workOrder.status.color,
+                  ),
+                ],
+              ],
             ),
             BlocSelector<UsersCubit, UsersState, UserProfileEntity?>(
               selector: (state) => state.users.firstWhereOrNull(
