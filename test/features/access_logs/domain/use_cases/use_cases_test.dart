@@ -1,15 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_entity.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/create_access_log_use_case.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/use_cases/get_access_logs_use_case.dart';
 
 import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockAccessLogsRepository mockRepository;
+  late MockSessionRepository mockSessionRepository;
   late GetAccessLogsUseCase getAccessLogsUseCase;
   late CreateAccessLogUseCase createAccessLogUseCase;
 
@@ -20,11 +23,20 @@ void main() {
 
   setUp(() {
     mockRepository = MockAccessLogsRepository();
+    mockSessionRepository = MockSessionRepository();
+    when(() => mockSessionRepository.userData).thenReturn(
+      UserDataEntity.empty().copyWith(
+        user: UserFactory.makeUserProfileEntity().copyWith(
+          email: 'regular_user@example.com',
+        ),
+      ),
+    );
     getAccessLogsUseCase = GetAccessLogsUseCase(
       accessLogsRepository: mockRepository,
     );
     createAccessLogUseCase = CreateAccessLogUseCase(
       accessLogsRepository: mockRepository,
+      sessionRepository: mockSessionRepository,
     );
   });
 
@@ -61,32 +73,57 @@ void main() {
   });
 
   group('CreateAccessLogUseCase', () {
-    test('returns SuccessState when repository succeeds', () async {
-      final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
+    test(
+      'returns SuccessState without calling repository when user is super admin',
+      () async {
+        final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
+        when(() => mockSessionRepository.userData).thenReturn(
+          UserDataEntity.empty().copyWith(
+            user: UserFactory.makeUserProfileEntity().copyWith(
+              email: 'mattheussbarbosa@hotmail.com',
+            ),
+          ),
+        );
 
-      when(
-        () => mockRepository.createAccessLog(any()),
-      ).thenAnswer((_) async => SuccessState.nil);
+        final result = await createAccessLogUseCase(tRequest);
 
-      final result = await createAccessLogUseCase(tRequest);
+        expect(result, isA<SuccessState<void>>());
+        verifyNever(() => mockRepository.createAccessLog(any()));
+      },
+    );
 
-      expect(result, isA<SuccessState<void>>());
-      verify(() => mockRepository.createAccessLog(tRequest)).called(1);
-    });
+    test(
+      'returns SuccessState when repository succeeds for regular user',
+      () async {
+        final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
 
-    test('returns FailureState when repository fails', () async {
-      final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
-      const tError = 'Failed to record access log';
+        when(
+          () => mockRepository.createAccessLog(any()),
+        ).thenAnswer((_) async => SuccessState.nil);
 
-      when(
-        () => mockRepository.createAccessLog(any()),
-      ).thenAnswer((_) async => FailureState(message: tError));
+        final result = await createAccessLogUseCase(tRequest);
 
-      final result = await createAccessLogUseCase(tRequest);
+        expect(result, isA<SuccessState<void>>());
+        verify(() => mockRepository.createAccessLog(tRequest)).called(1);
+      },
+    );
 
-      expect(result, isA<FailureState<void>>());
-      expect((result as FailureState<void>).message, tError);
-      verify(() => mockRepository.createAccessLog(tRequest)).called(1);
-    });
+    test(
+      'returns FailureState when repository fails for regular user',
+      () async {
+        final tRequest = SystemFactory.makeCreateAccessLogRequestEntity();
+        const tError = 'Failed to record access log';
+
+        when(
+          () => mockRepository.createAccessLog(any()),
+        ).thenAnswer((_) async => FailureState(message: tError));
+
+        final result = await createAccessLogUseCase(tRequest);
+
+        expect(result, isA<FailureState<void>>());
+        expect((result as FailureState<void>).message, tError);
+        verify(() => mockRepository.createAccessLog(tRequest)).called(1);
+      },
+    );
   });
 }
