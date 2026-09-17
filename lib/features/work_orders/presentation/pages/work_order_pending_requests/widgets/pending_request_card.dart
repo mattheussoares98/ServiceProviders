@@ -125,6 +125,7 @@ class _PendingRequestCard extends StatelessWidget {
                 onTap: () async {
                   final result = await showDialog<bool>(
                     context: context,
+                    barrierDismissible: false,
                     builder: (context) {
                       if (isPauseRequest) {
                         return ReviewPauseDialog(
