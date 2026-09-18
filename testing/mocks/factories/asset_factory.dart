@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_criticality
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_status.dart';
 import 'package:o_jogo_da_obra/features/categories/domain/entities/category_entity.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/address_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 
@@ -96,4 +97,21 @@ abstract final class AssetFactory {
   static List<AssetEntity> makeAssetEntityList() {
     return [makeAssetEntity(), makeAssetEntity(), makeAssetEntity()];
   }
+
+  // Address
+  static AddressEntity makeAddressEntity() {
+    return AddressEntity(
+      postalCode: FactoryHelpers.makeString(8),
+      street: faker.address.streetAddress(),
+      neighborhood: FactoryHelpers.makeWord(),
+      city: faker.address.city(),
+      state: faker.address.state(),
+      complement: FactoryHelpers.makePhrase(),
+    );
+  }
+
+  static List<AddressEntity> makeAddressEntityList() {
+    return [makeAddressEntity(), makeAddressEntity(), makeAddressEntity()];
+  }
 }
+

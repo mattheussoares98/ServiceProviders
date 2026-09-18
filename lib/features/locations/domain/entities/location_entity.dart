@@ -45,6 +45,10 @@ class LocationEntity extends Equatable {
     createdAt,
     updatedAt,
     deletedAt,
+    number,
+    complement,
+    neighborhood,
+    postalCode,
   ];
 
   LocationEntity copyWith({
