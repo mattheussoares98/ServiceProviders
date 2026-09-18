@@ -85,9 +85,6 @@ class CreateUpdateLocationPage extends HookWidget {
           }
           if (address.city.isNotEmpty) cityController.text = address.city;
           if (address.state.isNotEmpty) stateController.text = address.state;
-          if (address.complement != null && address.complement!.isNotEmpty) {
-            complementController.text = address.complement!;
-          }
           numberFocusNode.requestFocus();
         }
       }
