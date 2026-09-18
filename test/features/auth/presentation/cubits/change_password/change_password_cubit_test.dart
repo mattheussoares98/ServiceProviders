@@ -97,6 +97,38 @@ void main() {
   );
 
   blocTest<ChangePasswordCubit, ChangePasswordState>(
+    'changePassword with redirectOnSuccess: false should not navigate on success',
+    build: () {
+      when(
+        () => mockChangePasswordUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState.nil);
+      return changePasswordCubit;
+    },
+    act: (cubit) async {
+      await cubit.changePassword(
+        faker.internet.password(),
+        redirectOnSuccess: false,
+      );
+    },
+    expect: () => [
+      isA<ChangePasswordState>().having(
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.running(),
+      ),
+      isA<ChangePasswordState>().having(
+        (s) => s.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.success(),
+      ),
+    ],
+    verify: (_) {
+      verify(() => mockChangePasswordUseCase.call(any())).called(1);
+      verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
+    },
+  );
+
+  blocTest<ChangePasswordCubit, ChangePasswordState>(
     'changePassword should not navigate and emit error state on failure',
     build: () {
       when(() => mockChangePasswordUseCase.call(any())).thenAnswer(

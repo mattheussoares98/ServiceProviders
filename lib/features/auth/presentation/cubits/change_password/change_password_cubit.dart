@@ -37,11 +37,14 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
     );
   }
 
-  Future<void> changePassword(String password) async {
+  Future<bool> changePassword(
+    String password, {
+    bool redirectOnSuccess = true,
+  }) async {
     _refreshState(SectionStatus.running);
 
     final dataState = await _useCases.changePassword.call(password);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     showDataStateToast(
       dataState,
@@ -50,9 +53,13 @@ class ChangePasswordCubit extends BaseCubit<ChangePasswordState> {
 
     if (dataState is SuccessState) {
       _refreshState();
-      await replaceAllRoute(const LoginRoute());
+      if (redirectOnSuccess) {
+        await replaceAllRoute(const LoginRoute());
+      }
+      return true;
     } else {
       _refreshState(SectionStatus.error);
+      return false;
     }
   }
 }
