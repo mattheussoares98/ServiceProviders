@@ -5,9 +5,11 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/address_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/repositories/locations_repository_impl.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/address_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 
@@ -1053,5 +1055,46 @@ void main() {
         },
       );
     });
+
+    group('getAddressByCep', () {
+      final tAddress = AssetFactory.makeAddressEntity();
+      final tAddressModel = AddressModel.fromEntity(tAddress);
+      const tCep = '01001-000';
+
+      test('should call remote source and map to AddressEntity when online', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAddressByCep(any()),
+        ).thenAnswer((_) async => SuccessState(data: tAddressModel));
+
+        final result = await repository.getAddressByCep(tCep);
+
+        expect(result, isA<SuccessState<AddressEntity>>());
+        expect(result.data?.street, tAddress.street);
+        verify(() => mockRemoteDataSource.getAddressByCep(tCep)).called(1);
+      });
+
+      test('should return FailureState when offline without remote call', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+
+        final result = await repository.getAddressByCep(tCep);
+
+        expect(result, isA<FailureState<AddressEntity>>());
+        verifyNever(() => mockRemoteDataSource.getAddressByCep(any()));
+      });
+
+      test('should return FailureState when remote source fails', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.getAddressByCep(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Not found'));
+
+        final result = await repository.getAddressByCep(tCep);
+
+        expect(result, isA<FailureState<AddressEntity>>());
+        verify(() => mockRemoteDataSource.getAddressByCep(tCep)).called(1);
+      });
+    });
   });
 }
+

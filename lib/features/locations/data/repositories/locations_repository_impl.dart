@@ -7,8 +7,10 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/address_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/address_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/repositories/locations_repository.dart';
@@ -251,4 +253,12 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       isDeleted: (model) => model.deletedAt != null,
     );
   }
+
+  @override
+  FutureData<AddressEntity> getAddressByCep(String cep) =>
+      RepositoryHandler.fetchWithFallbackAndMap<AddressModel, AddressEntity>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.getAddressByCep(cep),
+      );
 }
+
