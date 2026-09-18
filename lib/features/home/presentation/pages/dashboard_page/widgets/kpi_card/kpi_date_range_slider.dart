@@ -158,7 +158,7 @@ class KpiDateRangeSlider extends HookWidget {
                   ),
                   child: BaseText.bodySmall(
                     '${selectedStart.formatDate()} - ${selectedEnd.formatDate()}',
-                    color: context.theme.primaryColor,
+                    color: context.theme.primaryColorLight,
                     textAlign: .center,
                     fontWeight: .bold,
                   ),
