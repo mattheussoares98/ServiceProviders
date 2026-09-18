@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
@@ -65,6 +66,33 @@ class CreateUpdateLocationPage extends HookWidget {
     final cityFocusNode = useFocusNode();
     final stateFocusNode = useFocusNode();
 
+    final isSearchingCep = context.select<LocationsCubit, bool>(
+      (c) => c.state.section(LocationsSections.loadAddressByCep).isRunning,
+    );
+
+    Future<void> onCepChanged(String value) async {
+      final clean = value.replaceAll(RegExp(r'\D'), '');
+      if (clean.length == 8) {
+        final address = await context.read<LocationsCubit>().getAddressByCep(
+          clean,
+        );
+        if (address != null) {
+          if (address.street.isNotEmpty) {
+            addressController.text = address.street;
+          }
+          if (address.neighborhood.isNotEmpty) {
+            neighborhoodController.text = address.neighborhood;
+          }
+          if (address.city.isNotEmpty) cityController.text = address.city;
+          if (address.state.isNotEmpty) stateController.text = address.state;
+          if (address.complement != null && address.complement!.isNotEmpty) {
+            complementController.text = address.complement!;
+          }
+          numberFocusNode.requestFocus();
+        }
+      }
+    }
+
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
@@ -117,7 +145,18 @@ class CreateUpdateLocationPage extends HookWidget {
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.next,
                 focusNode: cepFocusNode,
-                onFieldSubmitted: (_) => addressFocusNode.requestFocus(),
+                maxLength: 9,
+                suffixIcon: isSearchingCep
+                    ? Padding(
+                        padding: const EdgeInsets.all(Sizes.p12),
+                        child: LoadingCircle.small(),
+                      )
+                    : null,
+                onChanged: onCepChanged,
+                onFieldSubmitted: (_) {
+                  onCepChanged(cepController.text);
+                  addressFocusNode.requestFocus();
+                },
               ),
               gapH16,
               BaseTextFormField(
