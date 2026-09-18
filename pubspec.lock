@@ -29,18 +29,18 @@ packages:
     dependency: "direct main"
     description:
       name: alice
-      sha256: c0fa064ede3fa26344060b99d813211f82f0ec72868b99ed8dbba8b660cb2bbd
+      sha256: "8a0e4b9c62711d32c1a90e36aa32fc39ebf27428c6cd8f2ca58e29c1bfdf2b7f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "1.8.0"
   alice_dio:
     dependency: "direct main"
     description:
       name: alice_dio
-      sha256: "71c2e5c020261f3c5675d9a1a35c96062be04c3e4a8a2ab503305efa687fa2c8"
+      sha256: "056c63c8d9441427e4d32eb22d2f59acae23d1981054250e898f453dba6f5b4c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.3"
+    version: "1.3.0"
   analysis_server_plugin:
     dependency: transitive
     description:
@@ -309,10 +309,10 @@ packages:
     dependency: transitive
     description:
       name: code_assets
-      sha256: cfd4f5f575a49c5f10ca856e9846073f1e6c3ee94912377eea5f6cefc5272941
+      sha256: "828110d598123b5ea96c00c9f3c72105bf79f8ee36c20a39b26209ade421ec57"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   code_builder:
     dependency: transitive
     description:
@@ -722,10 +722,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_cache_manager
-      sha256: "1de7849213b4c73c85aca7e0ac687a9a5d82ccdb594366b9dcc26cb6a2189cd2"
+      sha256: c83155858f880f731d1bde683bfedb0f1dabb3da0a0f3cd0b900bab5c961c21d
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.2"
+    version: "3.4.4"
   flutter_dotenv:
     dependency: "direct main"
     description:
@@ -1248,10 +1248,10 @@ packages:
     dependency: transitive
     description:
       name: native_toolchain_c
-      sha256: "9d233b6f2d9c52e1a2b5fbe70451d2c10ac674d3bb419d0ec8de14989d437c26"
+      sha256: "90eaad8059ebc2004a63810a4696ea9acdb02473e47ed3b6b3bafb100ac77e31"
       url: "https://pub.dev"
     source: hosted
-    version: "0.19.4"
+    version: "0.19.5"
   nested:
     dependency: transitive
     description:
