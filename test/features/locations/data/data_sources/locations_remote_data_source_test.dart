@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -7,6 +8,7 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/address_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,14 +19,17 @@ import '../../../../../testing/mocks/factories/asset_factory.dart';
 void main() {
   late MockSupabaseDatabaseClient mockSupabaseDatabaseClient;
   late MockSupabaseRealtimeClient mockSupabaseRealtimeClient;
+  late MockHttpClient mockHttpClient;
   late LocationsRemoteDataSourceImpl dataSource;
 
   setUp(() {
     mockSupabaseDatabaseClient = MockSupabaseDatabaseClient();
     mockSupabaseRealtimeClient = MockSupabaseRealtimeClient();
+    mockHttpClient = MockHttpClient();
     dataSource = LocationsRemoteDataSourceImpl(
       database: mockSupabaseDatabaseClient,
       realtimeClient: mockSupabaseRealtimeClient,
+      httpClient: mockHttpClient,
     );
   });
 
@@ -418,6 +423,77 @@ void main() {
             }),
           ),
         );
+      });
+    });
+
+    group('getAddressByCep', () {
+      final tAddress = AssetFactory.makeAddressEntity();
+      // final tAddressModel = AddressModel.fromEntity(tAddress);
+      const tCep = '01001-000';
+      const tCleanCep = '01001000';
+
+      test(
+        'should return SuccessState<AddressModel> when ViaCEP returns address',
+        () async {
+          when(() => mockHttpClient.get<dynamic>(any())).thenAnswer(
+            (_) async => Response(
+              data: {
+                'cep': '01001-000',
+                'logradouro': tAddress.street,
+                'complemento': tAddress.complement,
+                'bairro': tAddress.neighborhood,
+                'localidade': tAddress.city,
+                'uf': tAddress.state,
+              },
+              statusCode: 200,
+              requestOptions: RequestOptions(
+                path: 'https://viacep.com.br/ws/$tCleanCep/json/',
+              ),
+            ),
+          );
+
+          final result = await dataSource.getAddressByCep(tCep);
+
+          expect(result, isA<SuccessState<AddressModel>>());
+          expect(result.data?.street, tAddress.street);
+          expect(result.data?.city, tAddress.city);
+          verify(
+            () => mockHttpClient.get<dynamic>(
+              'https://viacep.com.br/ws/$tCleanCep/json/',
+            ),
+          ).called(1);
+        },
+      );
+
+      test('should return FailureState when ViaCEP returns erro', () async {
+        when(() => mockHttpClient.get<dynamic>(any())).thenAnswer(
+          (_) async => Response(
+            data: {'erro': 'true'},
+            statusCode: 200,
+            requestOptions: RequestOptions(
+              path: 'https://viacep.com.br/ws/$tCleanCep/json/',
+            ),
+          ),
+        );
+
+        final result = await dataSource.getAddressByCep(tCep);
+
+        expect(result, isA<FailureState<AddressModel>>());
+      });
+
+      test('should return FailureState on Dio exception', () async {
+        when(() => mockHttpClient.get<dynamic>(any())).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(
+              path: 'https://viacep.com.br/ws/$tCleanCep/json/',
+            ),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        );
+
+        final result = await dataSource.getAddressByCep(tCep);
+
+        expect(result, isA<FailureState<AddressModel>>());
       });
     });
   });

@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_re
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 
+import '../../../testing/mocks/client_mocks.dart';
 import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
@@ -31,6 +32,7 @@ void main() {
     locationsRemote = LocationsRemoteDataSourceImpl(
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+      httpClient: MockHttpClient(),
     );
     companyId = IntegrationConfig.companyId;
 

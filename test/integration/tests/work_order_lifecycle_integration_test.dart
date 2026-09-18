@@ -19,6 +19,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_responsability.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 
+import '../../../testing/mocks/client_mocks.dart';
 import '../../../testing/mocks/factories/work_order_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
@@ -61,6 +62,7 @@ void main() {
     locationsRemote = LocationsRemoteDataSourceImpl(
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+      httpClient: MockHttpClient(),
     );
     categoriesRemote = CategoriesRemoteDataSourceImpl(
       database: db,

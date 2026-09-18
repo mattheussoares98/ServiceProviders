@@ -20,6 +20,8 @@ import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_realtime_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
 
+import '../../../testing/mocks/client_mocks.dart';
+
 /// Every Supabase-backed remote data source, all bound to one identity's clients.
 ///
 /// Data sources are stateless holders of the two clients, so building the whole
@@ -83,6 +85,7 @@ final class IntegrationDataSources {
       locations: LocationsRemoteDataSourceImpl(
         database: database,
         realtimeClient: realtime,
+        httpClient: MockHttpClient(),
       ),
       notifications: NotificationsRemoteDataSourceImpl(database: database),
       sectors: SectorsRemoteDataSourceImpl(

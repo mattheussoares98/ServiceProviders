@@ -54,4 +54,8 @@ class ApiEndpoints {
 
   // Storage — Supabase Edge Functions
   static const presignedUploadUrl = 'functions/v1/generate_presigned_url';
+
+  // ViaCEP
+  static String viaCep(String cep) => 'https://viacep.com.br/ws/$cep/json/';
 }
+

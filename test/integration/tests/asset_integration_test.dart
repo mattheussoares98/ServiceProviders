@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/assets/data/models/responses/asset_model
 import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 
+import '../../../testing/mocks/client_mocks.dart';
 import '../../../testing/mocks/factories/asset_factory.dart';
 import '../core/integration_cleanup.dart';
 import '../core/integration_config.dart';
@@ -41,6 +42,7 @@ void main() {
     locationsRemote = LocationsRemoteDataSourceImpl(
       database: db,
       realtimeClient: SupabaseIntegrationHelper.realtimeClient,
+      httpClient: MockHttpClient(),
     );
     categoriesRemote = CategoriesRemoteDataSourceImpl(
       database: db,

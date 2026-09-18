@@ -1,13 +1,17 @@
 import 'package:injectable/injectable.dart';
+import 'package:o_jogo_da_obra/core/clients/remote/http/http_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_database_client.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/database/supabase_filter.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/realtime_payload_mapper.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/supabase/realtime/supabase_realtime_client.dart';
+import 'package:o_jogo_da_obra/core/constants/api_endpoints.dart';
+import 'package:o_jogo_da_obra/core/data/handlers/api_handler.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/supabase_handler.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/requests/area_request_model.dart';
+import 'package:o_jogo_da_obra/features/locations/data/models/responses/address_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/area_model.dart';
 import 'package:o_jogo_da_obra/features/locations/data/models/responses/location_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -18,7 +22,9 @@ abstract interface class LocationsRemoteDataSource {
   FutureData<LocationModel> createLocation(LocationModel request);
   FutureData<LocationModel> updateLocation(LocationModel request);
   FutureVoid deleteLocation(String id);
-  Stream<RealtimeEvent<LocationModel>> watchLocationsRealtime({String? companyId});
+  Stream<RealtimeEvent<LocationModel>> watchLocationsRealtime({
+    String? companyId,
+  });
 
   FutureList<AreaModel> getAreas(String companyId);
   FutureList<AreaModel> getAreasByIds(List<String> ids);
@@ -26,6 +32,8 @@ abstract interface class LocationsRemoteDataSource {
   FutureData<AreaModel> updateArea(AreaRequestModel request);
   FutureVoid deleteArea(String id);
   Stream<RealtimeEvent<AreaModel>> watchAreasRealtime({String? companyId});
+
+  FutureData<AddressModel> getAddressByCep(String cep);
 }
 
 @LazySingleton(as: LocationsRemoteDataSource)
@@ -33,11 +41,14 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   const LocationsRemoteDataSourceImpl({
     required SupabaseDatabaseClient database,
     required SupabaseRealtimeClient realtimeClient,
+    required HttpClient httpClient,
   }) : _database = database,
-       _realtimeClient = realtimeClient;
+       _realtimeClient = realtimeClient,
+       _httpClient = httpClient;
 
   final SupabaseDatabaseClient _database;
   final SupabaseRealtimeClient _realtimeClient;
+  final HttpClient _httpClient;
 
   @override
   FutureList<LocationModel> getLocations(String companyId) =>
@@ -157,7 +168,9 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   });
 
   @override
-  Stream<RealtimeEvent<LocationModel>> watchLocationsRealtime({String? companyId}) {
+  Stream<RealtimeEvent<LocationModel>> watchLocationsRealtime({
+    String? companyId,
+  }) {
     final filter = companyId != null && companyId.isNotEmpty
         ? PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
@@ -167,11 +180,11 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
         : null;
 
     return _realtimeClient
-        .streamTableChanges(
-          table: 'locations',
-          filter: filter,
-        )
-        .map((payload) => RealtimePayloadMapper.map(payload, LocationModel.fromJson));
+        .streamTableChanges(table: 'locations', filter: filter)
+        .map(
+          (payload) =>
+              RealtimePayloadMapper.map(payload, LocationModel.fromJson),
+        );
   }
 
   @override
@@ -185,10 +198,28 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
         : null;
 
     return _realtimeClient
-        .streamTableChanges(
-          table: 'areas',
-          filter: filter,
-        )
-        .map((payload) => RealtimePayloadMapper.map(payload, AreaModel.fromJson));
+        .streamTableChanges(table: 'areas', filter: filter)
+        .map(
+          (payload) => RealtimePayloadMapper.map(payload, AreaModel.fromJson),
+        );
+  }
+
+  @override
+  FutureData<AddressModel> getAddressByCep(String cep) {
+    final cleanCep = cep.replaceAll(RegExp(r'\D'), '');
+    return ApiHandler.call(
+      () async {
+        final response = await _httpClient.get<dynamic>(
+          ApiEndpoints.viaCep(cleanCep),
+        );
+        if (response.data is Map &&
+            (response.data as Map).containsKey('erro')) {
+          throw Exception('Esse CEP não foi encontrado.'.hardcoded);
+        }
+        return response;
+      },
+      fromJson: AddressModel.fromJson,
+      isStandardResponse: false,
+    );
   }
 }
