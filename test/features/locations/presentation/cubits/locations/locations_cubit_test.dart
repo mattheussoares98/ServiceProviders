@@ -82,6 +82,7 @@ void main() {
   late MockDeleteAreaUseCase mockDeleteArea;
   late MockWatchLocationsRealtimeUseCase mockWatchLocationsRealtime;
   late MockWatchAreasRealtimeUseCase mockWatchAreasRealtime;
+  late MockGetAddressByCepUseCase mockGetAddressByCep;
   late MockNavigationClient mockNavigationClient;
 
   late List<LocationEntity> tLocations;
@@ -93,6 +94,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(AssetFactory.makeLocationEntity());
     registerFallbackValue(AssetFactory.makeAreaEntity());
+    registerFallbackValue(AssetFactory.makeAddressEntity());
     registerFallbackValue(CreateUpdateAreaRoute(locationId: '', companyId: ''));
     registerFallbackValue(CreateUpdateLocationRoute());
   });
@@ -113,6 +115,7 @@ void main() {
     mockDeleteArea = MockDeleteAreaUseCase();
     mockWatchLocationsRealtime = MockWatchLocationsRealtimeUseCase();
     mockWatchAreasRealtime = MockWatchAreasRealtimeUseCase();
+    mockGetAddressByCep = MockGetAddressByCepUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -147,6 +150,7 @@ void main() {
       deleteArea: mockDeleteArea,
       watchLocationsRealtime: mockWatchLocationsRealtime,
       watchAreasRealtime: mockWatchAreasRealtime,
+      getAddressByCep: mockGetAddressByCep,
     );
 
     cubit = LocationsCubit(useCases: useCases);
@@ -1121,6 +1125,74 @@ void main() {
       });
     });
 
+    group('getAddressByCep', () {
+      final tAddress = AssetFactory.makeAddressEntity();
+      const tCep = '01001-000';
+      const tCleanCep = '01001000';
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should emit running and success when CEP lookup succeeds',
+        build: () {
+          when(
+            () => mockGetAddressByCep.call(tCleanCep),
+          ).thenAnswer((_) async => SuccessState(data: tAddress));
+          return cubit;
+        },
+        act: (cubit) => cubit.getAddressByCep(tCep),
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.loadAddressByCep],
+            'section running',
+            const SectionState.running(),
+          ),
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.loadAddressByCep],
+            'section success',
+            const SectionState.success(),
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockGetAddressByCep.call(tCleanCep)).called(1);
+        },
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should emit running and error when CEP lookup fails',
+        build: () {
+          when(
+            () => mockGetAddressByCep.call(tCleanCep),
+          ).thenAnswer((_) async => FailureState(message: 'Not found'));
+          return cubit;
+        },
+        act: (cubit) => cubit.getAddressByCep(tCep),
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.loadAddressByCep],
+            'section running',
+            const SectionState.running(),
+          ),
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.loadAddressByCep],
+            'section error',
+            const SectionState.error(),
+          ),
+        ],
+        verify: (_) {
+          verify(() => mockGetAddressByCep.call(tCleanCep)).called(1);
+        },
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should return null and not emit when CEP length is invalid',
+        build: () => cubit,
+        act: (cubit) => cubit.getAddressByCep('123'),
+        expect: () => <LocationsState>[],
+        verify: (_) {
+          verifyNever(() => mockGetAddressByCep.call(any()));
+        },
+      );
+    });
+
     group('Realtime Events', () {
       test('prepends new location on insert event', () async {
         final controller = StreamController<RealtimeEvent<LocationEntity>>();
@@ -1144,6 +1216,7 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          getAddressByCep: mockGetAddressByCep,
         );
 
         final testCubit = LocationsCubit(useCases: useCases);
@@ -1186,6 +1259,7 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          getAddressByCep: mockGetAddressByCep,
         );
 
         final testCubit = LocationsCubit(useCases: useCases);
@@ -1234,6 +1308,7 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          getAddressByCep: mockGetAddressByCep,
         );
 
         final testCubit = LocationsCubit(useCases: useCases);
@@ -1280,6 +1355,7 @@ void main() {
             deleteArea: mockDeleteArea,
             watchLocationsRealtime: mockWatchLocationsRealtime,
             watchAreasRealtime: mockWatchAreasRealtime,
+            getAddressByCep: mockGetAddressByCep,
           );
 
           final testCubit = LocationsCubit(useCases: useCases);
@@ -1331,6 +1407,7 @@ void main() {
             deleteArea: mockDeleteArea,
             watchLocationsRealtime: mockWatchLocationsRealtime,
             watchAreasRealtime: mockWatchAreasRealtime,
+            getAddressByCep: mockGetAddressByCep,
           );
 
           final testCubit = LocationsCubit(useCases: useCases);
@@ -1378,6 +1455,7 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          getAddressByCep: mockGetAddressByCep,
         );
 
         final testCubit = LocationsCubit(useCases: useCases);

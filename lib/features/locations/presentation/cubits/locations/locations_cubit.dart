@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/realtime_list_extension.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/address_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit_use_cases.dart';
@@ -19,6 +20,7 @@ enum LocationsSections implements SectionKey {
   deleteLocation,
   saveArea,
   deleteArea,
+  loadAddressByCep,
 }
 
 @injectable
@@ -434,6 +436,45 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
   }
 
+  Future<AddressEntity?> getAddressByCep(String cep) async {
+    final cleanCep = cep.replaceAll(RegExp(r'\D'), '');
+    if (cleanCep.length != 8) return null;
+
+    emit(
+      state.copyWith(
+        sections: withSection(
+          LocationsSections.loadAddressByCep,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final dataState = await _useCases.getAddressByCep(cleanCep);
+
+    if (dataState is SuccessState<AddressEntity>) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.loadAddressByCep,
+            SectionStatus.success,
+          ),
+        ),
+      );
+      return dataState.data;
+    } else {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.loadAddressByCep,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      showDataStateToast(dataState);
+      return null;
+    }
+  }
+
   Future<void> navigateToCreateUpdateArea({
     required String locationId,
     AreaEntity? area,
@@ -466,3 +507,4 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     return super.close();
   }
 }
+

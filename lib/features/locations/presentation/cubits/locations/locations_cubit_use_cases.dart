@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_area_u
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_location_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_address_by_cep_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
@@ -33,6 +34,7 @@ class LocationsCubitUseCases {
     required this.deleteArea,
     required this.watchLocationsRealtime,
     required this.watchAreasRealtime,
+    required this.getAddressByCep,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -50,4 +52,6 @@ class LocationsCubitUseCases {
   final DeleteAreaUseCase deleteArea;
   final WatchLocationsRealtimeUseCase watchLocationsRealtime;
   final WatchAreasRealtimeUseCase watchAreasRealtime;
+  final GetAddressByCepUseCase getAddressByCep;
 }
+
