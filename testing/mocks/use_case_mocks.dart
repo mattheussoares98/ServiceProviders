@@ -44,6 +44,7 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_par
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_address_by_cep_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
@@ -381,3 +382,7 @@ class MockGetWorkOrderChecklistAnswersBatchUseCase extends Mock
 
 class MockGetAttachmentsBatchUseCase extends Mock
     implements GetAttachmentsBatchUseCase {}
+
+class MockGetAddressByCepUseCase extends Mock
+    implements GetAddressByCepUseCase {}
+

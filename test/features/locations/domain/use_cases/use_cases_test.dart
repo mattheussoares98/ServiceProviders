@@ -2,12 +2,14 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/entities/address_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/create_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/delete_location_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_address_by_cep_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_by_ids_use_case.dart';
@@ -41,10 +43,12 @@ void main() {
   late GetProviderAreasUseCase getProviderAreasUseCase;
   late WatchLocationsRealtimeUseCase watchLocationsRealtimeUseCase;
   late WatchAreasRealtimeUseCase watchAreasRealtimeUseCase;
+  late GetAddressByCepUseCase getAddressByCepUseCase;
 
   setUpAll(() {
     registerFallbackValue(AssetFactory.makeLocationEntity());
     registerFallbackValue(AssetFactory.makeAreaEntity());
+    registerFallbackValue(AssetFactory.makeAddressEntity());
   });
 
   setUp(() {
@@ -81,6 +85,9 @@ void main() {
       locationsRepository: mockRepository,
     );
     watchAreasRealtimeUseCase = WatchAreasRealtimeUseCase(
+      locationsRepository: mockRepository,
+    );
+    getAddressByCepUseCase = GetAddressByCepUseCase(
       locationsRepository: mockRepository,
     );
   });
@@ -538,5 +545,34 @@ void main() {
         ).called(1);
       });
     });
+
+    group('GetAddressByCepUseCase', () {
+      final tAddress = AssetFactory.makeAddressEntity();
+      const tCep = '01001000';
+
+      test('should call repository.getAddressByCep and return SuccessState', () async {
+        when(
+          () => mockRepository.getAddressByCep(any()),
+        ).thenAnswer((_) async => SuccessState(data: tAddress));
+
+        final result = await getAddressByCepUseCase(tCep);
+
+        expect(result, isA<SuccessState<AddressEntity>>());
+        expect(result.data, tAddress);
+        verify(() => mockRepository.getAddressByCep(tCep)).called(1);
+      });
+
+      test('should return FailureState when repository fails', () async {
+        when(
+          () => mockRepository.getAddressByCep(any()),
+        ).thenAnswer((_) async => FailureState(message: 'Not found'));
+
+        final result = await getAddressByCepUseCase(tCep);
+
+        expect(result, isA<FailureState<AddressEntity>>());
+        verify(() => mockRepository.getAddressByCep(tCep)).called(1);
+      });
+    });
   });
 }
+
