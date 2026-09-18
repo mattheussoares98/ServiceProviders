@@ -194,6 +194,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [company_parameters_rules.md](company_parameters_rules.md)
 - [checklist_answers_rules.md](checklist_answers_rules.md)
 - [checklist_templates_rules.md](checklist_templates_rules.md)
+- [maintenance_plans_rules.md](maintenance_plans_rules.md)
 
 ---
 
