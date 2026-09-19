@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -147,33 +148,38 @@ void main() {
   testWidgets(
     'tapping generate work order button opens dialog and triggers cubit',
     (tester) async {
-      final plan = MaintenancePlanFactory.makeMaintenancePlanEntity();
-      stubState([plan]);
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final plan = MaintenancePlanFactory.makeMaintenancePlanEntity();
+        stubState([plan]);
 
-      await tester.pumpWidget(buildWidget());
-      final cardFinder = find.byType(MaintenancePlanCard);
-      expect(cardFinder, findsOneWidget);
-      final playButtonFinder = find.descendant(
-        of: cardFinder,
-        matching: find.byWidgetPredicate(
-          (widget) =>
-              widget is PlatformIcon &&
-              (widget.materialIcon == Icons.play_arrow_outlined ||
-                  widget.cupertinoIcon == CupertinoIcons.play),
-        ),
-      );
-      expect(playButtonFinder, findsOneWidget);
+        await tester.pumpWidget(buildWidget());
+        final cardFinder = find.byType(MaintenancePlanCard);
+        expect(cardFinder, findsOneWidget);
+        final playButtonFinder = find.descendant(
+          of: cardFinder,
+          matching: find.byWidgetPredicate(
+            (widget) =>
+                widget is PlatformIcon &&
+                (widget.materialIcon == Icons.play_arrow_outlined ||
+                    widget.cupertinoIcon == CupertinoIcons.play),
+          ),
+        );
+        expect(playButtonFinder, findsOneWidget);
 
-      await tester.tap(playButtonFinder);
-      await tester.pumpAndSettle();
+        await tester.tap(playButtonFinder);
+        await tester.pumpAndSettle();
 
-      expect(find.text('Gerar ordem de serviço'), findsOneWidget);
-      expect(find.text('Gerar'), findsOneWidget);
+        expect(find.text('Gerar ordem de serviço'), findsOneWidget);
+        expect(find.text('Gerar'), findsOneWidget);
 
-      await tester.tap(find.text('Gerar'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('Gerar'));
+        await tester.pumpAndSettle();
 
-      verify(() => mockCubit.generateWorkOrder(plan.id)).called(1);
+        verify(() => mockCubit.generateWorkOrder(plan.id)).called(1);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
     },
   );
 

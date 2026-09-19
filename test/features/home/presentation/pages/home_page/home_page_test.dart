@@ -25,6 +25,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widget
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
@@ -100,6 +101,9 @@ class MockPauseWorkflowCubit extends MockCubit<PauseWorkflowState>
 class MockDashboardKpisCubit extends MockCubit<DashboardKpisState>
     implements DashboardKpisCubit {}
 
+class MockMaintenancePlansCubit extends MockCubit<MaintenancePlansState>
+    implements MaintenancePlansCubit {}
+
 class MockHomeCubit extends MockCubit<HomeState> implements HomeCubit {}
 
 void main() {
@@ -119,6 +123,7 @@ void main() {
   late MockServiceProvidersCubit mockServiceProvidersCubit;
   late MockPauseWorkflowCubit mockPauseWorkflowCubit;
   late MockDashboardKpisCubit mockDashboardKpisCubit;
+  late MockMaintenancePlansCubit mockMaintenancePlansCubit;
 
   late UserProfileEntity userProfile;
 
@@ -150,6 +155,7 @@ void main() {
     mockWorkOrdersCubit = MockWorkOrdersCubit();
     mockCategoriesCubit = MockCategoriesCubit();
     mockSessionCubit = MockSessionCubit();
+    mockMaintenancePlansCubit = MockMaintenancePlansCubit();
 
     userProfile = UserFactory.makeUserProfileEntity().copyWith(
       annulAvatarUrl: true,
@@ -301,6 +307,16 @@ void main() {
       () => mockDashboardKpisCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
 
+    when(
+      () => mockMaintenancePlansCubit.state,
+    ).thenReturn(const MaintenancePlansState.initial());
+    when(
+      () => mockMaintenancePlansCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockMaintenancePlansCubit.loadMaintenancePlans(),
+    ).thenAnswer((_) async {});
+
     locator
       ..registerSingleton<NavigationClient>(mockNavigationClient)
       ..registerSingleton<SessionRepository>(mockSessionRepository)
@@ -322,7 +338,8 @@ void main() {
       ..registerFactory<SlaPoliciesCubit>(() => mockSlaPoliciesCubit)
       ..registerFactory<ServiceProvidersCubit>(() => mockServiceProvidersCubit)
       ..registerFactory<PauseWorkflowCubit>(() => mockPauseWorkflowCubit)
-      ..registerFactory<DashboardKpisCubit>(() => mockDashboardKpisCubit);
+      ..registerFactory<DashboardKpisCubit>(() => mockDashboardKpisCubit)
+      ..registerFactory<MaintenancePlansCubit>(() => mockMaintenancePlansCubit);
 
     const screenDetails = ScreenDetails(
       logicalSize: Size(1920, 1280),
@@ -418,6 +435,12 @@ void main() {
         when(
           () => mockScreenObserverCubit.stream,
         ).thenAnswer((_) => const Stream.empty());
+        when(
+          () => mockMaintenancePlansCubit.state,
+        ).thenReturn(const MaintenancePlansState.initial());
+        when(
+          () => mockMaintenancePlansCubit.stream,
+        ).thenAnswer((_) => const Stream.empty());
 
         final companyStateController =
             StreamController<CompanyState>.broadcast();
@@ -482,6 +505,9 @@ void main() {
         ).called(greaterThanOrEqualTo(2));
         verify(
           () => mockServiceProvidersCubit.loadCompaniesAndProfiles(),
+        ).called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockMaintenancePlansCubit.loadMaintenancePlans(),
         ).called(greaterThanOrEqualTo(2));
         verify(
           () => mockPauseWorkflowCubit.loadPauseReasons(),
