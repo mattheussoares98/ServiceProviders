@@ -38,8 +38,11 @@ Company Mode are completed and validated first.
 - **Offline policy**: answering works offline (cached + queued); authoring a template or item is refused offline. See [Architecture](/docs/cmms/architecture.md#readwrite-strategy-remote-first-with-local-fallback).
   - ✅ `getTemplates` embeds `checklist_items`, so loading the template list caches every template's items — a checklist renders offline without having been opened online first.
 
-### Milestone 1.2b: Maintenance Plans Module — ⏸️ ON HOLD
-> Automated maintenance plans remain deferred. Drift tables and a stub feature exist (`lib/features/maintenance_plans`) but are not wired into the product.
+### Milestone 1.2b: Maintenance Plans Module — ✅ IMPLEMENTED
+- Periodic recurring schedules (days, weeks, months, years) and lead time configuration.
+- Plan authoring UI (`MaintenancePlansPage`, `CreateUpdateMaintenancePlanPage`), Drift caching, Supabase Realtime sync, and client-side validations.
+- Automated work order generation via PostgreSQL function `generate_due_maintenance_work_orders()` and `pg_cron` hourly worker.
+- Soft-delete dependency checks preventing deletion of plans with open work orders.
 
 ### Milestone 1.3: Inventory & Stock Control — ⏸️ ON HOLD
 > Inventory stock management and product usage tracking are deferred for future releases.

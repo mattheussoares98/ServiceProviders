@@ -162,8 +162,10 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 - **sla_policies** (`tr_prevent_delete_sla_policies`)
 - **pause_reasons** (`tr_prevent_delete_pause_reasons`)
 - **sectors** (`tr_prevent_delete_sectors`)
+- **maintenance_plans** (`tr_prevent_delete_maintenance_plans`)
 
 ---
+
 
 ## 3. Per‑Table RLS Policies
 
