@@ -81,7 +81,7 @@ void main() {
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
-    tSessionUser = UserFactory.makeUserProfileEntity();
+    tSessionUser = UserFactory.makeUserProfileEntity().copyWith(isAdmin: true);
     tUserProfile = UserFactory.makeUserProfileEntity();
     tPermissionGroup = UserFactory.makePermissionGroupEntity();
     tUserInvitation = UserFactory.makeUserInvitationEntity();
@@ -434,29 +434,18 @@ void main() {
       );
 
       blocTest<UsersCubit, UsersState>(
-        'should emit loadingError status on failure',
+        'should return true and not call getPendingInvitations when user lacks users.read permission',
         build: () {
-          when(
-            () => mockGetPendingInvitations.call(any()),
-          ).thenAnswer((_) async => FailureState(message: 'Error loading'));
-          when(
-            () => mockGetActiveCompanyIdUseCase.call(),
-          ).thenReturn(tSessionUser.companyId);
+          when(() => mockGetSessionUser.call()).thenReturn(
+            UserFactory.makeUserProfileEntity().copyWith(isAdmin: false),
+          );
           return cubit;
         },
-        act: (cubit) async => expect(await cubit.loadInvitations(), isFalse),
-        expect: () => [
-          isA<UsersState>().having(
-            (s) => s.sections[BaseSections.load],
-            'sections[load]',
-            const SectionState.running(),
-          ),
-          isA<UsersState>().having(
-            (s) => s.sections[BaseSections.load],
-            'sections[load]',
-            const SectionState.error('Error loading'),
-          ),
-        ],
+        act: (cubit) async => expect(await cubit.loadInvitations(), isTrue),
+        expect: () => <dynamic>[],
+        verify: (_) {
+          verifyNever(() => mockGetPendingInvitations.call(any()));
+        },
       );
     });
 

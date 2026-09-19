@@ -145,6 +145,16 @@ class UsersCubit extends BaseCubit<UsersState> {
   }
 
   Future<bool> loadInvitations({bool emitLoading = true}) async {
+    // If user doesn't have permission to read users/invitations, exit immediately
+    if (!hasPermission(
+      const ActionPermission.resource(
+        resourceType: ResourceType.users,
+        permissionAction: PermissionAction.read,
+      ),
+    )) {
+      return true;
+    }
+
     final companyId = _useCases.getActiveCompanyId();
 
     if (emitLoading && !isClosed) {
@@ -181,7 +191,6 @@ class UsersCubit extends BaseCubit<UsersState> {
           ),
         );
       }
-      showErrorToast(message);
       return false;
     }
   }
