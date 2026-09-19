@@ -99,6 +99,120 @@ void main() {
   final tId = faker.guid.guid();
 
   group('Locations & Areas Use Cases', () {
+    test('createLocation preserves actionable write failure details', () async {
+      final failure = FailureState<bool>(
+        message: 'Write could not be persisted',
+        statusCode: 507,
+        error: 'storage_full',
+      );
+      when(
+        () => mockRepository.createLocation(tLocationEntity),
+      ).thenAnswer((_) async => failure);
+
+      final result = await createLocationUseCase(tLocationEntity);
+
+      expect(result, same(failure));
+      expect(result.statusCode, 507);
+      expect(result.error, 'storage_full');
+      verify(() => mockRepository.createLocation(tLocationEntity)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('updateLocation preserves actionable write failure details', () async {
+      final failure = FailureState<bool>(
+        message: 'Write could not be persisted',
+        statusCode: 507,
+        error: 'storage_full',
+      );
+      when(
+        () => mockRepository.updateLocation(tLocationEntity),
+      ).thenAnswer((_) async => failure);
+
+      final result = await updateLocationUseCase(tLocationEntity);
+
+      expect(result, same(failure));
+      expect(result.statusCode, 507);
+      expect(result.error, 'storage_full');
+      verify(() => mockRepository.updateLocation(tLocationEntity)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('deleteLocation preserves actionable write failure details', () async {
+      final failure = FailureState<bool>(
+        message: 'Write could not be persisted',
+        statusCode: 507,
+        error: 'storage_full',
+      );
+      when(
+        () => mockRepository.deleteLocation(tId),
+      ).thenAnswer((_) async => failure);
+
+      final result = await deleteLocationUseCase(tId);
+
+      expect(result, same(failure));
+      expect(result.statusCode, 507);
+      expect(result.error, 'storage_full');
+      verify(() => mockRepository.deleteLocation(tId)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('createArea preserves actionable write failure details', () async {
+      final failure = FailureState<bool>(
+        message: 'Write could not be persisted',
+        statusCode: 507,
+        error: 'storage_full',
+      );
+      when(
+        () => mockRepository.createArea(tAreaEntity),
+      ).thenAnswer((_) async => failure);
+
+      final result = await createAreaUseCase(tAreaEntity);
+
+      expect(result, same(failure));
+      expect(result.statusCode, 507);
+      expect(result.error, 'storage_full');
+      verify(() => mockRepository.createArea(tAreaEntity)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('updateArea preserves actionable write failure details', () async {
+      final failure = FailureState<bool>(
+        message: 'Write could not be persisted',
+        statusCode: 507,
+        error: 'storage_full',
+      );
+      when(
+        () => mockRepository.updateArea(tAreaEntity),
+      ).thenAnswer((_) async => failure);
+
+      final result = await updateAreaUseCase(tAreaEntity);
+
+      expect(result, same(failure));
+      expect(result.statusCode, 507);
+      expect(result.error, 'storage_full');
+      verify(() => mockRepository.updateArea(tAreaEntity)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
+    test('deleteArea preserves actionable write failure details', () async {
+      final failure = FailureState<bool>(
+        message: 'Write could not be persisted',
+        statusCode: 507,
+        error: 'storage_full',
+      );
+      when(
+        () => mockRepository.deleteArea(tId),
+      ).thenAnswer((_) async => failure);
+
+      final result = await deleteAreaUseCase(tId);
+
+      expect(result, same(failure));
+      expect(result.statusCode, 507);
+      expect(result.error, 'storage_full');
+      verify(() => mockRepository.deleteArea(tId)).called(1);
+      verifyNoMoreInteractions(mockRepository);
+    });
+
     group('CreateLocationUseCase', () {
       test(
         'should call repository.createLocation and return SuccessState',
@@ -550,17 +664,20 @@ void main() {
       final tAddress = AssetFactory.makeAddressEntity();
       const tCep = '01001000';
 
-      test('should call repository.getAddressByCep and return SuccessState', () async {
-        when(
-          () => mockRepository.getAddressByCep(any()),
-        ).thenAnswer((_) async => SuccessState(data: tAddress));
+      test(
+        'should call repository.getAddressByCep and return SuccessState',
+        () async {
+          when(
+            () => mockRepository.getAddressByCep(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAddress));
 
-        final result = await getAddressByCepUseCase(tCep);
+          final result = await getAddressByCepUseCase(tCep);
 
-        expect(result, isA<SuccessState<AddressEntity>>());
-        expect(result.data, tAddress);
-        verify(() => mockRepository.getAddressByCep(tCep)).called(1);
-      });
+          expect(result, isA<SuccessState<AddressEntity>>());
+          expect(result.data, tAddress);
+          verify(() => mockRepository.getAddressByCep(tCep)).called(1);
+        },
+      );
 
       test('should return FailureState when repository fails', () async {
         when(
@@ -575,4 +692,3 @@ void main() {
     });
   });
 }
-
