@@ -88,4 +88,14 @@ final class MaintenancePlansRepositoryImpl
     }
     return FailureState(message: result.message);
   }
+
+  @override
+  FutureData<String> generateWorkOrder(String planId) async {
+    if (!_internet.isConnected) {
+      return FailureState(
+        message: 'A geração de ordens de serviço requer conexão com a internet',
+      );
+    }
+    return await _remoteDataSource.generateWorkOrder(planId);
+  }
 }

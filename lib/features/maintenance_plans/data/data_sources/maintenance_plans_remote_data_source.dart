@@ -16,6 +16,7 @@ abstract interface class MaintenancePlansRemoteDataSource {
   FutureData<MaintenancePlanModel> createPlan(MaintenancePlanModel plan);
   FutureData<MaintenancePlanModel> updatePlan(MaintenancePlanModel plan);
   FutureVoid deletePlan(String id);
+  FutureData<String> generateWorkOrder(String planId);
   Stream<RealtimeEvent<MaintenancePlanModel>> watchPlansRealtime({
     String? companyId,
   });
@@ -91,6 +92,19 @@ final class MaintenancePlansRemoteDataSourceImpl
       filters: [SupabaseFilter.eq('id', id)],
     );
   });
+
+  @override
+  FutureData<String> generateWorkOrder(String planId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.rpc(
+          functionName: 'generate_maintenance_plan_work_order',
+          params: {'p_plan_id': planId},
+        );
+        if (response == null) {
+          throw Exception('Falha ao gerar ordem de serviço para o plano');
+        }
+        return response.toString();
+      });
 
   @override
   Stream<RealtimeEvent<MaintenancePlanModel>> watchPlansRealtime({

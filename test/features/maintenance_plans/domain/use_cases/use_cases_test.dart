@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/mainte
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/calculate_next_due_date_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/create_maintenance_plan_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/delete_maintenance_plan_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/generate_maintenance_plan_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plan_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plans_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/update_maintenance_plan_use_case.dart';
@@ -156,6 +157,31 @@ void main() {
         expect(result.data, isTrue);
         verify(() => mockRepository.deleteMaintenancePlan(id)).called(1);
       });
+    });
+
+    group('GenerateMaintenancePlanWorkOrderUseCase', () {
+      test(
+        'should return generated work order id on successful generation',
+        () async {
+          // Arrange
+          final planId = faker.guid.guid();
+          final woId = faker.guid.guid();
+          final useCase = GenerateMaintenancePlanWorkOrderUseCase(
+            maintenancePlansRepository: mockRepository,
+          );
+          when(
+            () => mockRepository.generateWorkOrder(any()),
+          ).thenAnswer((_) async => SuccessState(data: woId));
+
+          // Act
+          final result = await useCase(planId);
+
+          // Assert
+          expect(result, isA<SuccessState<String>>());
+          expect(result.data, woId);
+          verify(() => mockRepository.generateWorkOrder(planId)).called(1);
+        },
+      );
     });
 
     group('CalculateNextDueDateUseCase', () {

@@ -7,4 +7,6 @@ abstract interface class MaintenancePlansRepository {
   FutureBool createMaintenancePlan(MaintenancePlanEntity plan);
   FutureBool updateMaintenancePlan(MaintenancePlanEntity plan);
   FutureBool deleteMaintenancePlan(String id);
+  FutureData<String> generateWorkOrder(String planId);
 }
+
