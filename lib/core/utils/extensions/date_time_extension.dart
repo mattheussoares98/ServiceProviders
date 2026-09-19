@@ -6,7 +6,7 @@ export 'string_extension.dart';
 
 extension DateTimeExtension on DateTime {
   String formatDate([DateFormatType type = DateFormatType.ddMMyyyy]) {
-    return DateFormat(type.pattern).format(this);
+    return DateFormat(type.pattern).format(toLocal());
   }
 
   String toIsoUtcString() => toUtc().toIso8601String();
