@@ -59,3 +59,5 @@ app.*.map.json
 
 # Generated files
 *.g.dart
+# Durable test-only fixture recovery (survives flutter clean).
+/.integration-test-state/

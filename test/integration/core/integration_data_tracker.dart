@@ -1,23 +1,40 @@
-/// Tracks IDs of all rows created during the current integration test run.
-///
-/// Singleton tracker that records IDs of entities created during `IntegrationCleanup`.
+import 'dart:io';
+
+import 'integration_recovery.dart';
+
+/// Tracks only exact IDs registered by this test process; unresolved IDs persist.
 class IntegrationDataTracker {
-  IntegrationDataTracker._();
-  static final instance = IntegrationDataTracker._();
+  IntegrationDataTracker(this.ledger);
 
-  final Map<String, List<String>> _created = {};
+  static final instance = IntegrationDataTracker(
+    IntegrationRecovery(File('.integration-test-state/fixtures-$pid.json')),
+  );
 
-  /// Register a created row for later cleanup.
+  final IntegrationRecovery ledger;
+
   void track(String table, String id) {
-    _created.putIfAbsent(table, () => []).add(id);
+    final key = '$table/$id';
+    if (!ledger.read().containsKey(key)) {
+      ledger.put(key, {'table': table, 'id': id});
+    }
   }
 
-  /// Get all tracked IDs for a given table.
-  List<String> getIds(String table) => _created[table] ?? [];
+  List<String> getIds(String table) => ledger
+      .read()
+      .values
+      .where((entry) => entry['table'] == table)
+      .map((entry) => entry['id'] as String)
+      .toList();
 
-  /// Get all tracked tables and their IDs.
-  Map<String, List<String>> get all => Map.unmodifiable(_created);
+  Map<String, List<String>> get all {
+    final result = <String, List<String>>{};
+    for (final entry in ledger.read().values) {
+      result
+          .putIfAbsent(entry['table'] as String, () => [])
+          .add(entry['id'] as String);
+    }
+    return result;
+  }
 
-  /// Clear all tracked data (call after cleanup is done).
-  void clear() => _created.clear();
+  void resolved(String table, String id) => ledger.remove('$table/$id');
 }

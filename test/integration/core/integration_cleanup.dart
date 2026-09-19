@@ -78,7 +78,11 @@ class IntegrationCleanup {
       nameColumn: null,
       how: CleanupStrategy.softDelete,
     ),
-    (table: 'work_orders', nameColumn: 'title', how: CleanupStrategy.softDelete),
+    (
+      table: 'work_orders',
+      nameColumn: 'title',
+      how: CleanupStrategy.softDelete,
+    ),
     // Checklists. Items do NOT cascade from their template, and their name
     // column is `label`, not `name`.
     (
@@ -97,7 +101,11 @@ class IntegrationCleanup {
     (table: 'locations', nameColumn: 'name', how: CleanupStrategy.softDelete),
     (table: 'categories', nameColumn: 'name', how: CleanupStrategy.softDelete),
     (table: 'sectors', nameColumn: 'name', how: CleanupStrategy.softDelete),
-    (table: 'sla_policies', nameColumn: 'name', how: CleanupStrategy.softDelete),
+    (
+      table: 'sla_policies',
+      nameColumn: 'name',
+      how: CleanupStrategy.softDelete,
+    ),
     (
       table: 'pause_reasons',
       nameColumn: 'name',
@@ -161,58 +169,30 @@ class IntegrationCleanup {
       for (final id in ids) {
         try {
           await _apply(db, entry.table, entry.how, id, deletedAt, outcome);
+          tracker.resolved(entry.table, id);
         } on Object catch (error) {
           outcome.errors.add('${entry.table}/$id: $error');
         }
       }
     }
 
-    tracker.clear();
+    for (final table in tracker.all.keys) {
+      if (!plan.any((entry) => entry.table == table)) {
+        outcome.errors.add('No reviewed cleanup strategy for $table');
+      }
+    }
     _writeLedger(outcome);
+    if (outcome.errors.isNotEmpty) {
+      throw StateError('Fixture cleanup incomplete; durable IDs retained');
+    }
     return outcome;
   }
 
-  /// Cleans every `[IT]`-prefixed row in [companyId], including leftovers from
-  /// earlier runs that crashed before their teardown.
+  /// Compatibility entry point: never sweeps by a shared name prefix.
   static Future<CleanupOutcome> cleanAll(
     SupabaseDatabaseClient db,
     String companyId,
-  ) async {
-    final outcome = await cleanTracked(db);
-    final deletedAt = DateTime.now().toIsoUtcString();
-
-    for (final entry in plan) {
-      final nameColumn = entry.nameColumn;
-      if (nameColumn == null || entry.how == CleanupStrategy.unreachable) {
-        continue;
-      }
-
-      try {
-        final rows = await db.selectList(
-          table: entry.table,
-          columns: 'id',
-          filters: [
-            SupabaseFilter.eq('company_id', companyId),
-            if (entry.how == CleanupStrategy.softDelete)
-              SupabaseFilter.isFilter('deleted_at', null),
-            SupabaseFilter.ilike(nameColumn, '[IT] %'),
-          ],
-        );
-        for (final row in rows) {
-          final id = row['id'] as String?;
-          if (id == null) continue;
-          await _apply(db, entry.table, entry.how, id, deletedAt, outcome);
-        }
-      } on Object catch (error) {
-        // A table this identity cannot read is not a cleanup failure worth
-        // aborting the teardown for, but it is worth reporting.
-        outcome.errors.add('${entry.table} sweep: $error');
-      }
-    }
-
-    _writeLedger(outcome);
-    return outcome;
-  }
+  ) => cleanTracked(db);
 
   static Future<void> _apply(
     SupabaseDatabaseClient db,
@@ -222,6 +202,11 @@ class IntegrationCleanup {
     String deletedAt,
     CleanupOutcome outcome,
   ) async {
+    final before = await db.selectOne(
+      table: table,
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    if (before == null) return;
     switch (how) {
       case CleanupStrategy.softDelete:
         await db.update(
@@ -229,9 +214,17 @@ class IntegrationCleanup {
           values: {'deleted_at': deletedAt},
           filters: [SupabaseFilter.eq('id', id)],
         );
+        await _verify(db, table, id, 'deleted_at', deletedAt);
         outcome.softDeleted[table] = (outcome.softDeleted[table] ?? 0) + 1;
       case CleanupStrategy.hardDelete:
         await db.delete(table: table, filters: [SupabaseFilter.eq('id', id)]);
+        if (await db.selectOne(
+              table: table,
+              filters: [SupabaseFilter.eq('id', id)],
+            ) !=
+            null) {
+          throw StateError('Hard-delete did not persist');
+        }
         outcome.hardDeleted[table] = (outcome.hardDeleted[table] ?? 0) + 1;
       case CleanupStrategy.deactivate:
         await db.update(
@@ -239,10 +232,31 @@ class IntegrationCleanup {
           values: {'is_active': false},
           filters: [SupabaseFilter.eq('id', id)],
         );
+        await _verify(db, table, id, 'is_active', false);
         outcome.deactivated[table] = (outcome.deactivated[table] ?? 0) + 1;
       case CleanupStrategy.unreachable:
         outcome.unreachable[table] = (outcome.unreachable[table] ?? 0) + 1;
     }
+  }
+
+  static Future<void> _verify(
+    SupabaseDatabaseClient db,
+    String table,
+    String id,
+    String column,
+    Object expected,
+  ) async {
+    final after = await db.selectOne(
+      table: table,
+      filters: [SupabaseFilter.eq('id', id)],
+    );
+    final actual = after?[column];
+    final matches = column == 'deleted_at' && actual is String
+        ? DateTime.parse(
+            actual,
+          ).isAtSameMomentAs(DateTime.parse(expected as String))
+        : actual == expected;
+    if (!matches) throw StateError('$table/$id cleanup was not persisted');
   }
 
   /// Records what cleanup achieved next to the case reports, so the run's
@@ -250,8 +264,9 @@ class IntegrationCleanup {
   static void _writeLedger(CleanupOutcome outcome) {
     try {
       Directory(IntegrationReport.directory).createSync(recursive: true);
-      File('${IntegrationReport.directory}/cleanup-$pid.json')
-          .writeAsStringSync(outcome.toString(), flush: true);
+      File(
+        '${IntegrationReport.directory}/cleanup-$pid.json',
+      ).writeAsStringSync(outcome.toString(), flush: true);
     } on Object {
       // Never let a bookkeeping failure mask the test result.
     }

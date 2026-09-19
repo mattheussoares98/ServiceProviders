@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +7,8 @@ import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 import 'integration_config.dart';
 import 'integration_data_tracker.dart';
-import 'integration_report.dart';
+import 'integration_identity.dart';
+import 'integration_recovery.dart';
 import 'integration_session.dart';
 
 /// Temporarily grants an identity a different permission set.
@@ -25,22 +25,14 @@ import 'integration_session.dart';
 class PermissionFixture {
   const PermissionFixture._();
 
-  static String get _ledgerPath =>
-      '${IntegrationReport.directory}/permission_ledger.jsonl';
+  static final _ledger = IntegrationRecovery(
+    File('.integration-test-state/permission_ledger.json'),
+  );
 
   /// Grants [permissions] to [session]'s profile for the rest of the test.
   ///
-  /// [permissions] is written as **raw JSONB**, never through
-  /// `PermissionGroupModel`: that model rebuilds the object from
-  /// `Map<ResourceType, Set<PermissionAction>>`, and `ResourceType` has
-  /// `checklists`, `reports` and `maintenance_plans` commented out, so a
-  /// read-modify-write through it silently drops `"*": true` and those three
-  /// resource families (finding F4).
-  ///
-  /// Note on revoking: since the F1 fix
-  /// (`20260906120000_fix_has_permission_object_format.sql`) `has_permission()`
-  /// reads the *value*, so `"x.y": false` denies. Omitting the key denies too;
-  /// both shapes are exercised by `RLS-04`.
+  /// Preserve the raw permission JSON so wildcard, scope and legacy cases
+  /// exercise the database contract independently of the app's model mapping.
   static Future<String> apply({
     required IntegrationSession session,
     required MapDynamic permissions,
@@ -57,7 +49,10 @@ class PermissionFixture {
     required Object permissions,
     String label = 'fixture',
   }) async {
-    final db = session.database;
+    final db = (await IntegrationSessions.as(Identity.admin)).database;
+    if (await session.database.rpc(functionName: 'is_super_admin') != false) {
+      throw StateError('Permission fixtures require an ordinary test actor');
+    }
 
     final profile = await db.selectOne(
       table: 'user_profiles',
@@ -65,7 +60,7 @@ class PermissionFixture {
       filters: [SupabaseFilter.eq('id', session.userId)],
     );
     if (profile == null) {
-      throw StateError('No user_profiles row for ${session.email}');
+      throw StateError('No user_profiles row for ${session.identity.name}');
     }
 
     final originalGroupId = profile['permission_group_id'] as String?;
@@ -89,16 +84,9 @@ class PermissionFixture {
       'at': DateTime.now().toIso8601String(),
       'label': label,
       'profileId': session.userId,
-      'email': session.email,
       'originalGroupId': originalGroupId,
       'fixtureGroupId': groupId,
     });
-
-    await db.update(
-      table: 'user_profiles',
-      values: {'permission_group_id': groupId},
-      filters: [SupabaseFilter.eq('id', session.userId)],
-    );
 
     addTearDown(() async {
       await restore(
@@ -106,7 +94,21 @@ class PermissionFixture {
         profileId: session.userId,
         originalGroupId: originalGroupId,
       );
+      _ledger.remove(session.userId);
     });
+    await db.update(
+      table: 'user_profiles',
+      values: {'permission_group_id': groupId},
+      filters: [SupabaseFilter.eq('id', session.userId)],
+    );
+    final updated = await db.selectOne(
+      table: 'user_profiles',
+      columns: 'permission_group_id',
+      filters: [SupabaseFilter.eq('id', session.userId)],
+    );
+    if (updated?['permission_group_id'] != groupId) {
+      throw StateError('Permission fixture update did not persist');
+    }
 
     return groupId;
   }
@@ -165,6 +167,15 @@ class PermissionFixture {
       values: {'permission_group_id': originalGroupId},
       filters: [SupabaseFilter.eq('id', profileId)],
     );
+    final restored = await db.selectOne(
+      table: 'user_profiles',
+      columns: 'permission_group_id',
+      filters: [SupabaseFilter.eq('id', profileId)],
+    );
+    if (restored == null ||
+        restored['permission_group_id'] != originalGroupId) {
+      throw StateError('Permission restore did not persist for $profileId');
+    }
   }
 
   /// Re-applies any ledger entry a previous run left unrestored.
@@ -172,23 +183,13 @@ class PermissionFixture {
   /// Called from a suite's `setUpAll` so an interrupted run cannot leave a real
   /// production profile pointing at a throwaway `[IT]` group.
   static Future<void> recoverLedger(SupabaseDatabaseClient db) async {
-    final file = File(_ledgerPath);
-    if (!file.existsSync()) return;
-
-    for (final line in file.readAsLinesSync()) {
-      if (line.trim().isEmpty) continue;
-      try {
-        final entry = jsonDecode(line) as MapDynamic;
-        await restore(
-          db: db,
-          profileId: entry['profileId'] as String,
-          originalGroupId: entry['originalGroupId'] as String?,
-        );
-      } on Object {
-        // Recovery is best-effort; a bad line must not block the run.
-      }
-    }
-    file.deleteSync();
+    await _ledger.recover((entry) async {
+      await restore(
+        db: db,
+        profileId: entry['profileId'] as String,
+        originalGroupId: entry['originalGroupId'] as String?,
+      );
+    });
   }
 
   /// `tr_sync_user_profile_admin_status` clears `is_admin` for any group whose
@@ -209,11 +210,6 @@ class PermissionFixture {
   }
 
   static void _appendLedger(Map<String, Object?> entry) {
-    Directory(IntegrationReport.directory).createSync(recursive: true);
-    File(_ledgerPath).writeAsStringSync(
-      '${jsonEncode(entry)}\n',
-      mode: FileMode.append,
-      flush: true,
-    );
+    _ledger.put(entry['profileId']! as String, entry);
   }
 }
