@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/constants/app_colors.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/extensions/interval_unit_ui_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
@@ -17,12 +19,10 @@ class MaintenancePlanCard extends StatelessWidget {
   const MaintenancePlanCard({
     super.key,
     required this.plan,
-    required this.onTap,
     required this.onToggleActive,
     required this.onDelete,
   });
   final MaintenancePlanEntity plan;
-  final VoidCallback onTap;
   final VoidCallback onToggleActive;
   final VoidCallback onDelete;
 
@@ -32,10 +32,21 @@ class MaintenancePlanCard extends StatelessWidget {
         ? plan.nextDueDate!.formatDate()
         : 'Não definida'.hardcoded;
 
+    final bool canUpdateMaintenancePlan = context.hasPermission(
+      const ActionPermission.resource(
+        resourceType: ResourceType.maintenancePlans,
+        permissionAction: PermissionAction.update,
+      ),
+    );
+
+    void onTap() => context
+        .read<MaintenancePlansCubit>()
+        .navigateToCreateUpdateMaintenancePlan(maintenancePlan: plan);
+
     return Card(
       clipBehavior: .hardEdge,
       child: InkWell(
-        onTap: onTap,
+        onTap: canUpdateMaintenancePlan ? onTap : null,
         child: Padding(
           padding: const EdgeInsets.all(Sizes.p16),
           child: Column(

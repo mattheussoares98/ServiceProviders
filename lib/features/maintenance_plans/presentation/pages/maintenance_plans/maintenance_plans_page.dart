@@ -66,9 +66,6 @@ class MaintenancePlansPage extends StatelessWidget {
                   final plan = plans[index];
                   return MaintenancePlanCard(
                     plan: plan,
-                    onTap: () => cubit.navigateToCreateUpdateMaintenancePlan(
-                      maintenancePlan: plan,
-                    ),
                     onToggleActive: () => cubit.toggleActive(plan),
                     onDelete: () async {
                       final proceed = await showAlertDialog(
