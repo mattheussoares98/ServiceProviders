@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/mainte
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/extensions/interval_unit_ui_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_indication_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -21,7 +21,6 @@ class MaintenancePlanCard extends StatelessWidget {
     required this.onToggleActive,
     required this.onDelete,
   });
-  //TODO review this Card
   final MaintenancePlanEntity plan;
   final VoidCallback onTap;
   final VoidCallback onToggleActive;
@@ -34,46 +33,25 @@ class MaintenancePlanCard extends StatelessWidget {
         : 'Não definida'.hardcoded;
 
     return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: Sizes.p8,
-        vertical: Sizes.p4,
-      ),
+      clipBehavior: .hardEdge,
       child: InkWell(
-        borderRadius: BorderRadius.circular(Sizes.p8),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(Sizes.p16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Column(
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        BaseText.titleMedium(
-                          plan.title,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        if (plan.description != null &&
-                            plan.description!.isNotEmpty) ...[
-                          gapH4,
-                          BaseText.bodySmall(
-                            plan.description!,
-                            color: context.colorScheme.onSurfaceVariant,
-                            maxLines: 2,
-                          ),
-                        ],
-                      ],
+                  BaseText.title(plan.title, textAlign: .start),
+                  if (plan.description?.isNotEmpty ?? false) ...[
+                    gapH4,
+                    BaseText.bodySmall(
+                      plan.description!,
+                      color: context.colorScheme.onSurfaceVariant,
+                      maxLines: 2,
                     ),
-                  ),
-                  gapW8,
-                  BaseSwitch(
-                    value: plan.isActive,
-                    onChanged: (_) => onToggleActive(),
-                  ),
+                  ],
                 ],
               ),
               gapH12,
@@ -81,65 +59,41 @@ class MaintenancePlanCard extends StatelessWidget {
                 spacing: Sizes.p8,
                 runSpacing: Sizes.p8,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Sizes.p8,
-                      vertical: Sizes.p4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: plan.priority.color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(Sizes.p4),
-                    ),
-                    child: BaseText.caption(
-                      plan.priority.label,
-                      color: plan.priority.color,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  BaseIndicationItem(
+                    label: plan.priority.label,
+                    color: plan.priority.color,
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Sizes.p8,
-                      vertical: Sizes.p4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(Sizes.p4),
-                    ),
-                    child: BaseText.caption(
-                      plan.intervalUnit.formatInterval(plan.intervalValue),
-                      fontWeight: FontWeight.w500,
-                    ),
+                  BaseIndicationItem(
+                    label: plan.intervalUnit.formatInterval(plan.intervalValue),
+                    color: Colors.black,
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Sizes.p8,
-                      vertical: Sizes.p4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(Sizes.p4),
-                    ),
-                    child: BaseText.caption(
-                      'Antecedência: ${plan.leadTimeDays}d'.hardcoded,
-                      fontWeight: FontWeight.w500,
-                    ),
+                  BaseIndicationItem(
+                    label: 'Antecedência: ${plan.leadTimeDays}d'.hardcoded,
+                    color: Colors.black,
                   ),
                 ],
               ),
               gapH12,
               Row(
                 children: [
-                  const PlatformIcon(
-                    materialIcon: Icons.calendar_today_outlined,
-                    cupertinoIcon: CupertinoIcons.calendar,
-                    size: Sizes.p16,
-                  ),
-                  gapW8,
                   Expanded(
-                    child: BaseText.caption(
-                      'Próxima: $nextDateText'.hardcoded,
-                      color: context.colorScheme.onSurfaceVariant,
-                      overflow: TextOverflow.ellipsis,
+                    child: Row(
+                      mainAxisSize: .min,
+                      children: [
+                        const PlatformIcon(
+                          materialIcon: Icons.calendar_today_outlined,
+                          cupertinoIcon: CupertinoIcons.calendar,
+                          size: Sizes.p16,
+                        ),
+                        gapW8,
+                        Expanded(
+                          child: BaseText.caption(
+                            'Próxima: $nextDateText'.hardcoded,
+                            color: context.colorScheme.onSurfaceVariant,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   BaseIconButton(
@@ -151,18 +105,6 @@ class MaintenancePlanCard extends StatelessWidget {
                     platformIcon: const PlatformIcon(
                       materialIcon: Icons.edit_outlined,
                       cupertinoIcon: CupertinoIcons.pencil,
-                    ),
-                  ),
-                  BaseIconButton(
-                    permission: const ActionPermission.resource(
-                      resourceType: ResourceType.maintenancePlans,
-                      permissionAction: PermissionAction.delete,
-                    ),
-                    onPressed: onDelete,
-                    platformIcon: const PlatformIcon(
-                      materialIcon: Icons.delete_outline,
-                      cupertinoIcon: CupertinoIcons.trash,
-                      color: AppColors.error,
                     ),
                   ),
                 ],
