@@ -2,68 +2,50 @@
 trigger: always_on
 ---
 
-# Orchestrator — ServicePro
+# ServicePro project rules
 
-Flutter app, package `o_jogo_da_obra`. Decompose → delegate → validate → synthesize.
+Flutter CMMS (`o_jogo_da_obra`): Clean Architecture, Cubit, GetIt/injectable, auto_route, flutter_hooks; Supabase backend, Drift offline storage, R2 files, legacy Dio. Check `pubspec.yaml` for versions.
 
-**This file is the single source of truth for global rules.** `/CLAUDE.md` and `/GEMINI.md` are thin pointers to it — never put a rule in either of them.
+This is the project entry point. `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` only point here. User-wide preferences and planning rules remain in the user's global instructions.
 
-## Stack
-Flutter (Dart ≥3.10) · Clean Architecture (data→domain→presentation) · Cubit/BLoC · GetIt+injectable · auto_route · flutter_hooks
-**Supabase** (auth, Postgres, RLS, Edge Functions) · **Drift** (local SQLite) · **Cloudflare R2** (files) · Dio (legacy, 2 data sources) · Flavors: production/staging/development
+## Load only relevant rules
 
-## Folders
-```
-lib/
-├── config/          # AppConfig (sealed, flavor-based), injector/
-├── core/
-│   ├── clients/
-│   │   ├── local/   # AppDatabase (Drift), LocalStorageClient
-│   │   └── remote/  # supabase/ (auth + database clients), storage/ (R2), http/, internet_client
-│   ├── constants/   # api_endpoints, app_colors, app_icons, local_storage_limits
-│   ├── data/        # handlers/ (RepositoryHandler, ErrorHandler, ApiHandler), models/, states/DataState
-│   ├── domain/      # UseCase<T,P>, UseCaseNoParameter<T>
-│   └── utils/       # type_defs.dart
-├── features/{name}/ # data/ | domain/ | presentation/
-├── routing/         # routes.dart, routes.gr.dart (generated), guards/, helper/
-└── shared_ui/       # themes, base widgets, cubits/base, utils/
-testing/mocks/       # Domain factories in factories/ + all mocks (repo root, NOT under test/)
-```
+Paths below are relative to `.agents/rules/`. Read once per task; reopen when changed or task scope expands.
 
-## Specialists
-| Rule file | Owns |
+| File | Read when touching |
 |---|---|
-| `architect.md` | Layer isolation, DI, routing, file/folder naming |
-| `feature.md` | Entities, use cases, repositories, data sources, DTOs |
+| `architect.md` | Any production code change: boundaries, file structure, DI, routing, configuration |
+| `feature.md` | Data sources, DTOs, repositories, entities, use cases |
 | `ui.md` | Cubits, states, pages, widgets |
-| `quality_assurance.md` | Unit + integration tests |
-| `database.md` | Supabase schema, RLS, migrations, Edge Functions |
+| `quality_assurance.md` | Behavior changes or validation, tests, and test helpers |
+| `database.md` | Schema, migrations, RLS, Edge Functions |
+
+Inspect relevant `.agents/skills/` entries when applicable; do not load every skill or reference document. Specialist files describe responsibilities, not a requirement to spawn agents.
 
 ## Workflow
-1. **Scope** — which layers? (data / domain / presentation / routing / config / db)
-2. **Delegate** in order: Architect → Feature → UI → QA. Skip what doesn't apply.
-3. **Verify** — no wrong-layer imports, DI annotations present, tests written and passing.
 
-Tell each specialist exactly which files to create/modify, which classes to define, and which patterns to follow.
+1. Identify the authorized layer and relevant rules; honor the user's plan-only gate and layer boundaries. Tests, supporting docs, and plan progress accompany that layer.
+2. Inspect current interfaces, callers, and relevant tests before editing. Preserve architecture review → implementation → QA within the authorized scope. Examples and existing violations do not override rules; flag material conflicts rather than inventing APIs.
+3. Implement the authorized scope and run relevant checks. For behavior changes, update meaningful tests in the same turn; docs-only changes need no app tests. Report blocked validation accurately.
+4. Review the final diff for requirements, regression risks, and unintended changes; preserve unrelated user edits. Follow the user's plan storage and completion rules; update phase checkboxes only after successful validation. Stop at any unapproved layer boundary.
 
-## Global Constraints — apply to every task
-1. **pt-BR** for every user-visible string, wrapped in `.hardcoded`.
-2. **Never run `build_runner`** — watch mode is active.
-3. Comments explain *why*, only for complex logic. No change-marker comments.
-4. DateTime: serialize with `.toIsoUtcString()`, parse with `(json['x'] as String?).toUtcDateTime()`.
-5. `MapDynamic`, never `Map<String, dynamic>`, in DTOs.
-6. New permission-controlled resource → register in `ResourceType` (`lib/features/users/domain/entities/permission.dart`) **and** classify it in `permission/provider_mode_permission.dart` — provider mode never inherits internal RBAC.
-7. Implementation and its test land in the same turn.
-8. Never hardcode a URL — read `AppConfig.apiBaseUrl` / `AppConfig.webBaseUrl`.
-9. **Enum labels**: Keep domain enums translation-free (`code` only); place user-visible `.label` getters in presentation extensions ending with `.hardcoded`.
-10. **Database migrations**: Whenever creating a migration `.sql` file, MUST immediately execute/apply it to Supabase in the same turn via Supabase MCP tool (`execute_sql` / `apply_migration`). Never leave it unapplied.
+## Quality and efficiency
 
-## Reference Docs
-`docs/business_rules.md` (domain lifecycle, SLA, pause/completion) · `docs/schema/index.md` (schema + ERD) · `docs/cmms/architecture.md` (data flow, sync state)
+Accuracy, completeness, and required validation take priority over token savings. Remove duplicated prose and stale examples, not safeguards or relevant investigation. Follow linked rule dependencies even when loading selectively. Report what changed, why, checks actually run, and material gaps; do not infer that a rule edit guarantees future agent behavior.
 
-## Response Format
-Start every response with a grammar/spelling correction of the user's message:
-`Correction: [wrong] -> [correct] (reason)`. Omit the line entirely if there is nothing to correct.
+## Shared constraints
 
-## Rule Evolution
-When a rule is agreed, wrong, or missing, update the relevant `.agents/rules/` file in the same turn. Keep rules compressed. Never duplicate a rule across files — shared rules belong here.
+- App-visible strings are pt-BR; Dart literals use `.hardcoded`. This does not change the language of assistant replies.
+- Never run `build_runner` or hand-edit generated files (`*.g.dart`, `routes.gr.dart`, `injector.config.dart`). Watch mode handles generation; report missing output if unavailable.
+- Comments explain complex reasoning, not change history.
+- DTOs use `MapDynamic`; serialize dates with `.toIsoUtcString()` and parse nullable JSON dates with `(json['x'] as String?).toUtcDateTime()`.
+- Domain enums contain codes, not translated labels. Put `.label` getters in presentation extensions using `.hardcoded`.
+- New permission-controlled resources must be registered in `ResourceType` and classified in `lib/features/users/domain/entities/permission/provider_mode_permission.dart`. Provider mode never inherits internal RBAC; keep that gate ahead of internal admin overrides. UI permission checks do not replace backend authorization.
+- Maintain each rule in one owning file. Preserve explicit preferences unless changed by the user; distinguish intended conventions from existing violations. Update affected rules alongside approved API/pattern changes, except during plan-only tasks. Remove duplication only after checking that the replacement preserves scope, exceptions, and validation.
+
+## Reference map
+
+- `lib/features/<feature>/`: data, domain, presentation; `lib/core/`: clients, handlers, shared contracts/utilities.
+- `lib/config/`: flavors and DI; `lib/routing/`: routes/guards; `lib/shared_ui/`: base widgets, cubits, themes.
+- `docs/business_rules.md`: lifecycle/SLA/pause/completion; `docs/cmms/architecture.md`: data flow and sync.
+- `docs/schema/index.md`: schema/ERD; `docs/database_rules/global_rules.md`: database policies.

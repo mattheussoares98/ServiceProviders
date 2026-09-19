@@ -1,102 +1,48 @@
 ---
-trigger: always_on
+trigger: model_decision
+description: File structure, layer boundaries, dependency injection, routing, and flavors
 ---
 
-# Architect — ServicePro
+# Architecture
 
-Defines file paths, layer isolation, DI annotations, routing. Writes **no** business logic (→ `feature.md`) and **no** UI (→ `ui.md`).
+## Files and boundaries
 
-## Mason Bricks — Prefer Over Manual Files
-| Brick | When | Command |
-|---|---|---|
-| `cubit_feature` | New feature, all 3 layers | `mason make cubit_feature` |
-| `cubit_page` | New page in existing feature | `mason make cubit_page` |
+Use `snake_case` filenames under `lib/features/<feature>/`:
 
-Both prompt for `feature` (folder), `cubit` (class prefix), `page` (class prefix). Review output and fill in DI annotations.
+| Directory | Contents |
+|---|---|
+| `data/data_sources/` | `<name>_remote_data_source.dart`, `<name>_local_data_source.dart`; interface + implementation together |
+| `data/models/requests/`, `data/models/responses/` | DTOs |
+| `data/repositories/` | `<name>_repository_impl.dart` |
+| `domain/entities/`, `domain/repositories/`, `domain/use_cases/` | Entities, repository interfaces, use cases |
+| `presentation/cubits/<cubit>/` | `<name>_cubit.dart`, `<name>_cubit_use_cases.dart`, `<name>_state.dart` |
+| `presentation/pages/<name>/` | `<name>_page.dart` and page-local `widgets/` |
+| `presentation/widgets/` | Feature-shared widgets |
 
-## Folder Law
-```
-lib/features/{feature}/
-├── data/
-│   ├── data_sources/{name}_remote_data_source.dart   # interface + impl, same file
-│   │                {name}_local_data_source.dart    # interface + impl, same file
-│   ├── models/requests/ & responses/
-│   └── repositories/{name}_repository_impl.dart
-├── domain/
-│   ├── entities/{name}.dart
-│   ├── repositories/{name}_repository.dart           # abstract interface only
-│   └── use_cases/{name}_use_case.dart
-└── presentation/
-    ├── cubits/{cubit}/{name}_cubit.dart + _cubit_use_cases.dart + _state.dart
-    ├── pages/{name}/{name}_page.dart + widgets/
-    └── widgets/                                       # shared within this feature
-```
-Files: `snake_case`.
+Feature dependencies: data → domain; presentation → domain; domain imports neither feature data nor presentation. Shared project contracts such as `DataState` and type aliases are existing infrastructure exceptions, not permission to import feature implementations.
 
-## Layer Isolation
-| Layer | May import | Never imports |
-|---|---|---|
-| `domain` | nothing cross-layer | `data/`, `presentation/` |
-| `data` | `domain` | `presentation/` |
-| `presentation` | `domain` | `data/` |
+Use Mason (`mason make cubit_feature` / `mason make cubit_page`) only after inspecting the selected brick for current patterns and authorized scope. Existing bricks use legacy HTTP, omit the use-case aggregator, and generate incomplete state equality and duplicate safe areas; adapt output before accepting it, or author files from current contracts. Never generate multiple layers under single-layer approval. Prompts: `feature`, `cubit`, `page`.
+
+Follow `analysis_options.yaml` (including package imports in `lib/`); do not disable lints to accommodate new code.
 
 ## DI
-| Case | Annotation |
-|---|---|
-| App-lifetime singleton | `@LazySingleton()` / `@LazySingleton(as: Interface)` |
-| New instance each inject | `@injectable` |
-| External package | `@module` class with `@lazySingleton` getters |
-| Flavor-specific | `@LazySingleton(as: AppConfig, env: [Flavor.production])` |
-| Async setup (SharedPreferences) | `@preResolve` in `@module` |
 
-Cubits → always `@injectable`. `*CubitUseCases` → always `@LazySingleton()`. Pages/States/Widgets/Entities → **never** annotated.
+- App-lifetime objects: `@LazySingleton()` or `@LazySingleton(as: Interface)`.
+- Cubits/new instances: `@injectable`; `*CubitUseCases`: `@LazySingleton()`.
+- External packages: `@module` with `@lazySingleton` getters; async setup uses `@preResolve`.
+- Flavor binding: `@LazySingleton(as: AppConfig, env: [Flavor.production])`.
+- No DI annotations on pages, states, widgets, entities, or route guards.
 
 ## Routing
-| File | Role |
-|---|---|
-| `lib/routing/routes.dart` | Routes + guards |
-| `lib/routing/routes.gr.dart` | Generated — never edit |
-| `lib/routing/helper/route_data.dart` | Path/name constants |
-| `lib/routing/guards/` | One file per guard |
 
-Add a route: constant in `route_data.dart` → `AutoRoute(page: XRoute.page, path: kXPath)` in `routes.dart` → `@RoutePage()` on the page → save (watch mode regenerates).
+Add constants to `lib/routing/helper/route_data.dart`, register `AutoRoute(page: XRoute.page, path: kXPath)` in `lib/routing/routes.dart`, and annotate the page with `@RoutePage()`. Generated routes follow the shared generation rule.
 
-Navigate from cubits only, via `ClientMixin`: `pushRoute(...)`, `replaceAllRoute(...)`. Never `Navigator.of(context)`.
+Feature navigation goes through cubits and `ClientMixin` (`pushRoute`, `replaceAllRoute`, adaptive back/pop helpers). `replaceAllRoute` takes one route, not a list. Shared modal/dialog infrastructure may use `Navigator` to dismiss its own overlay. Guards in `lib/routing/guards/` are const `AutoRouteGuard` classes reading `GetIt` directly.
 
-Guards are `const` classes reading `GetIt` directly, with no DI annotation:
-```dart
-final class AuthenticatedGuard extends AutoRouteGuard {
-  const AuthenticatedGuard();
-  @override
-  void onNavigation(NavigationResolver resolver, StackRouter router) {
-    if (GetIt.I<SessionRepository>().isLoggedIn) return resolver.next();
-    router.replaceAll([const LoginRoute()]);
-  }
-}
-```
+## Constants and flavors
 
-## Constants
-| Type | File |
-|---|---|
-| API paths | `lib/core/constants/api_endpoints.dart` |
-| Colors / icons | `lib/core/constants/app_colors.dart` / `app_icons.dart` |
-| Storage limits | `lib/core/constants/local_storage_limits.dart` |
-| Route paths/names | `lib/routing/helper/route_data.dart` |
+Use `lib/core/constants/`: `api_endpoints.dart`, `app_colors.dart`, `app_icons.dart`, `local_storage_limits.dart`. Route constants belong in `route_data.dart`.
 
-## Flavors
-`Flavor` is a `String` constant holder; `AppConfig` is a sealed class with one subclass per flavor.
+`Flavor` holds string constants; sealed `AppConfig` has `AppConfigProd`, `AppConfigStg`, `AppConfigDev`. Entry points: `main.dart`, `main_stg.dart`, `main_dev.dart`.
 
-| Flavor | Entry point | Config class |
-|---|---|---|
-| `Flavor.production` | `main.dart` | `AppConfigProd` |
-| `Flavor.staging` | `main_stg.dart` | `AppConfigStg` |
-| `Flavor.development` | `main_dev.dart` | `AppConfigDev` |
-
-`.env` keys: `SUPABASE_URL` (→ `apiBaseUrl`), `SUPABASE_BASE_URL` (→ `webBaseUrl`), `SUPABASE_ANON_KEY`.
-Never hardcode a URL — read `AppConfig.apiBaseUrl` / `AppConfig.webBaseUrl`.
-
-## Prohibitions
-- ❌ Cross-layer imports violating the table above
-- ❌ DI annotations on Pages, States, Widgets, Entities
-- ❌ Editing `routes.gr.dart` or `injector.config.dart` by hand
-- ❌ Implementing UI or business logic here — delegate
+Never hardcode URLs: read `AppConfig.apiBaseUrl` / `webBaseUrl`. Environment mapping: `SUPABASE_URL` → `apiBaseUrl`, `SUPABASE_BASE_URL` → `webBaseUrl`; auth key: `SUPABASE_ANON_KEY`.
