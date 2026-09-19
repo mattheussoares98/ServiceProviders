@@ -1,136 +1,16 @@
-import 'package:mocktail/mocktail.dart';
-import 'package:o_jogo_da_obra/features/access_logs/data/data_sources/access_logs_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/assets/data/data_sources/assets_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/attachments/data/data_sources/attachments_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/data_sources/auth_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/auth/data/data_sources/session_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/company/data/data_sources/company_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/company/data/data_sources/company_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/data/data_sources/maintenance_plans_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/notifications/data/data_sources/notifications_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/service_providers/data/data_sources/service_provider_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/data/data_sources/sla_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/sync/data/data_sources/sync_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/sync/data/data_sources/sync_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/users/data/data_sources/users_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/pause_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_order_observations_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_local_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_realtime_remote_data_source.dart';
-import 'package:o_jogo_da_obra/features/work_orders/data/data_sources/work_orders_remote_data_source.dart';
-
-class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
-
-class MockAuthLocalDataSource extends Mock implements AuthLocalDataSource {}
-
-class MockSessionLocalDataSource extends Mock
-    implements SessionLocalDataSource {}
-
-class MockCompanyRemoteDataSource extends Mock
-    implements CompanyRemoteDataSource {}
-
-class MockCompanyLocalDataSource extends Mock
-    implements CompanyLocalDataSource {}
-
-class MockCategoriesRemoteDataSource extends Mock
-    implements CategoriesRemoteDataSource {}
-
-class MockCategoriesLocalDataSource extends Mock
-    implements CategoriesLocalDataSource {}
-
-class MockLocationsRemoteDataSource extends Mock
-    implements LocationsRemoteDataSource {}
-
-class MockLocationsLocalDataSource extends Mock
-    implements LocationsLocalDataSource {}
-
-class MockAssetsRemoteDataSource extends Mock
-    implements AssetsRemoteDataSource {}
-
-class MockAssetsLocalDataSource extends Mock implements AssetsLocalDataSource {}
-
-class MockWorkOrdersRemoteDataSource extends Mock
-    implements WorkOrdersRemoteDataSource {}
-
-class MockWorkOrdersLocalDataSource extends Mock
-    implements WorkOrdersLocalDataSource {}
-
-class MockChecklistsRemoteDataSource extends Mock
-    implements ChecklistsRemoteDataSource {}
-
-class MockChecklistsLocalDataSource extends Mock
-    implements ChecklistsLocalDataSource {}
-
-class MockMaintenancePlansRemoteDataSource extends Mock
-    implements MaintenancePlansRemoteDataSource {}
-
-class MockMaintenancePlansLocalDataSource extends Mock
-    implements MaintenancePlansLocalDataSource {}
-
-class MockAttachmentsRemoteDataSource extends Mock
-    implements AttachmentsRemoteDataSource {}
-
-class MockAttachmentsLocalDataSource extends Mock
-    implements AttachmentsLocalDataSource {}
-
-class MockUsersRemoteDataSource extends Mock implements UsersRemoteDataSource {}
-
-class MockUsersLocalDataSource extends Mock implements UsersLocalDataSource {}
-
-class MockConfigurationsRemoteDataSource extends Mock
-    implements ConfigurationsRemoteDataSource {}
-
-class MockConfigurationsLocalDataSource extends Mock
-    implements ConfigurationsLocalDataSource {}
-
-class MockServiceProviderRemoteDataSource extends Mock
-    implements ServiceProviderRemoteDataSource {}
-
-class MockServiceProviderLocalDataSource extends Mock
-    implements ServiceProviderLocalDataSource {}
-
-class MockSlaRemoteDataSource extends Mock implements SlaRemoteDataSource {}
-
-class MockSlaLocalDataSource extends Mock implements SlaLocalDataSource {}
-
-class MockPauseRemoteDataSource extends Mock
-    implements PauseRemoteDataSource {}
-
-class MockPauseLocalDataSource extends Mock implements PauseLocalDataSource {}
-
-class MockNotificationsRemoteDataSource extends Mock
-    implements NotificationsRemoteDataSource {}
-
-class MockWorkOrderObservationsRemoteDataSource extends Mock
-    implements WorkOrderObservationsRemoteDataSource {}
-
-class MockWorkOrderObservationsLocalDataSource extends Mock
-    implements WorkOrderObservationsLocalDataSource {}
-
-class MockSyncLocalDataSource extends Mock implements SyncLocalDataSource {}
-
-class MockSyncRemoteDataSource extends Mock implements SyncRemoteDataSource {}
-
-class MockWorkOrdersRealtimeRemoteDataSource extends Mock
-    implements WorkOrdersRealtimeRemoteDataSource {}
-
-class MockAccessLogsRemoteDataSource extends Mock
-    implements AccessLogsRemoteDataSource {}
-
+export 'data_sources/access_logs_mocks.dart';
+export 'data_sources/assets_mocks.dart';
+export 'data_sources/attachments_mocks.dart';
+export 'data_sources/auth_mocks.dart';
+export 'data_sources/categories_mocks.dart';
+export 'data_sources/checklists_mocks.dart';
+export 'data_sources/company_mocks.dart';
+export 'data_sources/configurations_mocks.dart';
+export 'data_sources/locations_mocks.dart';
+export 'data_sources/maintenance_plans_mocks.dart';
+export 'data_sources/notifications_mocks.dart';
+export 'data_sources/service_providers_mocks.dart';
+export 'data_sources/sla_policies_mocks.dart';
+export 'data_sources/sync_mocks.dart';
+export 'data_sources/users_mocks.dart';
+export 'data_sources/work_orders_mocks.dart';

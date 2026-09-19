@@ -1,63 +1,16 @@
-import 'package:mocktail/mocktail.dart';
-import 'package:o_jogo_da_obra/features/access_logs/domain/repositories/access_logs_repository.dart';
-import 'package:o_jogo_da_obra/features/assets/domain/repositories/assets_repository.dart';
-import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/repositories/auth_repository.dart';
-import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
-import 'package:o_jogo_da_obra/features/categories/domain/repositories/categories_repository.dart';
-import 'package:o_jogo_da_obra/features/checklists/domain/repositories/checklists_repository.dart';
-import 'package:o_jogo_da_obra/features/company/domain/repositories/company_repository.dart';
-import 'package:o_jogo_da_obra/features/configurations/domain/repositories/configurations_repository.dart';
-import 'package:o_jogo_da_obra/features/locations/domain/repositories/locations_repository.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/domain/repositories/maintenance_plans_repository.dart';
-import 'package:o_jogo_da_obra/features/notifications/domain/repositories/notifications_repository.dart';
-import 'package:o_jogo_da_obra/features/service_providers/domain/repositories/service_provider_repository.dart';
-import 'package:o_jogo_da_obra/features/sla_policies/domain/repositories/sla_repository.dart';
-import 'package:o_jogo_da_obra/features/sync/domain/repositories/sync_repository.dart';
-import 'package:o_jogo_da_obra/features/users/domain/repositories/users_repository.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/pause_repository.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_order_observations_repository.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/repositories/work_orders_repository.dart';
-
-class MockAssetsRepository extends Mock implements AssetsRepository {}
-
-class MockAttachmentsRepository extends Mock implements AttachmentsRepository {}
-
-class MockChecklistsRepository extends Mock implements ChecklistsRepository {}
-
-class MockCategoriesRepository extends Mock implements CategoriesRepository {}
-
-class MockCompanyRepository extends Mock implements CompanyRepository {}
-
-class MockLocationsRepository extends Mock implements LocationsRepository {}
-
-class MockMaintenancePlansRepository extends Mock
-    implements MaintenancePlansRepository {}
-
-class MockUsersRepository extends Mock implements UsersRepository {}
-
-class MockWorkOrdersRepository extends Mock implements WorkOrdersRepository {}
-
-class MockAuthRepository extends Mock implements AuthRepository {}
-
-class MockSessionRepository extends Mock implements SessionRepository {}
-
-class MockConfigurationsRepository extends Mock
-    implements ConfigurationsRepository {}
-
-class MockServiceProviderRepository extends Mock
-    implements ServiceProviderRepository {}
-
-class MockSlaRepository extends Mock implements SlaRepository {}
-
-class MockPauseRepository extends Mock implements PauseRepository {}
-
-class MockNotificationsRepository extends Mock
-    implements NotificationsRepository {}
-
-class MockSyncRepository extends Mock implements SyncRepository {}
-
-class MockAccessLogsRepository extends Mock implements AccessLogsRepository {}
-
-class MockWorkOrderObservationsRepository extends Mock
-    implements WorkOrderObservationsRepository {}
+export 'repositories/access_logs_mocks.dart';
+export 'repositories/assets_mocks.dart';
+export 'repositories/attachments_mocks.dart';
+export 'repositories/auth_mocks.dart';
+export 'repositories/categories_mocks.dart';
+export 'repositories/checklists_mocks.dart';
+export 'repositories/company_mocks.dart';
+export 'repositories/configurations_mocks.dart';
+export 'repositories/locations_mocks.dart';
+export 'repositories/maintenance_plans_mocks.dart';
+export 'repositories/notifications_mocks.dart';
+export 'repositories/service_providers_mocks.dart';
+export 'repositories/sla_policies_mocks.dart';
+export 'repositories/sync_mocks.dart';
+export 'repositories/users_mocks.dart';
+export 'repositories/work_orders_mocks.dart';

@@ -11,7 +11,7 @@ Writes **tests only** — unit and integration. Never feature logic or UI.
 
 ## Mocks & Factories
 All mocks and factories live at repo root in **`testing/mocks/`** (not under `test/`):
-`factories/` (`asset_factory.dart`, `work_order_factory.dart`, `user_factory.dart`, `checklist_factory.dart`, `system_factory.dart`, `maintenance_plan_factory.dart`, `service_provider_factory.dart`, `factory_helpers.dart`) · `client_mocks.dart` · `data_source_mocks.dart` · `repository_mocks.dart` · `use_case_mocks.dart` · `services.dart` · `external/`
+`factories/` (`asset_factory.dart`, `work_order_factory.dart`, `user_factory.dart`, `checklist_factory.dart`, `system_factory.dart`, `maintenance_plan_factory.dart`, `service_provider_factory.dart`, `factory_helpers.dart`) · feature-specific mocks in `data_sources/`, `repositories/`, and `use_cases/` · compatibility barrels `data_source_mocks.dart`, `repository_mocks.dart`, and `use_case_mocks.dart` · `client_mocks.dart` · `services.dart` · `external/`
 
 **Factories live in `testing/mocks/factories/` divided by domain.** Rules:
 - Factory methods take **no parameters** (`WorkOrderFactory.makeWorkOrderEntity()`, `UserFactory.makeUserProfileEntity()`). Vary fields with the entity's `copyWith`; null a field with `copyWith(annul{Field}: true)`.
