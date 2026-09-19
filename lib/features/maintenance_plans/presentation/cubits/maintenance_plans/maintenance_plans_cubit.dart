@@ -233,6 +233,48 @@ class MaintenancePlansCubit extends BaseCubit<MaintenancePlansState> {
     }
   }
 
+  Future<bool> generateWorkOrder(String planId) async {
+    emit(
+      state.copyWith(
+        sections: withSection(
+          MaintenancePlansSections.generateWorkOrder,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final result = await _useCases.generateMaintenancePlanWorkOrder(planId);
+    if (isClosed) return false;
+
+    if (result is SuccessState<String> && result.data != null) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.generateWorkOrder,
+            SectionStatus.success,
+          ),
+        ),
+      );
+      showSuccessToast('Ordem de serviço gerada com sucesso'.hardcoded);
+      await loadMaintenancePlans(emitLoading: false);
+      return true;
+    } else {
+      final message =
+          result.message ?? 'Erro ao gerar ordem de serviço'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.generateWorkOrder,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+  }
+
   void popRoute() {
     popRouteAdaptively();
   }

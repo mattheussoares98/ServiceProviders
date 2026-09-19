@@ -24,6 +24,8 @@ void main() {
   late MockUpdateMaintenancePlanUseCase mockUpdateMaintenancePlan;
   late MockDeleteMaintenancePlanUseCase mockDeleteMaintenancePlan;
   late MockCalculateNextDueDateUseCase mockCalculateNextDueDate;
+  late MockGenerateMaintenancePlanWorkOrderUseCase
+  mockGenerateMaintenancePlanWorkOrder;
   late MockNavigationClient mockNavigationClient;
   late MaintenancePlansCubitUseCases useCases;
   late MaintenancePlansCubit cubit;
@@ -44,6 +46,8 @@ void main() {
     mockUpdateMaintenancePlan = MockUpdateMaintenancePlanUseCase();
     mockDeleteMaintenancePlan = MockDeleteMaintenancePlanUseCase();
     mockCalculateNextDueDate = MockCalculateNextDueDateUseCase();
+    mockGenerateMaintenancePlanWorkOrder =
+        MockGenerateMaintenancePlanWorkOrderUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -58,6 +62,7 @@ void main() {
       updateMaintenancePlan: mockUpdateMaintenancePlan,
       deleteMaintenancePlan: mockDeleteMaintenancePlan,
       calculateNextDueDate: mockCalculateNextDueDate,
+      generateMaintenancePlanWorkOrder: mockGenerateMaintenancePlanWorkOrder,
     );
 
     cubit = MaintenancePlansCubit(useCases: useCases);
@@ -420,6 +425,72 @@ void main() {
             (s) => s.sections[MaintenancePlansSections.delete],
             'sections[delete]',
             const SectionState.error('Delete failed'),
+          ),
+        ],
+      );
+    });
+
+    group('generateWorkOrder', () {
+      final tWoId = faker.guid.guid();
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'should emit running and success when generateWorkOrder succeeds',
+        build: () {
+          when(
+            () => mockGenerateMaintenancePlanWorkOrder.call(tPlan.id),
+          ).thenAnswer((_) async => SuccessState(data: tWoId));
+          when(
+            () => mockGetMaintenancePlans.call(tCompanyId),
+          ).thenAnswer((_) async => SuccessState(data: [tPlan]));
+          return cubit;
+        },
+        act: (c) => c.generateWorkOrder(tPlan.id),
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.generateWorkOrder],
+            'sections[generateWorkOrder]',
+            const SectionState.running(),
+          ),
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.generateWorkOrder],
+            'sections[generateWorkOrder]',
+            const SectionState.success(),
+          ),
+          isA<MaintenancePlansState>()
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.success(),
+              )
+              .having((s) => s.maintenancePlans, 'maintenancePlans', [tPlan]),
+        ],
+        verify: (_) {
+          verify(
+            () => mockGenerateMaintenancePlanWorkOrder.call(tPlan.id),
+          ).called(1);
+          verify(() => mockGetMaintenancePlans.call(tCompanyId)).called(1);
+        },
+      );
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'should emit error when generateWorkOrder fails',
+        build: () {
+          when(
+            () => mockGenerateMaintenancePlanWorkOrder.call(tPlan.id),
+          ).thenAnswer((_) async => FailureState(message: 'Generate failed'));
+          return cubit;
+        },
+        act: (c) => c.generateWorkOrder(tPlan.id),
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.generateWorkOrder],
+            'sections[generateWorkOrder]',
+            const SectionState.running(),
+          ),
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.generateWorkOrder],
+            'sections[generateWorkOrder]',
+            const SectionState.error('Generate failed'),
           ),
         ],
       );

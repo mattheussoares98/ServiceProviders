@@ -4,6 +4,7 @@ enum MaintenancePlansSections implements SectionKey {
   save,
   delete,
   toggleActive,
+  generateWorkOrder,
 }
 
 class MaintenancePlansState extends BaseState {
