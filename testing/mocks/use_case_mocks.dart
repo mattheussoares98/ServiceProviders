@@ -47,6 +47,12 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_address_by_cep_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/calculate_next_due_date_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/create_maintenance_plan_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/delete_maintenance_plan_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plan_by_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plans_use_case.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/update_maintenance_plan_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/delete_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/notifications/domain/use_cases/register_device_token_use_case.dart';
 import 'package:o_jogo_da_obra/features/sectors/domain/use_cases/create_sector_use_case.dart';
@@ -386,3 +392,20 @@ class MockGetAttachmentsBatchUseCase extends Mock
 class MockGetAddressByCepUseCase extends Mock
     implements GetAddressByCepUseCase {}
 
+class MockGetMaintenancePlansUseCase extends Mock
+    implements GetMaintenancePlansUseCase {}
+
+class MockGetMaintenancePlanByIdUseCase extends Mock
+    implements GetMaintenancePlanByIdUseCase {}
+
+class MockCreateMaintenancePlanUseCase extends Mock
+    implements CreateMaintenancePlanUseCase {}
+
+class MockUpdateMaintenancePlanUseCase extends Mock
+    implements UpdateMaintenancePlanUseCase {}
+
+class MockDeleteMaintenancePlanUseCase extends Mock
+    implements DeleteMaintenancePlanUseCase {}
+
+class MockCalculateNextDueDateUseCase extends Mock
+    implements CalculateNextDueDateUseCase {}
