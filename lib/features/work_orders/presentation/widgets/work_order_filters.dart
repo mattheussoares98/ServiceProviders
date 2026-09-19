@@ -13,6 +13,8 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_ord
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/chip/base_choice_chip.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -143,15 +145,15 @@ class WorkOrderFilters extends HookWidget {
                 Wrap(
                   spacing: Sizes.p8,
                   runSpacing: Sizes.p4,
-                  children: WorkOrderStatus.values
-                      .map(
-                        (s) => FilterChip(
-                          label: Text(s.label),
-                          selected: statuses.value.contains(s),
-                          onSelected: (_) => toggleStatus(s),
-                        ),
-                      )
-                      .toList(),
+                  children: [
+                    BaseChoiceChip(
+                      items: WorkOrderStatus.values,
+                      onChanged: toggleStatus,
+                      itemLabelBuilder: (e) => e.label,
+                      selections: statuses.value,
+                      allowNullSelection: true,
+                    ),
+                  ],
                 ),
                 gapH20,
                 // Priority filter
@@ -160,27 +162,23 @@ class WorkOrderFilters extends HookWidget {
                 Wrap(
                   spacing: Sizes.p8,
                   runSpacing: Sizes.p4,
-                  children: Priority.values
-                      .map(
-                        (p) => FilterChip(
-                          label: Text(p.label),
-                          selected: priorities.value.contains(p),
-                          onSelected: (_) => togglePriority(p),
-                        ),
-                      )
-                      .toList(),
+                  children: [
+                    BaseChoiceChip(
+                      items: Priority.values,
+                      onChanged: togglePriority,
+                      itemLabelBuilder: (e) => e.label,
+                      selections: priorities.value,
+                      allowNullSelection: true,
+                    ),
+                  ],
                 ),
                 gapH20,
                 // Type filter
-                BaseText('Tipo'.hardcoded),
-                gapH8,
-                DropdownButtonFormField<WorkOrderType?>(
-                  initialValue: type.value,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
+                BaseDropDown<WorkOrderType?>(
+                  label: 'Tipo'.hardcoded,
+                  showLabelAtTopLeft: true,
+                  selectedItem: type.value,
                   items: [
-                    DropdownMenuItem(child: Text('Todos os tipos'.hardcoded)),
                     ...WorkOrderType.values.map(
                       (t) => DropdownMenuItem(value: t, child: Text(t.label)),
                     ),
@@ -190,15 +188,11 @@ class WorkOrderFilters extends HookWidget {
                 gapH20,
                 // Responsible user filter
                 if (users.isNotEmpty) ...[
-                  BaseText('Responsável'.hardcoded),
-                  gapH8,
-                  DropdownButtonFormField<String?>(
-                    initialValue: assignedToId.value,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                    ),
+                  BaseDropDown<String?>(
+                    label: 'Responsável'.hardcoded,
+                    showLabelAtTopLeft: true,
+                    selectedItem: assignedToId.value,
                     items: [
-                      DropdownMenuItem(child: Text('Todos'.hardcoded)),
                       ...users.map(
                         (u) =>
                             DropdownMenuItem(value: u.id, child: Text(u.name)),
