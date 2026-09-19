@@ -153,7 +153,9 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 REVOKE EXECUTE ON FUNCTION public.generate_due_maintenance_work_orders() FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.generate_due_maintenance_work_orders() TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.generate_due_maintenance_work_orders() FROM authenticated;
+GRANT EXECUTE ON FUNCTION public.generate_due_maintenance_work_orders() TO service_role, postgres;
+
 
 -- 2. Schedule hourly job in pg_cron
 CREATE EXTENSION IF NOT EXISTS pg_cron;
