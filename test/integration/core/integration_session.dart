@@ -107,13 +107,6 @@ final class IntegrationSessions {
     await _loadEnvironment();
 
     final credentials = _credentialsFor(identity);
-    if (credentials == null) {
-      _unavailable[identity] =
-          'no credentials configured (set INTEGRATION_TEST_FOREIGN_EMAIL / '
-          '_PASSWORD in .env to enable cross-tenant cases)';
-      return null;
-    }
-
     try {
       final session = await _signIn(identity, credentials);
       _sessions[identity] = session;
@@ -144,7 +137,7 @@ final class IntegrationSessions {
 
   static Future<IntegrationSession> _signIn(
     Identity identity,
-    ({String email, String password, String? companyId}) credentials,
+    ({String email, String password, String companyId}) credentials,
   ) async {
     final client = SupabaseClient(_url!, _anonKey!);
     final response = await client.auth.signInWithPassword(
@@ -159,6 +152,26 @@ final class IntegrationSessions {
     final database = SupabaseDatabaseClientImpl(client);
     final realtime = SupabaseRealtimeClientImpl(client);
 
+    final superAdmin = await database.rpc(functionName: 'is_super_admin');
+    if (superAdmin != false) {
+      await client.dispose();
+      throw StateError('${identity.name} must not be a super admin');
+    }
+    if (identity != Identity.provider) {
+      final profile = await database.selectOne(
+        table: 'user_profiles',
+        columns: 'company_id, is_admin',
+        filters: [SupabaseFilter.eq('id', user.id)],
+      );
+      if (profile?['company_id'] != credentials.companyId ||
+          profile?['is_admin'] != (identity == Identity.admin)) {
+        await client.dispose();
+        throw StateError(
+          '${identity.name}: unexpected company/admin membership',
+        );
+      }
+    }
+
     String? providerProfileId;
     String? serviceProviderCompanyId;
     if (identity == Identity.provider) {
@@ -171,7 +184,7 @@ final class IntegrationSessions {
       );
       if (profile == null) {
         throw StateError(
-          '${credentials.email} has no active service_provider_profiles row, '
+          '${identity.name} has no active service_provider_profiles row, '
           'so provider mode cannot be exercised.',
         );
       }
@@ -193,49 +206,21 @@ final class IntegrationSessions {
         realtime: realtime,
         auth: SupabaseAuthClientImpl(client.auth),
       ),
-      companyId: credentials.companyId ?? IntegrationConfig.companyId,
+      companyId: credentials.companyId,
       providerProfileId: providerProfileId,
       serviceProviderCompanyId: serviceProviderCompanyId,
     );
   }
 
-  /// [Identity.supervisor] and [Identity.provider] deliberately reuse the
-  /// technician's credentials.
-  ///
-  /// * *supervisor* is the same principal as *technician*; what separates them
-  ///   is `PermissionFixture`, which repoints the profile at a throwaway group
-  ///   holding `work_orders.manage_pending_requests` for the duration of a case.
-  ///   Consequence: a case cannot hold technician and supervisor powers at the
-  ///   same instant — act as the technician first, then apply the fixture.
-  /// * *provider* is the same account resolved through its
-  ///   `service_provider_profiles` row, which is exactly the dual identity the
-  ///   real app builds via `ModeSwitcherCubit`.
-  static ({String email, String password, String? companyId})? _credentialsFor(
+  static ({String email, String password, String companyId}) _credentialsFor(
     Identity identity,
-  ) {
-    switch (identity) {
-      case Identity.admin:
-        return (
-          email: IntegrationConfig.adminEmail,
-          password: IntegrationConfig.adminPassword,
-          companyId: null,
-        );
-      case Identity.technician:
-      case Identity.supervisor:
-      case Identity.provider:
-        return (
-          email: IntegrationConfig.techEmail,
-          password: IntegrationConfig.techPassword,
-          companyId: null,
-        );
-      case Identity.foreign:
-        if (!IntegrationConfig.hasForeignIdentity) return null;
-        return (
-          email: IntegrationConfig.foreignEmail!,
-          password: IntegrationConfig.foreignPassword!,
-          companyId: IntegrationConfig.foreignCompanyId,
-        );
-    }
+  ) => IntegrationConfig.accounts.forIdentity(identity);
+
+  /// A new login and client prove persistence independently of writer state.
+  static Future<IntegrationSession> fresh(Identity identity) async {
+    IntegrationRun.assertEnabled();
+    await _loadEnvironment();
+    return await _signIn(identity, _credentialsFor(identity));
   }
 
   static Future<void> _loadEnvironment() async {
@@ -247,7 +232,9 @@ final class IntegrationSessions {
     _url = dotenv.maybeGet('SUPABASE_URL');
     _anonKey = dotenv.maybeGet('SUPABASE_ANON_KEY');
     if (_url == null || _anonKey == null) {
-      throw StateError('SUPABASE_URL and SUPABASE_ANON_KEY must be set in .env');
+      throw StateError(
+        'SUPABASE_URL and SUPABASE_ANON_KEY must be set in .env',
+      );
     }
     await IntegrationConfig.load();
   }

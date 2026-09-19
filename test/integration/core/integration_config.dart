@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'integration_accounts.dart';
+import 'integration_identity.dart';
+
 /// Centralized configuration for integration tests, read from .env.
 class IntegrationConfig {
   static bool _initialized = false;
 
+  static late final IntegrationAccounts accounts;
   static late final String companyId;
   static late final String adminEmail;
   static late final String adminPassword;
@@ -50,28 +54,26 @@ class IntegrationConfig {
       await dotenv.load();
     }
 
-    companyId = _require('INTEGRATION_TEST_COMPANY_ID');
-    adminEmail = _require('INTEGRATION_TEST_ADMIN_EMAIL');
-    adminPassword = _require('INTEGRATION_TEST_ADMIN_PASSWORD');
-    techEmail = _require('INTEGRATION_TEST_TECH_EMAIL');
-    techPassword = _require('INTEGRATION_TEST_TECH_PASSWORD');
-    useExistingData =
-        dotenv.maybeGet('INTEGRATION_TEST_USE_EXISTING_DATA') == 'true';
+    accounts = IntegrationAccounts({...dotenv.env, ...Platform.environment});
+    final admin = accounts.forIdentity(Identity.admin);
+    final tech = accounts.forIdentity(Identity.technician);
+    final foreign = accounts.forIdentity(Identity.foreign);
+    companyId = admin.companyId;
+    adminEmail = admin.email;
+    adminPassword = admin.password;
+    techEmail = tech.email;
+    techPassword = tech.password;
+    // Mutation fixtures must never adopt pre-existing business rows.
+    useExistingData = false;
     autoCleanup =
-        dotenv.maybeGet('INTEGRATION_TEST_AUTO_CLEANUP') == 'true';
-    foreignEmail = dotenv.maybeGet('INTEGRATION_TEST_FOREIGN_EMAIL');
-    foreignPassword = dotenv.maybeGet('INTEGRATION_TEST_FOREIGN_PASSWORD');
-    foreignCompanyId = dotenv.maybeGet('INTEGRATION_TEST_FOREIGN_COMPANY_ID');
+        (Platform.environment['INTEGRATION_TEST_AUTO_CLEANUP'] ??
+            dotenv.maybeGet('INTEGRATION_TEST_AUTO_CLEANUP')) ==
+        'true';
+    foreignEmail = foreign.email;
+    foreignPassword = foreign.password;
+    foreignCompanyId = foreign.companyId;
 
     _initialized = true;
-  }
-
-  static String _require(String key) {
-    final value = dotenv.maybeGet(key);
-    if (value == null || value.isEmpty) {
-      throw StateError('Missing required .env key: $key');
-    }
-    return value;
   }
 
   static int _nameCounter = 0;
