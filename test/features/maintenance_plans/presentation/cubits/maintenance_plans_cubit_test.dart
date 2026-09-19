@@ -257,6 +257,24 @@ void main() {
           ),
         ],
       );
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'should emit error without calling use cases when locationId is null',
+        build: () => cubit,
+        act: (c) =>
+            c.saveMaintenancePlan(tPlan.copyWith(annulLocationId: true)),
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.save],
+            'sections[save]',
+            const SectionState.error('Selecione um LOCAL para o plano'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateMaintenancePlan.call(any()));
+          verifyNever(() => mockUpdateMaintenancePlan.call(any()));
+        },
+      );
     });
 
     group('toggleActive', () {

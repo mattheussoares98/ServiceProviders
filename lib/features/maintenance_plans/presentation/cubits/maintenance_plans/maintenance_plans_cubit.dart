@@ -81,6 +81,21 @@ class MaintenancePlansCubit extends BaseCubit<MaintenancePlansState> {
   }
 
   Future<bool> saveMaintenancePlan(MaintenancePlanEntity plan) async {
+    if (plan.locationId == null) {
+      final message = 'Selecione um LOCAL para o plano'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(
