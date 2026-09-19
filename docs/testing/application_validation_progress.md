@@ -60,3 +60,7 @@ Executed sequentially, recording each file before starting the next. See [per-fi
 - Location creation form: 3 passed, 2 failed. Empty-name rejection, failed-save/retry, and cancellation pass. Whitespace-name validation and late address overwrite fail (VAL-011, VAL-012).
 - Targeted analyses passed. Widget tests use Android rendering and mocked Cubits, not a device or live backend. Initial test-platform teardown and mock setup errors were corrected before recording the final run; no application fix was made.
 - Small commits group coverage by feature and infrastructure purpose. Temporary validation headers remain only in the working tree, including on newly committed files. Persistent results live in this report and JSONL records.
+
+- Area creation form: 3 passed, 1 failed. Required-name rejection, retained fields/location across failed-create retry, and abandoning edits are covered; whitespace submission also reproduces VAL-011. The draft back-navigation finder was corrected to target the app's actual arrow button.
+- Maintenance-plan use cases: 24 passed, including 13 new calendar cases for leap years, year rollover, long intervals, weekday anchors, UTC offset boundaries, and restoring the 31st after February. These verify Dart calculations only; database recurrence parity and invalid-input validation remain outstanding.
+- Continuation total: **5 files, 102 passed, 3 failed**; **31 added cases** (28 passed, 3 failed). No additional live or reporter tests were run in this continuation.

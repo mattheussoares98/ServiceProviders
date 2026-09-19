@@ -112,7 +112,7 @@ This is the durable backlog for the application-validation work. Do not delete i
 
 For each new failure include the exact test file/case, expected and actual results, build/date/environment, sanitized reproduction evidence, severity and status. Distinguish application defects from harness errors, missing fixtures, unsupported devices and unresolved business rules. Do not weaken expectations or alter production code/database state to obtain green results. A passing old test is not evidence that all feature scenarios are covered.
 
-## VAL-011 — Location form accepts a whitespace-only required name
+## VAL-011 — Location and area forms accept a whitespace-only required name
 
 - Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid form submission.
 - Regression: `test/features/locations/presentation/pages/create_update_location_page_test.dart`, “rejects whitespace name before saving”.
@@ -120,6 +120,8 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: Campo obrigatório is displayed and saveLocation is not invoked.
 - Actual: no required-field error; the form invokes saveLocation. NonEmptyValidator checks isNotEmpty without trimming, while the Cubit trims the submitted name. Server acceptance of the resulting empty string is unverified.
 - Evidence: `build/file-validation/locations_widget.log`, durable record `runs/2026-09-19-domain-state-widget.jsonl` (3 passed, 2 failed).
+
+- Additional reproduction: `create_update_area_page_test.dart` also submits a whitespace-only name to saveArea. Final area widget run: 3 passed, 1 failed; failed-save/retry preserves fields and selected location, and back navigation submits nothing. Evidence: `build/file-validation/areas_widget.log`.
 
 ## VAL-012 — Late postal-code lookup overwrites a manually edited address
 
