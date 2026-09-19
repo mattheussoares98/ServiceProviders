@@ -89,7 +89,9 @@ class IntegrationReport {
     });
   }
 
-  static const String directory = 'build/integration_report';
+  static String get directory =>
+      Platform.environment['INTEGRATION_REPORT_DIR'] ??
+      'build/integration_report';
 
   static final Map<String, IntegrationReport> _open = {};
 

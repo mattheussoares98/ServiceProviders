@@ -5,38 +5,75 @@
 import 'dart:convert';
 import 'dart:io';
 
-const _reportDir = 'build/integration_report';
-const _outputPath = 'INTEGRATION_TEST_ERRORS.md';
+import 'integration_run_summary.dart';
+
+String _reportDir =
+    Platform.environment['INTEGRATION_REPORT_DIR'] ??
+    'build/integration_report';
 
 void main() {
-  final dir = Directory(_reportDir);
-  if (!dir.existsSync()) {
-    stderr.writeln('No report directory at $_reportDir — nothing to build.');
+  final directory = Directory(_reportDir);
+  final runner = File('$_reportDir/runner.jsonl');
+  if (!directory.existsSync() || !runner.existsSync()) {
+    stderr.writeln(
+      'Missing runner evidence; refusing an empty passing report.',
+    );
+    exitCode = 1;
     return;
   }
-
-  final records = <Map<String, Object?>>[];
-  for (final file in dir.listSync().whereType<File>()) {
-    if (!file.path.endsWith('.jsonl')) continue;
+  final summary = IntegrationRunSummary.parse(runner.readAsStringSync());
+  final catalogue = <Map<String, Object?>>[];
+  for (final file in directory.listSync().whereType<File>()) {
+    if (!file.path.endsWith('.jsonl') || file.path == runner.path) continue;
     for (final line in file.readAsLinesSync()) {
       if (line.trim().isEmpty) continue;
       try {
-        final decoded = jsonDecode(line) as Map<String, Object?>;
-        // The directory also holds the permission ledger, which is .jsonl but
-        // not a case record.
-        if (decoded['id'] == null || decoded['outcome'] == null) continue;
-        records.add(decoded);
-      } on FormatException {
-        // A partial trailing line means the process died mid-write; every
-        // record before it is still intact and worth reporting.
-        stderr.writeln('Skipping malformed line in ${file.path}');
+        final record = jsonDecode(line) as Map<String, Object?>;
+        if (record['id'] != null && record['outcome'] != null) {
+          catalogue.add(record);
+        }
+      } on Object {
+        summary.problems.add('Malformed catalogue evidence');
       }
     }
   }
-
-  records.sort((a, b) => (a['id']! as String).compareTo(b['id']! as String));
-  File(_outputPath).writeAsStringSync(_render(records));
-  stdout.writeln('Wrote $_outputPath (${records.length} cases).');
+  for (final record in catalogue) {
+    final matches = summary.records
+        .where(
+          (r) => (r['description']! as String).startsWith('${record['id']} —'),
+        )
+        .toList();
+    if (matches.length != 1) {
+      summary.problems.add(
+        'Catalogue case missing/duplicated in runner: ${record['id']}',
+      );
+      continue;
+    }
+    final target = matches.single;
+    final runnerOutcome = target['outcome'];
+    target.addAll(record);
+    if (runnerOutcome != 'passed') target['outcome'] = runnerOutcome;
+  }
+  for (final file in directory.listSync().whereType<File>()) {
+    if (!file.path.split('/').last.startsWith('cleanup-')) continue;
+    final cleanup = jsonDecode(file.readAsStringSync()) as Map<String, dynamic>;
+    if ((cleanup['errors'] as List?)?.isNotEmpty ?? false) {
+      summary.problems.add(
+        'Fixture cleanup remains unresolved; see cleanup ledger',
+      );
+    }
+  }
+  final output = File('$_reportDir/report.md')
+    ..writeAsStringSync(
+      '${_render(summary.records)}\n'
+      '## Run integrity\n\n'
+      '${summary.problems.isEmpty ? 'Complete runner evidence.' : summary.problems.map((p) => '- $p').join('\n')}\n',
+    );
+  stdout.writeln(
+    'Report: ${output.path}; ${summary.records.length} cases; '
+    '${summary.passed ? 'PASSED' : 'FAILED OR BLOCKED'}',
+  );
+  if (!summary.passed) exitCode = 1;
 }
 
 String _render(List<Map<String, Object?>> records) {
@@ -95,8 +132,10 @@ void _writeSummary(StringBuffer buffer, List<Map<String, Object?>> records) {
     );
   }
   buffer
-    ..writeln('| **Total** | **$passed** | **$failed** | **$skipped** '
-        '| **${records.length}** |')
+    ..writeln(
+      '| **Total** | **$passed** | **$failed** | **$skipped** '
+      '| **${records.length}** |',
+    )
     ..writeln();
 }
 
@@ -148,10 +187,7 @@ void _writeCase(StringBuffer buffer, Map<String, Object?> record) {
     buffer.writeln('- Note:     $note');
   }
   if (record['stack'] != null) {
-    final stack = (record['stack']! as String)
-        .split('\n')
-        .take(6)
-        .join('\n');
+    final stack = (record['stack']! as String).split('\n').take(6).join('\n');
     buffer
       ..writeln()
       ..writeln('```')
@@ -167,8 +203,10 @@ void _writeSkipped(StringBuffer buffer, List<Map<String, Object?>> records) {
   buffer
     ..writeln('## Not executable')
     ..writeln()
-    ..writeln('Cases whose preconditions could not be provisioned. These are '
-        'explicitly **not** passes.')
+    ..writeln(
+      'Cases whose preconditions could not be provisioned. These are '
+      'explicitly **not** passes.',
+    )
     ..writeln()
     ..writeln('| Case | Feature | Reason |')
     ..writeln('|---|---|---|');
@@ -183,16 +221,20 @@ void _writeSkipped(StringBuffer buffer, List<Map<String, Object?>> records) {
 
 void _writeNotes(StringBuffer buffer, List<Map<String, Object?>> records) {
   final noted = records
-      .where((r) =>
-          r['outcome'] != 'failed' &&
-          ((r['notes'] as List?)?.isNotEmpty ?? false))
+      .where(
+        (r) =>
+            r['outcome'] != 'failed' &&
+            ((r['notes'] as List?)?.isNotEmpty ?? false),
+      )
       .toList();
   if (noted.isEmpty) return;
   buffer
     ..writeln('## Findings from passing cases')
     ..writeln()
-    ..writeln('Behaviour that did not fail an assertion but is recorded as a '
-        'finding — typically a permissive RLS policy the catalogue predicted.')
+    ..writeln(
+      'Behaviour that did not fail an assertion but is recorded as a '
+      'finding — typically a permissive RLS policy the catalogue predicted.',
+    )
     ..writeln();
   for (final record in noted) {
     buffer.writeln('- **${record['id']}** (${record['feature']})');
@@ -203,25 +245,15 @@ void _writeNotes(StringBuffer buffer, List<Map<String, Object?>> records) {
   buffer.writeln();
 }
 
-/// Rows these suites create that provably cannot be cleaned up afterwards.
 void _writeManualCleanup(StringBuffer buffer) {
   buffer
-    ..writeln('## Manual cleanup required')
+    ..writeln('## Fixture cleanup')
     ..writeln()
-    ..writeln('These tables have neither a `deleted_at` column nor a '
-        '`FOR DELETE` policy, so rows this run created are permanent. They are '
-        'listed rather than silently dropped from the cleanup report.')
-    ..writeln()
-    ..writeln('| Table | Why it cannot be cleaned |')
-    ..writeln('|---|---|')
-    ..writeln('| `work_order_pause_requests` | No `deleted_at`, no `FOR '
-        'DELETE` policy (finding F5). Two rows per lifecycle run. |')
-    ..writeln('| `work_order_history` | Append-only immutable log. |')
-    ..writeln('| `audit_logs` | Append-only. |')
-    ..writeln('| `access_logs` | Append-only; every sign-in adds a row. |')
-    ..writeln('| `sync_errors` | Append-only telemetry. |')
-    ..writeln('| `service_provider_profiles` | No `deleted_at`; hard delete '
-        'blocked by trigger (finding SCH-13). Deactivated instead. |')
+    ..writeln(
+      'See the run cleanup JSON and durable `.integration-test-state/` '
+      'ledgers for exact IDs and unresolved operations. Append-only records '
+      'are retained according to the deployed schema. No prefix sweep is authorized.',
+    )
     ..writeln();
 }
 
