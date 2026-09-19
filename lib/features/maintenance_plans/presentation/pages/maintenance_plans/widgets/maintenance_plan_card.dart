@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/ma
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/extensions/interval_unit_ui_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_indication_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -16,18 +17,12 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class MaintenancePlanCard extends StatelessWidget {
-  const MaintenancePlanCard({
-    super.key,
-    required this.plan,
-    required this.onToggleActive,
-    required this.onDelete,
-  });
+  const MaintenancePlanCard({super.key, required this.plan});
   final MaintenancePlanEntity plan;
-  final VoidCallback onToggleActive;
-  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<MaintenancePlansCubit>();
     final nextDateText = plan.nextDueDate != null
         ? plan.nextDueDate!.formatDate()
         : 'Não definida'.hardcoded;
@@ -39,9 +34,22 @@ class MaintenancePlanCard extends StatelessWidget {
       ),
     );
 
-    void onTap() => context
-        .read<MaintenancePlansCubit>()
-        .navigateToCreateUpdateMaintenancePlan(maintenancePlan: plan);
+    void onTap() =>
+        cubit.navigateToCreateUpdateMaintenancePlan(maintenancePlan: plan);
+
+    Future<void> onGenerateWorkOrder() async {
+      final confirmed = await showAlertDialog(
+        context: context,
+        title: 'Gerar ordem de serviço'.hardcoded,
+        contentText:
+            'Deseja gerar a ordem de serviço para este plano agora?'.hardcoded,
+        defaultActionText: 'Gerar'.hardcoded,
+        cancelActionText: 'Cancelar'.hardcoded,
+      );
+      if (confirmed == true) {
+        await cubit.generateWorkOrder(plan.id);
+      }
+    }
 
     return Card(
       clipBehavior: .hardEdge,
@@ -105,6 +113,17 @@ class MaintenancePlanCard extends StatelessWidget {
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                  BaseIconButton(
+                    permission: const ActionPermission.resource(
+                      resourceType: ResourceType.maintenancePlans,
+                      permissionAction: PermissionAction.update,
+                    ),
+                    onPressed: onGenerateWorkOrder,
+                    platformIcon: const PlatformIcon(
+                      materialIcon: Icons.play_arrow_outlined,
+                      cupertinoIcon: CupertinoIcons.play,
                     ),
                   ),
                   BaseIconButton(

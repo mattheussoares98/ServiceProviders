@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -59,6 +60,9 @@ void main() {
     when(() => mockCubit.toggleActive(any())).thenAnswer((_) async => true);
     when(
       () => mockCubit.deleteMaintenancePlan(any()),
+    ).thenAnswer((_) async => true);
+    when(
+      () => mockCubit.generateWorkOrder(any()),
     ).thenAnswer((_) async => true);
   });
 
@@ -135,5 +139,56 @@ void main() {
       find.text('Falha na última geração: Falha ao processar template'),
       findsOneWidget,
     );
+  });
+
+  testWidgets(
+    'tapping generate work order button opens dialog and triggers cubit',
+    (tester) async {
+      final plan = MaintenancePlanFactory.makeMaintenancePlanEntity();
+      stubState([plan]);
+
+      await tester.pumpWidget(buildWidget());
+      final iconFinder = find.byWidgetPredicate(
+        (widget) =>
+            widget is Icon &&
+            (widget.icon == Icons.play_arrow_outlined ||
+                widget.icon == CupertinoIcons.play),
+      );
+      expect(iconFinder, findsOneWidget);
+      await tester.tap(iconFinder);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Gerar ordem de serviço'), findsOneWidget);
+      await tester.tap(find.text('Gerar'));
+      await tester.pumpAndSettle();
+
+      verify(() => mockCubit.generateWorkOrder(plan.id)).called(1);
+    },
+  );
+
+  testWidgets('generate button is hidden when user lacks update permission', (
+    tester,
+  ) async {
+    when(
+      () => mockUsersCubit.hasPermission(
+        const ActionPermission.resource(
+          resourceType: ResourceType.maintenancePlans,
+          permissionAction: PermissionAction.update,
+        ),
+      ),
+    ).thenReturn(false);
+
+    final plan = MaintenancePlanFactory.makeMaintenancePlanEntity();
+    stubState([plan]);
+
+    await tester.pumpWidget(buildWidget());
+
+    final iconFinder = find.byWidgetPredicate(
+      (widget) =>
+          widget is Icon &&
+          (widget.icon == Icons.play_arrow_outlined ||
+              widget.icon == CupertinoIcons.play),
+    );
+    expect(iconFinder, findsNothing);
   });
 }

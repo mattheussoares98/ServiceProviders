@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/mainte
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/maintenance_plans/widgets/maintenance_plan_card.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
@@ -64,24 +63,7 @@ class MaintenancePlansPage extends StatelessWidget {
                 itemCount: plans.length,
                 itemBuilder: (context, index) {
                   final plan = plans[index];
-                  return MaintenancePlanCard(
-                    plan: plan,
-                    onToggleActive: () => cubit.toggleActive(plan),
-                    onDelete: () async {
-                      final proceed = await showAlertDialog(
-                        context: context,
-                        title: 'Excluir plano'.hardcoded,
-                        contentText:
-                            'Deseja realmente excluir o plano "${plan.title}"?'
-                                .hardcoded,
-                        defaultActionText: 'Sim'.hardcoded,
-                        cancelActionText: 'Não'.hardcoded,
-                      );
-                      if (proceed == true) {
-                        await cubit.deleteMaintenancePlan(plan.id);
-                      }
-                    },
-                  );
+                  return MaintenancePlanCard(plan: plan);
                 },
               );
             },
