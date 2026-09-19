@@ -51,6 +51,9 @@ $$ LANGUAGE plpgsql;
   - Resolves location and internal creator fallback.
   - Generates preventive work orders with status `'open'`, advancing `next_due_date` and recording `last_generated_at` and `last_generated_work_order_id`.
   - Catches errors per plan into `last_error` without failing batch execution.
+- **`generate_maintenance_plan_work_order(p_plan_id UUID)`**:
+  - On-demand RPC callable by authenticated company users with `maintenance_plans.update` or `work_orders.create`.
+  - Generates a work order for the specified plan immediately, advancing `next_due_date` and returning the generated `work_order.id`.
 - **`pg_cron` schedule**: Runs hourly (`0 * * * *`) via job `'generate-due-maintenance-work-orders'`.
 
 ## Foreign Key Relationships & Cascades
