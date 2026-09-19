@@ -73,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 35;
+  int get schemaVersion => 36;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -268,6 +268,39 @@ class AppDatabase extends _$AppDatabase {
       if (from < 35) {
         await addColumnIfNotExists(workOrders, workOrders.price);
         await addColumnIfNotExists(workOrders, workOrders.currency);
+      }
+      if (from < 36) {
+        await addColumnIfNotExists(maintenancePlans, maintenancePlans.areaId);
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.serviceProviderCompanyId,
+        );
+        await addColumnIfNotExists(maintenancePlans, maintenancePlans.price);
+        await addColumnIfNotExists(maintenancePlans, maintenancePlans.currency);
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.intervalValue,
+        );
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.intervalUnit,
+        );
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.leadTimeDays,
+        );
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.durationDays,
+        );
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.lastGeneratedWorkOrderId,
+        );
+        await addColumnIfNotExists(
+          maintenancePlans,
+          maintenancePlans.lastError,
+        );
       }
     },
   );

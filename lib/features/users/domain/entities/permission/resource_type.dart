@@ -5,7 +5,7 @@ enum ResourceType {
   checklists('checklists'),
   locations('locations'),
   // reports('reports'),
-  // maintenancePlans('maintenance_plans'),
+  maintenancePlans('maintenance_plans'),
   accessLogs('access_logs'),
   sectors('sectors'),
   serviceProviders('service_providers'),

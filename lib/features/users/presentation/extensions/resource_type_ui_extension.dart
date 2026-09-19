@@ -14,5 +14,6 @@ extension ResourceTypeUiExtension on ResourceType {
     ResourceType.users => 'Usuários'.hardcoded,
     ResourceType.workOrders => 'Ordens de serviço'.hardcoded,
     ResourceType.accessLogs => 'Logs de acesso'.hardcoded,
+    ResourceType.maintenancePlans => 'Planos de manutenção'.hardcoded,
   };
 }

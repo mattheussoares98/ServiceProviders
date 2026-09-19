@@ -2,7 +2,9 @@ import 'package:faker/faker.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/interval_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/calculate_next_due_date_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/create_maintenance_plan_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/delete_maintenance_plan_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/get_maintenance_plan_by_id_use_case.dart';
@@ -18,6 +20,7 @@ void main() {
   late CreateMaintenancePlanUseCase createPlanUseCase;
   late UpdateMaintenancePlanUseCase updatePlanUseCase;
   late DeleteMaintenancePlanUseCase deletePlanUseCase;
+  late CalculateNextDueDateUseCase calculateNextDueDateUseCase;
   late MockMaintenancePlansRepository mockRepository;
 
   setUpAll(() {
@@ -41,6 +44,7 @@ void main() {
     deletePlanUseCase = DeleteMaintenancePlanUseCase(
       repository: mockRepository,
     );
+    calculateNextDueDateUseCase = const CalculateNextDueDateUseCase();
   });
 
   final tCompanyId =
@@ -151,6 +155,62 @@ void main() {
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockRepository.deleteMaintenancePlan(id)).called(1);
+      });
+    });
+
+    group('CalculateNextDueDateUseCase', () {
+      test('calculates interval in days accurately', () {
+        final base = DateTime.utc(2026, 9);
+        final result = calculateNextDueDateUseCase(
+          RecurrenceParams(
+            baseDate: base,
+            intervalValue: 15,
+            intervalUnit: IntervalUnit.days,
+          ),
+        );
+        expect(result, DateTime.utc(2026, 9, 16));
+      });
+
+      test('calculates interval in weeks accurately', () {
+        final base = DateTime.utc(2026, 9); // Tuesday
+        final result = calculateNextDueDateUseCase(
+          RecurrenceParams(
+            baseDate: base,
+            intervalValue: 2,
+            intervalUnit: IntervalUnit.weeks,
+          ),
+        );
+        expect(result, DateTime.utc(2026, 9, 15));
+      });
+
+      test(
+        'calculates interval in months clamping to last day of short month',
+        () {
+          final base = DateTime.utc(2026, 1, 31);
+          final result = calculateNextDueDateUseCase(
+            RecurrenceParams(
+              baseDate: base,
+              intervalValue: 1,
+              intervalUnit: IntervalUnit.months,
+              dayOfMonth: 31,
+            ),
+          );
+          expect(result, DateTime.utc(2026, 2, 28));
+        },
+      );
+
+      test('calculates interval in years respecting leap years', () {
+        final base = DateTime.utc(2024, 2, 29);
+        final result = calculateNextDueDateUseCase(
+          RecurrenceParams(
+            baseDate: base,
+            intervalValue: 1,
+            intervalUnit: IntervalUnit.years,
+            monthOfYear: 2,
+            dayOfMonth: 29,
+          ),
+        );
+        expect(result, DateTime.utc(2025, 2, 28));
       });
     });
   });

@@ -54,6 +54,7 @@ bool _allowsResource(ResourceType resource, PermissionAction action) {
     ResourceType.slaPolicies => action == PermissionAction.read,
     // Administration surfaces of the contracting company.
     ResourceType.accessLogs ||
+    ResourceType.maintenancePlans ||
     ResourceType.serviceProviders ||
     ResourceType.users => false,
   };

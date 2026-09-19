@@ -1,7 +1,7 @@
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/attachment_entity.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/file_type.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
-import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/frequency.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/interval_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 
@@ -12,23 +12,32 @@ abstract final class MaintenancePlanFactory {
     return MaintenancePlanEntity(
       id: FactoryHelpers.makeId(),
       companyId: FactoryHelpers.makeId(),
+      locationId: FactoryHelpers.makeId(),
+      assetId: FactoryHelpers.makeId(),
+      areaId: FactoryHelpers.makeId(),
+      assignedToId: FactoryHelpers.makeId(),
+      serviceProviderCompanyId: FactoryHelpers.makeId(),
+      checklistTemplateId: FactoryHelpers.makeId(),
       title: FactoryHelpers.makePhrase(),
       description: FactoryHelpers.makePhrase(),
-      frequency: Frequency.monthly,
       priority: Priority.medium,
+      price: 150,
+      currency: 'BRL',
+      intervalValue: 1,
+      intervalUnit: IntervalUnit.months,
+      leadTimeDays: 2,
+      durationDays: 1,
+      dayOfWeek: 1,
+      dayOfMonth: 15,
+      monthOfYear: 6,
       isActive: true,
+      lastGeneratedAt: FactoryHelpers.makeDateTime(),
+      lastGeneratedWorkOrderId: FactoryHelpers.makeId(),
+      lastError: null,
+      nextDueDate: FactoryHelpers.makeDateTime(),
       createdAt: FactoryHelpers.makeDateTime(),
       updatedAt: FactoryHelpers.makeDateTime(),
-      assetId: FactoryHelpers.makeId(),
-      checklistTemplateId: FactoryHelpers.makeId(),
-      assignedToId: FactoryHelpers.makeId(),
-      dayOfMonth: FactoryHelpers.makeInt(30),
-      dayOfWeek: FactoryHelpers.makeInt(7),
-      monthOfYear: FactoryHelpers.makeInt(12),
       deletedAt: null,
-      lastGeneratedAt: FactoryHelpers.makeDateTime(),
-      locationId: FactoryHelpers.makeId(),
-      nextDueDate: FactoryHelpers.makeDateTime(),
     );
   }
 
