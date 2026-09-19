@@ -6,6 +6,9 @@ import 'package:internet_connection_checker_plus/internet_connection_checker_plu
 import 'package:o_jogo_da_obra/core/clients/local/drift/app_database.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/constants/offline_limits.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/user_data_entity.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/repositories/session_repository.dart';
+import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
 
 enum OfflineAdvisoryTrigger { startup, action }
 
@@ -47,15 +50,26 @@ final class OfflineTrackerImpl implements OfflineTracker {
   OfflineTrackerImpl({
     required InternetClient internetClient,
     required AppDatabase database,
+    required SessionRepository sessionRepository,
+    required GetActiveCompanyIdUseCase getActiveCompanyId,
   }) : _internetClient = internetClient,
-       _database = database;
+       _database = database,
+       _sessionRepository = sessionRepository,
+       _getActiveCompanyId = getActiveCompanyId;
 
   final InternetClient _internetClient;
   final AppDatabase _database;
+  final SessionRepository _sessionRepository;
+  final GetActiveCompanyIdUseCase _getActiveCompanyId;
   final _alertController = StreamController<OfflineAdvisoryEvent>.broadcast();
   StreamSubscription<InternetStatus>? _connectivitySubscription;
   StreamSubscription<int>? _dbSubscription;
   StreamSubscription<CompanyParameter?>? _paramsSubscription;
+  StreamSubscription<UserDataEntity>? _sessionSubscription;
+  StreamSubscription<AppSetting?>? _settingsSubscription;
+  ({String companyId, String userId})? _context;
+  bool _initialized = false;
+  bool _disposed = false;
 
   DateTime? _offlineSince;
   int _offlineMutationCount = 0;
@@ -81,10 +95,9 @@ final class OfflineTrackerImpl implements OfflineTracker {
   bool get isOffline => !_internetClient.isConnected;
 
   @override
-  Duration get offlineDuration =>
-      _offlineSince != null
-          ? DateTime.now().difference(_offlineSince!)
-          : Duration.zero;
+  Duration get offlineDuration => _offlineSince != null
+      ? DateTime.now().difference(_offlineSince!)
+      : Duration.zero;
 
   @override
   bool get hasBreachedDuration =>
@@ -100,21 +113,22 @@ final class OfflineTrackerImpl implements OfflineTracker {
 
   @override
   void init() {
+    if (_initialized || _disposed) return;
+    _initialized = true;
+
     if (isOffline && _offlineSince == null) {
       _offlineSince = DateTime.now();
     }
 
-    _paramsSubscription = _database
-        .select(_database.companyParameters)
-        .watchSingleOrNull()
-        .listen((params) {
-          if (params != null) {
-            _maxOfflineDurationHours = params.maxOfflineDurationHours;
-            _maxOfflinePendingRequests = params.maxOfflinePendingRequests;
-            _offlineAlertThrottleFrequency =
-                params.offlineAlertThrottleFrequency;
-          }
-        });
+    _watchActiveCompany();
+    _sessionSubscription = _sessionRepository.sessionStream.listen(
+      (_) => _watchActiveCompany(),
+    );
+    _settingsSubscription =
+        (_database.select(_database.appSettings)
+              ..where((settings) => settings.id.equals(1)))
+            .watchSingleOrNull()
+            .listen((_) => _watchActiveCompany());
 
     _connectivitySubscription = _internetClient.connectivityStream?.listen((
       status,
@@ -125,20 +139,70 @@ final class OfflineTrackerImpl implements OfflineTracker {
         _offlineSince ??= DateTime.now();
       }
     });
+  }
 
+  void _watchActiveCompany() {
+    if (_disposed) return;
+    final session = _sessionRepository.userData;
+    final hasSession =
+        session.user.id.isNotEmpty && session.accessToken.isNotEmpty;
+    final context = (
+      companyId: hasSession ? _getActiveCompanyId() : '',
+      userId: hasSession ? session.user.id : '',
+    );
+    if (_context == context) return;
+    _context = context;
+    _paramsSubscription?.cancel();
+    _dbSubscription?.cancel();
+    _dbSubscription = null;
+    _offlineMutationCount = 0;
+    _lastAlertMutationCount = 0;
+    _applyParameters(null);
+
+    if (context.companyId.isEmpty || context.userId.isEmpty) return;
+
+    _paramsSubscription =
+        (_database.select(_database.companyParameters)..where(
+              (params) =>
+                  params.companyId.equals(context.companyId) &
+                  params.deletedAt.isNull(),
+            ))
+            .watchSingleOrNull()
+            .listen((params) {
+              if (_disposed || _context != context) return;
+              _applyParameters(params);
+              // Load limits before evaluating the initial pending queue.
+              _dbSubscription ??= _watchPendingMutations(context);
+            });
+  }
+
+  void _applyParameters(CompanyParameter? params) {
+    _maxOfflineDurationHours =
+        params?.maxOfflineDurationHours ?? kMaxOfflineDurationHours;
+    _maxOfflinePendingRequests =
+        params?.maxOfflinePendingRequests ?? kMaxOfflinePendingRequests;
+    _offlineAlertThrottleFrequency =
+        params?.offlineAlertThrottleFrequency ?? kOfflineAlertThrottleFrequency;
+  }
+
+  StreamSubscription<int> _watchPendingMutations(
+    ({String companyId, String userId}) context,
+  ) {
     final countExp = _database.syncAuditLogs.id.count();
-    final query =
-        _database.selectOnly(_database.syncAuditLogs)
-          ..addColumns([countExp])
-          ..where(
-            _database.syncAuditLogs.status.equals('pending') |
-                _database.syncAuditLogs.status.equals('syncing'),
-          );
+    final query = _database.selectOnly(_database.syncAuditLogs)
+      ..addColumns([countExp])
+      ..where(
+        _database.syncAuditLogs.companyId.equals(context.companyId) &
+            _database.syncAuditLogs.userProfileId.equals(context.userId) &
+            (_database.syncAuditLogs.status.equals('pending') |
+                _database.syncAuditLogs.status.equals('syncing')),
+      );
 
-    _dbSubscription = query
-        .watchSingle()
-        .map((row) => row.read(countExp) ?? 0)
-        .listen(_onPendingCountChanged);
+    return query.watchSingle().map((row) => row.read(countExp) ?? 0).listen((
+      count,
+    ) {
+      if (!_disposed && _context == context) _onPendingCountChanged(count);
+    });
   }
 
   void _onPendingCountChanged(int count) {
@@ -166,9 +230,12 @@ final class OfflineTrackerImpl implements OfflineTracker {
 
   @override
   void dispose() {
+    _disposed = true;
     _connectivitySubscription?.cancel();
     _dbSubscription?.cancel();
     _paramsSubscription?.cancel();
+    _sessionSubscription?.cancel();
+    _settingsSubscription?.cancel();
     _alertController.close();
   }
 
@@ -208,4 +275,3 @@ final class OfflineTrackerImpl implements OfflineTracker {
     _lastAlertMutationCount = 0;
   }
 }
-
