@@ -59,7 +59,7 @@ class CreateUpdateMaintenancePlanPage extends HookWidget {
                 if (proceed == true &&
                     await cubit.deleteMaintenancePlan(maintenancePlan!.id) &&
                     context.mounted) {
-                  Navigator.of(context).pop(true);
+                  cubit.popRoute();
                 }
               },
               platformIcon: const PlatformIcon(

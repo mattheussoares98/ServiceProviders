@@ -217,4 +217,8 @@ class MaintenancePlansCubit extends BaseCubit<MaintenancePlansState> {
       return false;
     }
   }
+
+  void popRoute() {
+    popRouteAdaptively();
+  }
 }

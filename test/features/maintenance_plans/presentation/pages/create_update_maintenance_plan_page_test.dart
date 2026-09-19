@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/cre
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 
 import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
@@ -36,6 +37,9 @@ class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
 class MockSessionCubit extends MockCubit<SessionState>
     implements SessionCubit {}
 
+class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
+    implements ScreenObserverCubit {}
+
 void main() {
   late MockMaintenancePlansCubit mockCubit;
   late MockLocationsCubit mockLocationsCubit;
@@ -44,6 +48,7 @@ void main() {
   late MockServiceProvidersCubit mockServiceProvidersCubit;
   late MockUsersCubit mockUsersCubit;
   late MockSessionCubit mockSessionCubit;
+  late MockScreenObserverCubit mockScreenObserverCubit;
 
   setUpAll(() {
     registerFallbackValue(
@@ -63,6 +68,7 @@ void main() {
     mockServiceProvidersCubit = MockServiceProvidersCubit();
     mockUsersCubit = MockUsersCubit();
     mockSessionCubit = MockSessionCubit();
+    mockScreenObserverCubit = MockScreenObserverCubit();
 
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(
@@ -77,6 +83,9 @@ void main() {
     ).thenAnswer((_) => const Stream.empty());
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockScreenObserverCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
 
     when(
       () => mockCubit.state,
@@ -93,6 +102,9 @@ void main() {
     ).thenReturn(const ServiceProvidersState.initial());
     when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
     when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
+    when(
+      () => mockScreenObserverCubit.state,
+    ).thenReturn(ScreenObserverState.initial());
     when(() => mockSessionCubit.state).thenReturn(
       SessionState(user: UserFactory.makeUserProfileEntity(), isLoggedIn: true),
     );
@@ -119,6 +131,9 @@ void main() {
           ),
           BlocProvider<UsersCubit>.value(value: mockUsersCubit),
           BlocProvider<SessionCubit>.value(value: mockSessionCubit),
+          BlocProvider<ScreenObserverCubit>.value(
+            value: mockScreenObserverCubit,
+          ),
         ],
         child: CreateUpdateMaintenancePlanPage(
           maintenancePlan: maintenancePlan,
