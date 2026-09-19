@@ -44,9 +44,19 @@ $$ LANGUAGE plpgsql;
 - **`calculate_next_maintenance_plan_due_date`**: Computes the upcoming execution timestamp based on `interval_value`, `interval_unit`, `day_of_week`, `day_of_month`, and `month_of_year`.
 - **`tr_set_maintenance_plan_next_due_date` (`BEFORE INSERT OR UPDATE`)**: Automatically populates `next_due_date` on creation if omitted, and recalculates whenever recurrence parameters change.
 
+## Automated Work Order Generation & Scheduling
+
+- **`generate_due_maintenance_work_orders()`**:
+  - Scans active maintenance plans where `now() >= next_due_date - (lead_time_days * interval '1 day')`.
+  - Resolves location and internal creator fallback.
+  - Generates preventive work orders with status `'open'`, advancing `next_due_date` and recording `last_generated_at` and `last_generated_work_order_id`.
+  - Catches errors per plan into `last_error` without failing batch execution.
+- **`pg_cron` schedule**: Runs hourly (`0 * * * *`) via job `'generate-due-maintenance-work-orders'`.
+
 ## Foreign Key Relationships & Cascades
 - `company_id`: `REFERENCES public.companies(id) ON DELETE CASCADE`
 - `location_id`, `asset_id`, `area_id`, `assigned_to_id`, `service_provider_company_id`, `checklist_template_id`: `ON DELETE SET NULL`
 - `last_generated_work_order_id`: `REFERENCES public.work_orders(id) ON DELETE SET NULL`
 - `work_orders.maintenance_plan_id`: `REFERENCES public.maintenance_plans(id) ON DELETE SET NULL`
+
 
