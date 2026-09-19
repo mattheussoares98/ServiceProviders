@@ -13,7 +13,6 @@ import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 void main() {
   late MockInternetClient mockInternet;
   late MockMaintenancePlansRemoteDataSource mockRemoteDataSource;
-  late MockMaintenancePlansLocalDataSource mockLocalDataSource;
   late MaintenancePlansRepositoryImpl repository;
 
   setUpAll(() {
@@ -27,11 +26,9 @@ void main() {
   setUp(() {
     mockInternet = MockInternetClient();
     mockRemoteDataSource = MockMaintenancePlansRemoteDataSource();
-    mockLocalDataSource = MockMaintenancePlansLocalDataSource();
     repository = MaintenancePlansRepositoryImpl(
       internet: mockInternet,
       remoteDataSource: mockRemoteDataSource,
-      localDataSource: mockLocalDataSource,
     );
   });
 
@@ -45,56 +42,43 @@ void main() {
 
   group('MaintenancePlansRepositoryImpl', () {
     group('getMaintenancePlans', () {
-      test('fetches from remote and mirrors locally when online', () async {
+      test('fetches from remote when online', () async {
         final companyId = faker.guid.guid();
         when(() => mockInternet.isConnected).thenReturn(true);
         when(
           () => mockRemoteDataSource.getPlans(any()),
         ).thenAnswer((_) async => SuccessState(data: tPlanModelList));
-        when(
-          () => mockLocalDataSource.savePlans(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.getMaintenancePlans(companyId);
 
         expect(result, isA<SuccessState<List<MaintenancePlanEntity>>>());
         expect(result.data, equals(tPlanEntityList));
         verify(() => mockRemoteDataSource.getPlans(companyId)).called(1);
-        verify(() => mockLocalDataSource.savePlans(tPlanModelList)).called(1);
       });
 
-      test('fetches from local cache when offline', () async {
+      test('returns failure when offline', () async {
         final companyId = faker.guid.guid();
         when(() => mockInternet.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.getPlans(any()),
-        ).thenAnswer((_) async => SuccessState(data: tPlanModelList));
 
         final result = await repository.getMaintenancePlans(companyId);
 
-        expect(result, isA<SuccessState<List<MaintenancePlanEntity>>>());
-        expect(result.data, equals(tPlanEntityList));
-        verify(() => mockLocalDataSource.getPlans(companyId)).called(1);
+        expect(result, isA<FailureState<List<MaintenancePlanEntity>>>());
         verifyNever(() => mockRemoteDataSource.getPlans(any()));
       });
     });
 
     group('createMaintenancePlan', () {
-      test('creates on remote and mirrors locally when online', () async {
+      test('creates on remote when online', () async {
         when(() => mockInternet.isConnected).thenReturn(true);
         when(
           () => mockRemoteDataSource.createPlan(any()),
         ).thenAnswer((_) async => SuccessState(data: tPlanModel));
-        when(
-          () => mockLocalDataSource.savePlan(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.createMaintenancePlan(tPlanEntity);
 
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockRemoteDataSource.createPlan(any())).called(1);
-        verify(() => mockLocalDataSource.savePlan(tPlanModel)).called(1);
       });
 
       test('fails with offline message when offline', () async {
@@ -104,26 +88,21 @@ void main() {
 
         expect(result, isA<FailureState<bool>>());
         verifyNever(() => mockRemoteDataSource.createPlan(any()));
-        verifyNever(() => mockLocalDataSource.savePlan(any()));
       });
     });
 
     group('updateMaintenancePlan', () {
-      test('updates on remote and mirrors locally when online', () async {
+      test('updates on remote when online', () async {
         when(() => mockInternet.isConnected).thenReturn(true);
         when(
           () => mockRemoteDataSource.updatePlan(any()),
         ).thenAnswer((_) async => SuccessState(data: tPlanModel));
-        when(
-          () => mockLocalDataSource.savePlan(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.updateMaintenancePlan(tPlanEntity);
 
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockRemoteDataSource.updatePlan(any())).called(1);
-        verify(() => mockLocalDataSource.savePlan(tPlanModel)).called(1);
       });
 
       test('fails with offline message when offline', () async {
@@ -137,22 +116,18 @@ void main() {
     });
 
     group('deleteMaintenancePlan', () {
-      test('deletes on remote and marks locally when online', () async {
+      test('deletes on remote when online', () async {
         final id = faker.guid.guid();
         when(() => mockInternet.isConnected).thenReturn(true);
         when(
           () => mockRemoteDataSource.deletePlan(any()),
         ).thenAnswer((_) async => SuccessState.nil);
-        when(
-          () => mockLocalDataSource.deletePlan(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         final result = await repository.deleteMaintenancePlan(id);
 
         expect(result, isA<SuccessState<bool>>());
         expect(result.data, isTrue);
         verify(() => mockRemoteDataSource.deletePlan(id)).called(1);
-        verify(() => mockLocalDataSource.deletePlan(id)).called(1);
       });
 
       test('fails with offline message when offline', () async {
