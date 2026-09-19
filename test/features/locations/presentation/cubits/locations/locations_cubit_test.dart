@@ -159,6 +159,105 @@ void main() {
   tearDown(GetIt.I.reset);
 
   group('LocationsCubit Tests', () {
+    for (final updating in [false, true]) {
+      blocTest<LocationsCubit, LocationsState>(
+        '${updating ? 'update' : 'create'} failure keeps loaded rows and retry reloads saved data',
+        build: () {
+          var attempt = 0;
+          Future<DataState<bool>> result() async => ++attempt == 1
+              ? FailureState<bool>(message: 'Storage unavailable')
+              : const SuccessState(data: true);
+          if (updating) {
+            when(() => mockUpdateLocation(any())).thenAnswer((_) => result());
+          } else {
+            when(() => mockCreateLocation(any())).thenAnswer((_) => result());
+          }
+          when(() => mockGetLocations(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: [tLocations.first.copyWith(name: 'Saved name')],
+            ),
+          );
+          when(
+            () => mockGetAreas(any()),
+          ).thenAnswer((_) async => SuccessState(data: tAreas));
+          return cubit;
+        },
+        seed: () =>
+            const LocationsState.initial().copyWith(locations: tLocations),
+        act: (cubit) async {
+          final id = updating ? tLocations.first.id : null;
+          expect(await cubit.saveLocation(id: id, name: 'Saved name'), isFalse);
+          expect(cubit.state.locations, tLocations);
+          verifyNever(() => mockGetLocations(any()));
+          expect(await cubit.saveLocation(id: id, name: 'Saved name'), isTrue);
+        },
+        expect: () => [
+          for (final status in [
+            SectionStatus.running,
+            SectionStatus.error,
+            SectionStatus.running,
+            SectionStatus.success,
+          ])
+            isA<LocationsState>()
+                .having(
+                  (s) => s.section(LocationsSections.saveLocation).status,
+                  'save status',
+                  status,
+                )
+                .having(
+                  (s) => s.locations,
+                  'unchanged until reload',
+                  tLocations,
+                ),
+          isA<LocationsState>()
+              .having(
+                (s) => s.section(BaseSections.load).status,
+                'reload status',
+                SectionStatus.success,
+              )
+              .having(
+                (s) => s.locations.single.name,
+                'reloaded value',
+                'Saved name',
+              ),
+        ],
+        verify: (_) {
+          verify(() => mockGetLocations(tUserProfile.companyId)).called(1);
+          verify(() => mockGetAreas(tUserProfile.companyId)).called(1);
+        },
+      );
+    }
+
+    blocTest<LocationsCubit, LocationsState>(
+      'failed deletion keeps location and its areas without reloading',
+      build: () {
+        when(() => mockDeleteLocation(any())).thenAnswer(
+          (_) async => FailureState<bool>(message: 'Location still has assets'),
+        );
+        return cubit;
+      },
+      seed: () => const LocationsState.initial().copyWith(
+        locations: tLocations,
+        allAreas: tAreas,
+      ),
+      act: (cubit) => cubit.deleteLocation(tLocations.first.id),
+      expect: () => [
+        for (final status in [SectionStatus.running, SectionStatus.error])
+          isA<LocationsState>()
+              .having(
+                (s) => s.section(LocationsSections.deleteLocation).status,
+                'delete status',
+                status,
+              )
+              .having((s) => s.locations, 'locations retained', tLocations)
+              .having((s) => s.allAreas, 'areas retained', tAreas),
+      ],
+      verify: (_) {
+        verifyNever(() => mockGetLocations(any()));
+        verifyNever(() => mockGetAreas(any()));
+      },
+    );
+
     group('loadLocationsAndAreas', () {
       blocTest<LocationsCubit, LocationsState>(
         'should emit loading and loaded when locations and areas load successfully',
