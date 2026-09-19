@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/extensions/interval_unit_ui_extension.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/models/duration_unit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
@@ -84,6 +85,12 @@ class MaintenancePlanCard extends StatelessWidget {
                   ),
                   BaseIndicationItem(
                     label: plan.intervalUnit.formatInterval(plan.intervalValue),
+                    color: Colors.black,
+                  ),
+                  BaseIndicationItem(
+                    label:
+                        'Duração: ${DurationUnit.formatDuration(plan.durationHours)}'
+                            .hardcoded,
                     color: Colors.black,
                   ),
                   BaseIndicationItem(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/interval_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/extensions/interval_unit_ui_extension.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/models/duration_unit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
@@ -16,25 +17,29 @@ class PlanScheduleSelectors extends StatelessWidget {
     super.key,
     required this.intervalValueController,
     required this.leadTimeDaysController,
-    required this.durationDaysController,
+    required this.durationValueController,
     required this.intervalValFocusNode,
     required this.leadTimeFocusNode,
     required this.durationFocusNode,
     required this.selectedIntervalUnit,
+    required this.selectedDurationUnit,
     required this.isActive,
     required this.onIntervalUnitChanged,
+    required this.onDurationUnitChanged,
     required this.onIsActiveChanged,
   });
 
   final TextEditingController intervalValueController;
   final TextEditingController leadTimeDaysController;
-  final TextEditingController durationDaysController;
+  final TextEditingController durationValueController;
   final FocusNode intervalValFocusNode;
   final FocusNode leadTimeFocusNode;
   final FocusNode durationFocusNode;
   final IntervalUnit selectedIntervalUnit;
+  final DurationUnit selectedDurationUnit;
   final bool isActive;
   final ValueChanged<IntervalUnit?> onIntervalUnitChanged;
+  final ValueChanged<DurationUnit?> onDurationUnitChanged;
   final ValueChanged<bool> onIsActiveChanged;
 
   @override
@@ -86,31 +91,14 @@ class PlanScheduleSelectors extends StatelessWidget {
         ),
         gapH16,
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: .end,
           children: [
             Expanded(
+              flex: 2,
               child: BaseTextFormField(
-                labelText: 'Antecedência (dias) *'.hardcoded,
-                hintText: '2'.hardcoded,
-                controller: leadTimeDaysController,
-                focusNode: leadTimeFocusNode,
-                keyboardType: TextInputType.number,
-                validator: FormValidators.compose([
-                  NonEmptyValidator(),
-                  NumberValidator(
-                    allowDecimal: false,
-                    needsBeGreaterThanZero: false,
-                  ),
-                ]),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-              ),
-            ),
-            gapW16,
-            Expanded(
-              child: BaseTextFormField(
-                labelText: 'Duração estimada (dias) *'.hardcoded,
-                hintText: '1'.hardcoded,
-                controller: durationDaysController,
+                labelText: 'Duração estimada *'.hardcoded,
+                hintText: '8'.hardcoded,
+                controller: durationValueController,
                 focusNode: durationFocusNode,
                 keyboardType: TextInputType.number,
                 validator: FormValidators.compose([
@@ -120,7 +108,42 @@ class PlanScheduleSelectors extends StatelessWidget {
                 autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
             ),
+            gapW16,
+            Expanded(
+              flex: 3,
+              child: Align(
+                alignment: .bottomCenter,
+                child: BaseDropDown<DurationUnit>(
+                  key: const ValueKey('PlanDurationUnit'),
+                  showLabelAtTopLeft: true,
+                  label: 'Unidade de duração *'.hardcoded,
+                  selectedItem: selectedDurationUnit,
+                  items: DurationUnit.values
+                      .map(
+                        (u) => DropdownMenuItem(
+                          value: u,
+                          child: BaseText(u.label),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: onDurationUnitChanged,
+                ),
+              ),
+            ),
           ],
+        ),
+        gapH16,
+        BaseTextFormField(
+          labelText: 'Antecedência (dias) *'.hardcoded,
+          hintText: '2'.hardcoded,
+          controller: leadTimeDaysController,
+          focusNode: leadTimeFocusNode,
+          keyboardType: TextInputType.number,
+          validator: FormValidators.compose([
+            NonEmptyValidator(),
+            NumberValidator(allowDecimal: false, needsBeGreaterThanZero: false),
+          ]),
+          autovalidateMode: AutovalidateMode.onUserInteraction,
         ),
         gapH16,
         Row(

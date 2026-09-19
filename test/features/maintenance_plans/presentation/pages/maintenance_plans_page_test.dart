@@ -7,10 +7,12 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/maintenance_plans/maintenance_plans_page.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/maintenance_plans/widgets/maintenance_plan_card.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
@@ -36,6 +38,7 @@ void main() {
       ),
     );
     registerFallbackValue(MaintenancePlanFactory.makeMaintenancePlanEntity());
+    registerFallbackValue('test-id');
   });
 
   setUp(() {
@@ -148,17 +151,25 @@ void main() {
       stubState([plan]);
 
       await tester.pumpWidget(buildWidget());
-      final iconFinder = find.byWidgetPredicate(
-        (widget) =>
-            widget is Icon &&
-            (widget.icon == Icons.play_arrow_outlined ||
-                widget.icon == CupertinoIcons.play),
+      final cardFinder = find.byType(MaintenancePlanCard);
+      expect(cardFinder, findsOneWidget);
+      final playButtonFinder = find.descendant(
+        of: cardFinder,
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is PlatformIcon &&
+              (widget.materialIcon == Icons.play_arrow_outlined ||
+                  widget.cupertinoIcon == CupertinoIcons.play),
+        ),
       );
-      expect(iconFinder, findsOneWidget);
-      await tester.tap(iconFinder);
+      expect(playButtonFinder, findsOneWidget);
+
+      await tester.tap(playButtonFinder);
       await tester.pumpAndSettle();
 
       expect(find.text('Gerar ordem de serviço'), findsOneWidget);
+      expect(find.text('Gerar'), findsOneWidget);
+
       await tester.tap(find.text('Gerar'));
       await tester.pumpAndSettle();
 
@@ -185,9 +196,9 @@ void main() {
 
     final iconFinder = find.byWidgetPredicate(
       (widget) =>
-          widget is Icon &&
-          (widget.icon == Icons.play_arrow_outlined ||
-              widget.icon == CupertinoIcons.play),
+          widget is PlatformIcon &&
+          (widget.materialIcon == Icons.play_arrow_outlined ||
+              widget.cupertinoIcon == CupertinoIcons.play),
     );
     expect(iconFinder, findsNothing);
   });

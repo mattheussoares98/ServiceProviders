@@ -291,7 +291,7 @@ class AppDatabase extends _$AppDatabase {
         );
         await addColumnIfNotExists(
           maintenancePlans,
-          maintenancePlans.durationDays,
+          maintenancePlans.durationHours,
         );
         await addColumnIfNotExists(
           maintenancePlans,

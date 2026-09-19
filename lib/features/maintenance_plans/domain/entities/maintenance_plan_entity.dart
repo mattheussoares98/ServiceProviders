@@ -20,7 +20,7 @@ class MaintenancePlanEntity extends Equatable {
     required this.intervalValue,
     required this.intervalUnit,
     required this.leadTimeDays,
-    required this.durationDays,
+    required this.durationHours,
     required this.dayOfWeek,
     required this.dayOfMonth,
     required this.monthOfYear,
@@ -50,7 +50,7 @@ class MaintenancePlanEntity extends Equatable {
   final int intervalValue;
   final IntervalUnit intervalUnit;
   final int leadTimeDays;
-  final int durationDays;
+  final int durationHours;
   final int? dayOfWeek;
   final int? dayOfMonth;
   final int? monthOfYear;
@@ -81,7 +81,7 @@ class MaintenancePlanEntity extends Equatable {
     intervalValue,
     intervalUnit,
     leadTimeDays,
-    durationDays,
+    durationHours,
     dayOfWeek,
     dayOfMonth,
     monthOfYear,
@@ -112,7 +112,7 @@ class MaintenancePlanEntity extends Equatable {
     int? intervalValue,
     IntervalUnit? intervalUnit,
     int? leadTimeDays,
-    int? durationDays,
+    int? durationHours,
     int? dayOfWeek,
     int? dayOfMonth,
     int? monthOfYear,
@@ -144,10 +144,14 @@ class MaintenancePlanEntity extends Equatable {
     return MaintenancePlanEntity(
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
-      locationId: annulLocationId == true ? null : locationId ?? this.locationId,
+      locationId: annulLocationId == true
+          ? null
+          : locationId ?? this.locationId,
       assetId: annulAssetId == true ? null : assetId ?? this.assetId,
       areaId: annulAreaId == true ? null : areaId ?? this.areaId,
-      assignedToId: annulAssignedToId == true ? null : assignedToId ?? this.assignedToId,
+      assignedToId: annulAssignedToId == true
+          ? null
+          : assignedToId ?? this.assignedToId,
       serviceProviderCompanyId: annulServiceProviderCompanyId == true
           ? null
           : serviceProviderCompanyId ?? this.serviceProviderCompanyId,
@@ -155,17 +159,23 @@ class MaintenancePlanEntity extends Equatable {
           ? null
           : checklistTemplateId ?? this.checklistTemplateId,
       title: title ?? this.title,
-      description: annulDescription == true ? null : description ?? this.description,
+      description: annulDescription == true
+          ? null
+          : description ?? this.description,
       priority: priority ?? this.priority,
       price: annulPrice == true ? null : price ?? this.price,
       currency: currency ?? this.currency,
       intervalValue: intervalValue ?? this.intervalValue,
       intervalUnit: intervalUnit ?? this.intervalUnit,
       leadTimeDays: leadTimeDays ?? this.leadTimeDays,
-      durationDays: durationDays ?? this.durationDays,
+      durationHours: durationHours ?? this.durationHours,
       dayOfWeek: annulDayOfWeek == true ? null : dayOfWeek ?? this.dayOfWeek,
-      dayOfMonth: annulDayOfMonth == true ? null : dayOfMonth ?? this.dayOfMonth,
-      monthOfYear: annulMonthOfYear == true ? null : monthOfYear ?? this.monthOfYear,
+      dayOfMonth: annulDayOfMonth == true
+          ? null
+          : dayOfMonth ?? this.dayOfMonth,
+      monthOfYear: annulMonthOfYear == true
+          ? null
+          : monthOfYear ?? this.monthOfYear,
       isActive: isActive ?? this.isActive,
       lastGeneratedAt: annulLastGeneratedAt == true
           ? null
@@ -174,7 +184,9 @@ class MaintenancePlanEntity extends Equatable {
           ? null
           : lastGeneratedWorkOrderId ?? this.lastGeneratedWorkOrderId,
       lastError: annulLastError == true ? null : lastError ?? this.lastError,
-      nextDueDate: annulNextDueDate == true ? null : nextDueDate ?? this.nextDueDate,
+      nextDueDate: annulNextDueDate == true
+          ? null
+          : nextDueDate ?? this.nextDueDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : deletedAt ?? this.deletedAt,

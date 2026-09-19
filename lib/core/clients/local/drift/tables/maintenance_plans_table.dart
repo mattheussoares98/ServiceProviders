@@ -45,7 +45,7 @@ class MaintenancePlans extends Table {
   IntColumn get intervalValue => integer().withDefault(const Constant(1))();
   TextColumn get intervalUnit => text().withDefault(const Constant('months'))();
   IntColumn get leadTimeDays => integer().withDefault(const Constant(0))();
-  IntColumn get durationDays => integer().withDefault(const Constant(1))();
+  IntColumn get durationHours => integer().withDefault(const Constant(8))();
   IntColumn get dayOfWeek => integer().nullable()();
   IntColumn get dayOfMonth => integer().nullable()();
   IntColumn get monthOfYear => integer().nullable()();

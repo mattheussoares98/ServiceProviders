@@ -18,7 +18,8 @@ abstract final class MaintenancePlanFactory {
       assignedToId: FactoryHelpers.makeId(),
       serviceProviderCompanyId: FactoryHelpers.makeId(),
       checklistTemplateId: FactoryHelpers.makeId(),
-      title: FactoryHelpers.makePhrase(),
+      title:
+          'Plano ${FactoryHelpers.makeWord()} ${FactoryHelpers.makeInt(9999)}',
       description: FactoryHelpers.makePhrase(),
       priority: Priority.medium,
       price: 150,
@@ -26,7 +27,7 @@ abstract final class MaintenancePlanFactory {
       intervalValue: 1,
       intervalUnit: IntervalUnit.months,
       leadTimeDays: 2,
-      durationDays: 1,
+      durationHours: 8,
       dayOfWeek: 1,
       dayOfMonth: 15,
       monthOfYear: 6,

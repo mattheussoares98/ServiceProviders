@@ -18,7 +18,7 @@ Schedules defining automated work order generation.
 | `interval_value` | INT | NO | 1 | Recurrence step multiplier (e.g. 15 for 15 days) |
 | `interval_unit` | VARCHAR(20) | NO | 'months' | days / weeks / months / years |
 | `lead_time_days` | INT | NO | 0 | Advance creation lead time in days (max 30) |
-| `duration_days` | INT | NO | 1 | Planned conclusion timeframe in days |
+| `duration_hours` | INT | NO | 8 | Planned conclusion timeframe in hours |
 | `day_of_week` | INT | YES | - | Day index (1-7) for weekly plans |
 | `day_of_month` | INT | YES | - | Day (1-31) for monthly plans |
 | `month_of_year` | INT | YES | - | Month (1-12) for annual plans |

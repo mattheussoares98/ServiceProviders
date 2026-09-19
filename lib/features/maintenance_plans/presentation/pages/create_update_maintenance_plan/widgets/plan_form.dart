@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/interval_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/models/duration_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/create_update_maintenance_plan/widgets/plan_assignment_selectors.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/create_update_maintenance_plan/widgets/plan_location_selectors.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/create_update_maintenance_plan/widgets/plan_schedule_selectors.dart';
@@ -27,7 +28,7 @@ class PlanForm extends HookWidget {
       text: maintenancePlan?.description,
     );
     final priceCtrl = useTextEditingController(
-      text: maintenancePlan?.price?.toString() ?? '',
+      text: maintenancePlan?.price?.toString().toBRL() ?? '',
     );
     final priceFocusNode = useFocusNode();
     final intervalValCtrl = useTextEditingController(
@@ -38,13 +39,21 @@ class PlanForm extends HookWidget {
       text: (maintenancePlan?.leadTimeDays ?? 2).toString(),
     );
     final leadTimeFocusNode = useFocusNode();
+    final initialDurationInfo = useMemoized(() {
+      if (maintenancePlan != null) {
+        return DurationUnit.fromHours(maintenancePlan!.durationHours);
+      }
+      return (DurationUnit.hours, 8);
+    }, [maintenancePlan]);
+
     final durationCtrl = useTextEditingController(
-      text: (maintenancePlan?.durationDays ?? 1).toString(),
+      text: initialDurationInfo.$2.toString(),
     );
     final durationFocusNode = useFocusNode();
     final intervalUnit = useState(
       maintenancePlan?.intervalUnit ?? IntervalUnit.months,
     );
+    final durationUnit = useState(initialDurationInfo.$1);
     final priority = useState(maintenancePlan?.priority ?? Priority.medium);
     final locationId = useState(maintenancePlan?.locationId);
     final areaId = useState(maintenancePlan?.areaId);
@@ -59,6 +68,12 @@ class PlanForm extends HookWidget {
       if (formKey.currentState?.validate() != true) return;
       final session = context.read<SessionCubit>().state.user;
       final now = DateTime.now().toUtc();
+      final enteredDuration =
+          double.tryParse(durationCtrl.text.trim().replaceAll(',', '.')) ?? 1;
+      final calculatedDurationHours = durationUnit.value.toHours(
+        enteredDuration,
+      );
+
       final plan = MaintenancePlanEntity(
         id: maintenancePlan?.id ?? const Uuid().v4(),
         companyId: maintenancePlan?.companyId ?? session.companyId,
@@ -76,7 +91,7 @@ class PlanForm extends HookWidget {
         intervalValue: int.tryParse(intervalValCtrl.text.trim()) ?? 1,
         intervalUnit: intervalUnit.value,
         leadTimeDays: int.tryParse(leadTimeCtrl.text.trim()) ?? 0,
-        durationDays: int.tryParse(durationCtrl.text.trim()) ?? 1,
+        durationHours: calculatedDurationHours,
         dayOfWeek: maintenancePlan?.dayOfWeek,
         dayOfMonth: maintenancePlan?.dayOfMonth,
         monthOfYear: maintenancePlan?.monthOfYear,
@@ -132,12 +147,15 @@ class PlanForm extends HookWidget {
             intervalValFocusNode: intervalValFocusNode,
             leadTimeDaysController: leadTimeCtrl,
             leadTimeFocusNode: leadTimeFocusNode,
-            durationDaysController: durationCtrl,
+            durationValueController: durationCtrl,
             durationFocusNode: durationFocusNode,
             selectedIntervalUnit: intervalUnit.value,
+            selectedDurationUnit: durationUnit.value,
             isActive: isActive.value,
             onIntervalUnitChanged: (val) =>
                 intervalUnit.value = val ?? IntervalUnit.months,
+            onDurationUnitChanged: (val) =>
+                durationUnit.value = val ?? DurationUnit.days,
             onIsActiveChanged: (val) => isActive.value = val,
           ),
           gapH32,
