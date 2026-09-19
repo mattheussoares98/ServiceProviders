@@ -39,8 +39,14 @@ END;
 $$ LANGUAGE plpgsql;
 ```
 
+## Recurrence & Due Date Automation
+
+- **`calculate_next_maintenance_plan_due_date`**: Computes the upcoming execution timestamp based on `interval_value`, `interval_unit`, `day_of_week`, `day_of_month`, and `month_of_year`.
+- **`tr_set_maintenance_plan_next_due_date` (`BEFORE INSERT OR UPDATE`)**: Automatically populates `next_due_date` on creation if omitted, and recalculates whenever recurrence parameters change.
+
 ## Foreign Key Relationships & Cascades
 - `company_id`: `REFERENCES public.companies(id) ON DELETE CASCADE`
 - `location_id`, `asset_id`, `area_id`, `assigned_to_id`, `service_provider_company_id`, `checklist_template_id`: `ON DELETE SET NULL`
 - `last_generated_work_order_id`: `REFERENCES public.work_orders(id) ON DELETE SET NULL`
 - `work_orders.maintenance_plan_id`: `REFERENCES public.maintenance_plans(id) ON DELETE SET NULL`
+
