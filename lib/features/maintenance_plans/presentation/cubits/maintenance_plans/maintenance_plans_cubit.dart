@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit_use_cases.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 part 'maintenance_plans_state.dart';
@@ -53,7 +54,15 @@ class MaintenancePlansCubit extends BaseCubit<MaintenancePlansState> {
     }
   }
 
-  // TODO: Add navigation method (e.g. navigateToCreateUpdateMaintenancePlan) once UI / routes are implemented in Phase 5.
+  Future<void> navigateToCreateUpdateMaintenancePlan({
+    MaintenancePlanEntity? maintenancePlan,
+  }) async {
+    await pushRoute(
+      CreateUpdateMaintenancePlanRoute(maintenancePlan: maintenancePlan),
+    );
+    await loadMaintenancePlans(emitLoading: false);
+  }
+
   void selectMaintenancePlan(String? id) {
     if (id == null) {
       emit(state.copyWith(annulSelectedMaintenancePlan: true));

@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/comp
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/error_page.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
@@ -69,6 +70,10 @@ class HomePage extends HookWidget {
           create: (context) =>
               GetIt.I<ChecklistTemplatesCubit>()..loadTemplates(),
         ),
+        BlocProvider<MaintenancePlansCubit>(
+          create: (context) =>
+              GetIt.I<MaintenancePlansCubit>()..loadMaintenancePlans(),
+        ),
         BlocProvider<SlaPoliciesCubit>(
           create: (context) => GetIt.I<SlaPoliciesCubit>()..loadSlaPolicies(),
         ),
@@ -99,6 +104,7 @@ class HomePage extends HookWidget {
               context.read<ChecklistTemplatesCubit>()
                 ..loadTemplates()
                 ..subscribeToRealtime();
+              context.read<MaintenancePlansCubit>().loadMaintenancePlans();
               context.read<SlaPoliciesCubit>().loadSlaPolicies();
               context.read<ServiceProvidersCubit>().loadCompaniesAndProfiles();
               context.read<PauseWorkflowCubit>().loadPauseReasons();

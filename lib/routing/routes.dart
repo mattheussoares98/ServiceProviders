@@ -140,6 +140,11 @@ class AppRouter extends RootStackRouter {
           page: MaintenancePlansRoute.page,
           path: kMaintenancePlansPath,
         ),
+        AutoRoute(
+          page: CreateUpdateMaintenancePlanRoute.page,
+          path:
+              '$kCreateUpdateMaintenancePlanRoute/$kCreateUpdateMaintenancePlanPath',
+        ),
         //* Sectors
         AutoRoute(page: SectorsRoute.page, path: kSectorsPath),
         AutoRoute(

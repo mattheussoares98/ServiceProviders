@@ -126,6 +126,11 @@ const String kCreateUpdateChecklistItemPath = 'create-update-checklist-item';
 const String kMaintenancePlansRoute = 'MaintenancePlansRoute';
 const String kMaintenancePlansPath = 'maintenance-plans';
 
+const String kCreateUpdateMaintenancePlanRoute =
+    'CreateUpdateMaintenancePlanRoute';
+const String kCreateUpdateMaintenancePlanPath =
+    'create-update-maintenance-plan';
+
 // Sectors
 const String kSectorsRoute = 'SectorsRoute';
 const String kSectorsPath = 'sectors';
