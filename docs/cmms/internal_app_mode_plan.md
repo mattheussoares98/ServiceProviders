@@ -1,128 +1,27 @@
-# Roadmap: Complete Company Mode (`AppMode.internal`) First
+# ServicePro — Remaining Product Work
 
-## Overview
-This document tracks the strategic roadmap for completing **Company Mode**
-(`AppMode.internal`) in full before continuing work on **Provider Mode**
-(`AppMode.provider`). Both modes are treated as distinct applications residing
-within the same codebase.
+Reviewed against repository source on 2026-09-19. This roadmap lists only unfinished work and unresolved scope decisions. Source inspection does not confirm deployed database state or passing runtime tests.
 
-All features, workflows, permissions, UI components, and automated tests for
-Company Mode are completed and validated first.
+## Active follow-ups
 
----
+1. **Maintenance generator deployment and validation** — [remaining checklist](../plans/phase_6_generator.md).
+   - Review invocation permissions before deployment, reconcile the live schema, and verify generation, concurrent runs, failure handling and the hourly schedule.
+   - The migration is present; deployment and functional testing remain unverified.
+2. **Contact support** — [implementation plan](../plans/contact-support/implementation_plan.md).
+   - Email-first contact flow, optional WhatsApp, and copyable contact/message fallback.
+   - Requires approved implementation and operational support destinations.
+3. **Company default currency** — [implementation plan](../plans/company_currency_configuration.md).
+   - Company configuration, remote/local mapping, settings UI, inherited creation defaults and consistent display.
 
-## Phase 1: Company Mode
+## Deferred modules
 
-### Milestone 1.1: Work Order Execution (Core MVP) — ✅ IMPLEMENTED
-- **Work Order Details & Execution**:
-  - ✅ Execution timer (`FormattedDurationTimerText`) with real-time ticking, adaptive unit formatting, and `RepaintBoundary` performance isolation.
-  - ✅ Photo and document attachments per Work Order (`lib/features/attachments`).
-  - ✅ Digital sign-off upon completion.
-  - ✅ Work orders list with search filters and cursor-based pagination.
-  - ✅ Checklist execution during the work order, with completion gated on mandatory items (`Milestone 1.2`).
+- **Inventory and stock control**: parts registry, stock movements, minimum-stock alerts, and work-order material consumption/costs. See [business rules](../business_rules.md#3-work-order-items--materials-future-roadmap).
+- **Meter-based maintenance**: reading capture, thresholds and generation rules; current recurrence units are calendar-based only.
 
-### Milestone 1.2: Checklists Module — ✅ IMPLEMENTED
-- **Template management** (`lib/features/checklists`):
-  - ✅ `ChecklistsPage` lists the company's templates; `CreateUpdateChecklistTemplatePage` edits name, description and category, and deletes.
-  - ✅ Item configuration (`CreateUpdateChecklistItemPage`): label, answer type (`ChecklistItemType`), mandatory flag, and the option list for `selection` items.
-  - ✅ Drag-to-reorder items; `sort_order` drives the order the technician answers in.
-  - ✅ RBAC: `ResourceType.checklists` is active; provider mode is read-only (`providerModeAllows`).
-  - ✅ Realtime templates/items subscription via `ChecklistTemplatesCubit.subscribeToRealtime`.
-- **Execution during a work order**:
-  - ✅ `work_orders.checklist_template_id` links an order to the checklist it must answer (migration `20260908120000_add_checklist_template_to_work_orders.sql`), picked in the create/update work order form.
-  - ✅ `WorkOrderChecklistSection` renders the items with progress, persisting each answer through `WorkOrderChecklistCubit`.
-  - ✅ Conclusion is blocked while mandatory items are unanswered.
-  - ✅ Answers cached in the Drift `checklist_answers` table (schema v31) and queued as `SyncEntityType.checklistAnswer` when written offline.
-  - ✅ Photo and documentation items capture evidence through the attachments pipeline (`WorkOrderChecklistCubit.attachEvidence`), storing the uploaded URL in `checklist_answers.photo_url` — or the sandbox path while offline, which the attachment's own retry replaces.
-  - ✅ Answers stream over Supabase Realtime, filtered per work order.
-- **Offline policy**: answering works offline (cached + queued); authoring a template or item is refused offline. See [Architecture](/docs/cmms/architecture.md#readwrite-strategy-remote-first-with-local-fallback).
-  - ✅ `getTemplates` embeds `checklist_items`, so loading the template list caches every template's items — a checklist renders offline without having been opened online first.
+## Maintenance scope decisions
 
-### Milestone 1.2b: Maintenance Plans Module — ✅ IMPLEMENTED
-- Periodic recurring schedules (days, weeks, months, years) and lead time configuration.
-- Plan authoring UI (`MaintenancePlansPage`, `CreateUpdateMaintenancePlanPage`), Drift caching, Supabase Realtime sync, and client-side validations.
-- Automated work order generation via PostgreSQL function `generate_due_maintenance_work_orders()` and `pg_cron` hourly worker.
-- Soft-delete dependency checks preventing deletion of plans with open work orders.
+- Decide whether offline reads are required; the current repository is remote-only.
+- Decide whether to connect the existing realtime stream to the Cubit for changes from other users or the generator.
+- Decide whether the authoring form should expose weekday, month-day and annual-month selectors already represented in the recurrence model.
 
-### Milestone 1.3: Inventory & Stock Control — ⏸️ ON HOLD
-> Inventory stock management and product usage tracking are deferred for future releases.
-
-### Milestone 1.4: Sectors, Categories & RBAC Administration — ✅ IMPLEMENTED
-- **Registries**: ✅ Sectors (`lib/features/sectors`), Categories (`lib/features/categories`), Locations, Areas, Assets, Pause Reasons.
-- **Role-Based Access Control (RBAC)**:
-  - ✅ `ResourceType`, permission groups, and per-user permission overrides.
-  - ✅ **Scope-based work order permissions** — the two-tier model is built: `read_scope` / `update_scope` in both the Flutter permission entities and the Supabase RLS helper functions.
-  - ✅ Dual App Mode (`AppMode.internal` & `AppMode.provider`), `ModeSwitcherCubit`, and mode-aware login routing.
-  - ✅ Service Provider backend — migrations, remote data source, repository, cubit, `CreateServiceProviderCompanyPage`, and the invitation flow.
-
-### Milestone 1.5: SLA & Approval Workflows — ✅ IMPLEMENTED
-- ✅ `sla_policies` feature with per-work-order policy selection.
-- ✅ `sla_deadline_at`, `sla_breached`, and `net_active_duration` calculated and persisted.
-- ✅ Pause request workflow with responsibility classification and supervisor review.
-- ✅ Completion approval workflow (`pending_approval` → approve/reject).
-- ✅ Work order observations, flaggable as pending.
-- ✅ Change request queue for edits to closed work orders.
-- See [Business Rules](/docs/business_rules.md) for the authoritative rule matrix.
-
----
-
-## Infrastructure & Capability Delivery
-
-### Push Notifications & Device Token Sync ✅ IMPLEMENTED
-- `user_device_tokens` table created with RLS and cascade deletion on `auth.users(id)`.
-- `NotificationsService` syncs FCM tokens on login, startup, and token refresh, and removes tokens on logout.
-- `send-push-notification` Supabase Edge Function dispatches FCM HTTP v1 payloads and cleans up unregistered/stale tokens.
-- PostgreSQL database triggers automatically dispatch notifications on work order assignment, pause requests, and observations.
-
-### Provider Mode UI ✅ IMPLEMENTED
-- `ProviderHomePage` cubit shell hosting nested router.
-- `ProviderWorkOrdersPage` lists assigned work orders across contracting companies.
-- `ProviderCompanySelector` for filtering between provider enterprises.
-- `WorkOrdersCubit` online-only provider data path (no local cache).
-- Restricted provider capabilities via `providerModeAllows` and dedicated RLS branches.
-- Provider work order creation, observations, and active-order attachments.
-
-### Outbound Sync & Sync Engine ✅ IMPLEMENTED
-- Local FIFO mutation queue backed by Drift [`SyncAuditLogs`](file:///Users/mattheus/Development/Projects/ServiceProviders/lib/core/clients/local/drift/tables/sync_audit_logs_table.dart).
-- `SyncEngine` auto-syncs on reconnection and periodic interval.
-- Retry limits, dependent cancellation, and error telemetry dispatch to remote `sync_errors`.
-- See [`docs/cmms/sync_engine.md`](file:///Users/mattheus/Development/Projects/ServiceProviders/docs/cmms/sync_engine.md).
-
-### Real-time Updates (Supabase Realtime) ✅ IMPLEMENTED
-- Realtime publication across work orders and lookup tables.
-- `SupabaseRealtimeClient` and `RealtimePayloadMapper`.
-- Local Drift cache sync on live remote changes and reactive cubit streams.
-
-### Escalation Engine ✅ IMPLEMENTED
-- Configurable escalation parameters in `company_parameters` (advance warning and escalation tiers).
-- `public.evaluate_work_order_escalations()` evaluated via `pg_cron` every 5 minutes.
-- `CompanyCubit` and `EscalationParametersCard` in `CompanyPage`.
-- Overdue filtering in work orders list (`isDelayed`).
-
-### KPI / Reporting Dashboard ✅ IMPLEMENTED
-- `CalculateWorkOrderKpisUseCase` computing delivery rate, SLA breach rate, MTTR, and volume counts.
-- `DashboardKpisCubit` with responsive `SlaKpiDashboardCard` and period filtering in `DashboardPage`.
-
-### History Consultation by Period ✅ IMPLEMENTED
-- `GetWorkOrderHistoryUseCase` with period and keyword filtering.
-- `WorkOrderHistoryCubit` and `WorkOrderHistoryPage` integrated with `WorkOrderDetailsPage`.
-
-### Access Logs ✅ IMPLEMENTED
-- User login, logout, and session event tracking with IP and device info.
-- `AccessLogsPage` with search and date range filters.
-
-### Dependencies Cleanup ✅ RESOLVED
-- Removed unused `firebase_auth` and `google_sign_in` from `pubspec.yaml`.
-
----
-
-## Next Product Priorities
-
-With all V1/V2 infrastructure gaps and provider mode foundations delivered, the next roadmap modules to build are:
-
-1. **Maintenance Plans Module (`Milestone 1.2b`)**:
-   - Periodic recurring schedules (daily, weekly, monthly, meter-based).
-   - Automated generation of work orders from plans via background/cron triggers.
-2. **Inventory & Stock Control (`Milestone 1.3`)**:
-   - Part/stock registry, minimum stock alerts, and part consumption logging per work order.
-
+See the [backlog review](../plans/contact-support/backlog_review.md) for source evidence and remaining risks. Current architecture, schema and business rules remain in their reference documents.

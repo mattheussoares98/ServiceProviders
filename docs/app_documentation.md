@@ -89,6 +89,4 @@ SQLite. All local tables live in a single `AppDatabase` class backed by one
 
 ## 5. Roadmap & Pending Work
 
-See the [Internal App Mode Roadmap](/docs/cmms/internal_app_mode_plan.md) for the active priorities:
-1. **Checklists & Maintenance Plans Modules** (Milestone 1.2 — standalone templates, checklist executions, and scheduled maintenance plans).
-2. **Inventory & Stock Control** (Milestone 1.3 — stock quantities, item usage on work orders).
+See the [Remaining Product Work](cmms/internal_app_mode_plan.md) roadmap for maintenance-generator deployment/validation, contact support, company currency settings, and deferred inventory and meter-based maintenance.

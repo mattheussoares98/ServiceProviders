@@ -97,6 +97,19 @@ To ensure accurate labor time tracking and prevent manual input fabrication, the
 4. **Historical Logging**: 
    - All state transitions (Play, Pause, Resume, Stop) are logged as immutable audit events in the `work_order_history` table to guarantee full accountability and auditability.
 
+## Automated Maintenance Work Order Generation (`pg_cron`)
+
+Preventive maintenance schedules define automated work order creation in the database:
+1. **Recurrence Tracking**: Maintenance plans configure recurrence (`interval_value`, `interval_unit`, `day_of_week`, `day_of_month`, `month_of_year`) and lead time. `next_due_date` is automatically calculated and stamped via database triggers.
+2. **Scheduled Worker**: PostgreSQL `pg_cron` runs hourly calling `public.generate_due_maintenance_work_orders()`.
+3. **Autonomous Generation**:
+   - Matches all active plans where `now() >= next_due_date - (lead_time_days * interval '1 day')`.
+   - Resolves target location (plan's `location_id` or parent asset's `location_id`) and assigned creator.
+   - Creates a new `work_orders` record with `type = 'preventive'`, `status = 'open'`, and copies assigned technician, service provider company, and checklist template.
+   - Advances `next_due_date` to the next cycle and records `last_generated_work_order_id` and `last_generated_at`.
+   - Isolates execution errors per plan into `last_error` without interrupting the batch.
+
+
 
 ## File Management Strategy
 
