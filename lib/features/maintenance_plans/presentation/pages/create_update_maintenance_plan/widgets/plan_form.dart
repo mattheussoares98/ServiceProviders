@@ -89,8 +89,9 @@ class PlanForm extends HookWidget {
         updatedAt: now,
         deletedAt: null,
       );
-      if (await cubit.saveMaintenancePlan(plan) && context.mounted) {
-        cubit.popRoute();
+      final succeeds = await cubit.saveMaintenancePlan(plan);
+      if (succeeds && context.mounted) {
+        Navigator.of(context).pop();
       }
     }
 
