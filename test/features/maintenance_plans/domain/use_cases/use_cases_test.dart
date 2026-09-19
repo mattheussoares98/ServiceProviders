@@ -185,6 +185,102 @@ void main() {
     });
 
     group('CalculateNextDueDateUseCase', () {
+      final calendarCases = [
+        (
+          name: 'monthly leap-year end',
+          base: DateTime.utc(2028, 1, 31, 14, 30),
+          value: 1,
+          unit: IntervalUnit.months,
+          day: 31,
+          expected: DateTime.utc(2028, 2, 29, 14, 30),
+        ),
+        (
+          name: 'two-month year rollover',
+          base: DateTime.utc(2026, 12, 31, 14, 30),
+          value: 2,
+          unit: IntervalUnit.months,
+          day: 31,
+          expected: DateTime.utc(2027, 2, 28, 14, 30),
+        ),
+        (
+          name: '24-month leap-day anchor',
+          base: DateTime.utc(2026, 2, 28),
+          value: 24,
+          unit: IntervalUnit.months,
+          day: 29,
+          expected: DateTime.utc(2028, 2, 29),
+        ),
+        (
+          name: 'four-year leap anniversary',
+          base: DateTime.utc(2024, 2, 29, 9, 45),
+          value: 4,
+          unit: IntervalUnit.years,
+          day: 29,
+          expected: DateTime.utc(2028, 2, 29, 9, 45),
+        ),
+        (
+          name: 'UTC boundary from negative offset',
+          base: DateTime.parse('2026-01-31T23:30:00-03:00'),
+          value: 1,
+          unit: IntervalUnit.months,
+          day: 1,
+          expected: DateTime.utc(2026, 3, 1, 2, 30),
+        ),
+      ];
+      for (final scenario in calendarCases) {
+        test(scenario.name, () {
+          final next = calculateNextDueDateUseCase(
+            RecurrenceParams(
+              baseDate: scenario.base,
+              intervalValue: scenario.value,
+              intervalUnit: scenario.unit,
+              dayOfMonth: scenario.day,
+            ),
+          );
+          expect(next, scenario.expected);
+          expect(next.isUtc, isTrue);
+        });
+      }
+
+      for (
+        var weekday = DateTime.monday;
+        weekday <= DateTime.sunday;
+        weekday++
+      ) {
+        test('weekly anchor $weekday stays in the next scheduled week', () {
+          final next = calculateNextDueDateUseCase(
+            RecurrenceParams(
+              baseDate: DateTime.utc(2026, 1, 5, 10),
+              intervalValue: 1,
+              intervalUnit: IntervalUnit.weeks,
+              dayOfWeek: weekday,
+            ),
+          );
+          expect(next, DateTime.utc(2026, 1, 11 + weekday, 10));
+        });
+      }
+
+      test('monthly 31st anchor recovers after February clamping', () {
+        final february = calculateNextDueDateUseCase(
+          RecurrenceParams(
+            baseDate: DateTime.utc(2026, 1, 31),
+            intervalValue: 1,
+            intervalUnit: IntervalUnit.months,
+            dayOfMonth: 31,
+          ),
+        );
+        final march = calculateNextDueDateUseCase(
+          RecurrenceParams(
+            baseDate: february,
+            intervalValue: 1,
+            intervalUnit: IntervalUnit.months,
+            dayOfMonth: 31,
+          ),
+        );
+        expect(february, DateTime.utc(2026, 2, 28));
+        expect(march, DateTime.utc(2026, 3, 31));
+      });
+
       test('calculates interval in days accurately', () {
         final base = DateTime.utc(2026, 9);
         final result = calculateNextDueDateUseCase(
