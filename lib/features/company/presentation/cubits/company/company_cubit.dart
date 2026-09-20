@@ -135,6 +135,9 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     final user = _useCases.getSessionUser();
     if (!user.isSuperAdmin) return;
 
+    final targetCompanyExists = state.companies.any((c) => c.id == companyId);
+    if (!targetCompanyExists) return;
+
     emit(
       state.copyWith(
         sections: withSection(
