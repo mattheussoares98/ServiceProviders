@@ -9,7 +9,11 @@ final class SuperAdminGuard extends AutoRouteGuard {
   @override
   void onNavigation(NavigationResolver resolver, StackRouter router) {
     final session = GetIt.I<SessionRepository>();
-    if (session.isLoggedIn && session.userData.user.isSuperAdmin) {
+    if (!session.isLoggedIn) {
+      router.replaceAll([const LoginRoute()]);
+      return;
+    }
+    if (session.userData.user.isSuperAdmin) {
       return resolver.next();
     }
 

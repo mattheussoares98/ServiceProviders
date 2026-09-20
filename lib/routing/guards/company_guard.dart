@@ -22,7 +22,7 @@ final class CompanyGuard extends AutoRouteGuard {
       return resolver.next();
     }
 
-    if (session.userData.user.companyId.isNotEmpty) {
+    if (session.userData.user.companyId.trim().isNotEmpty) {
       return resolver.next();
     }
 

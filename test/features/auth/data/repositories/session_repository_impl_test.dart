@@ -39,6 +39,9 @@ void main() {
     );
     when(() => mockSupabaseAuthClient.currentSession).thenReturn(null);
     when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+    when(
+      () => mockSessionLocalDataSource.saveSelectedCompanyId(any()),
+    ).thenAnswer((_) async {});
   });
 
   final userDataResponse = UserDataModel(

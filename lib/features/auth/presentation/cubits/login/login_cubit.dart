@@ -87,10 +87,31 @@ class LoginCubit extends BaseCubit<LoginState> {
           .getServiceProviderProfilesByAuthUser
           .call(userId);
 
-      final hasInternalProfile = dataState.data!.user.companyId.isNotEmpty;
+      final isUserActive = dataState.data!.user.isActive;
+      if (!isUserActive) {
+        showErrorToast('Usuário inativo. Entre em contato com o suporte.'.hardcoded);
+        emit(
+          state.copyWith(
+            sections: withSection(BaseSections.load, SectionStatus.error),
+          ),
+        );
+        return;
+      }
+
+      final hasInternalProfile = dataState.data!.user.companyId.trim().isNotEmpty;
       final hasProviderProfile =
           providerProfilesState is SuccessState &&
           providerProfilesState.data!.isNotEmpty;
+
+      if (!hasInternalProfile && !hasProviderProfile) {
+        showErrorToast('Nenhum perfil ativo encontrado.'.hardcoded);
+        emit(
+          state.copyWith(
+            sections: withSection(BaseSections.load, SectionStatus.error),
+          ),
+        );
+        return;
+      }
 
       if (hasInternalProfile && hasProviderProfile) {
         final savedMode = _localStorageClient.getSelectedMode();

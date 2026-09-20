@@ -40,13 +40,13 @@ void main() {
   });
 
   group('SuperAdminGuard', () {
-    test('should redirect to CompanyRoute when user is not logged in', () {
+    test('should redirect to LoginRoute when user is not logged in', () {
       when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
 
       superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
 
       verify(
-        () => mockStackRouter.replaceAll(const [CompanyRoute()]),
+        () => mockStackRouter.replaceAll(const [LoginRoute()]),
       ).called(1);
       verifyNever(() => mockNavigationResolver.next(any()));
     });

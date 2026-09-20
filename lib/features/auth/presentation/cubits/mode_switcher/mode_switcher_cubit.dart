@@ -35,7 +35,13 @@ class ModeSwitcherCubit extends BaseCubit<ModeSwitcherState> {
     final canSwitch = hasInternalProfile && hasProviderProfile;
 
     final savedMode = _useCases.getSelectedMode.call();
-    final currentMode = AppMode.fromName(savedMode);
+    var currentMode = AppMode.fromName(savedMode);
+
+    if (currentMode == AppMode.provider && !hasProviderProfile) {
+      currentMode = AppMode.internal;
+    } else if (currentMode == AppMode.internal && !hasInternalProfile && hasProviderProfile) {
+      currentMode = AppMode.provider;
+    }
 
     emit(state.copyWith(canSwitchMode: canSwitch, selectedMode: currentMode));
   }
