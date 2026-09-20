@@ -17,13 +17,21 @@ class IntegrationRunSummary {
     var finished = false;
     for (final line in const LineSplitter().convert(input)) {
       if (line.trim().isEmpty) continue;
-      Map<String, dynamic> event;
+      final Object? decoded;
       try {
-        event = jsonDecode(line) as Map<String, dynamic>;
+        decoded = jsonDecode(line);
       } on Object {
         result.problems.add('Malformed runner event');
         continue;
       }
+      if (decoded is List) {
+        continue;
+      }
+      if (decoded is! Map<String, dynamic>) {
+        result.problems.add('Malformed runner event');
+        continue;
+      }
+      final event = decoded;
       switch (event['type']) {
         case 'testStart':
           final test = Map<String, Object?>.from(event['test'] as Map);
