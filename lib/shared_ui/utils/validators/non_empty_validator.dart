@@ -7,6 +7,6 @@ class NonEmptyValidator implements StringValidator {
 
   @override
   bool isValid(String? value) {
-    return value?.isNotEmpty ?? false;
+    return value?.trim().isNotEmpty ?? false;
   }
 }

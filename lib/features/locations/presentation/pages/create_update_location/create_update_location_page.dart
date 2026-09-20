@@ -77,14 +77,21 @@ class CreateUpdateLocationPage extends HookWidget {
           clean,
         );
         if (address != null) {
-          if (address.street.isNotEmpty) {
+          if (address.street.isNotEmpty &&
+              addressController.text.trim().isEmpty) {
             addressController.text = address.street;
           }
-          if (address.neighborhood.isNotEmpty) {
+          if (address.neighborhood.isNotEmpty &&
+              neighborhoodController.text.trim().isEmpty) {
             neighborhoodController.text = address.neighborhood;
           }
-          if (address.city.isNotEmpty) cityController.text = address.city;
-          if (address.state.isNotEmpty) stateController.text = address.state;
+          if (address.city.isNotEmpty && cityController.text.trim().isEmpty) {
+            cityController.text = address.city;
+          }
+          if (address.state.isNotEmpty &&
+              stateController.text.trim().isEmpty) {
+            stateController.text = address.state;
+          }
           numberFocusNode.requestFocus();
         }
       }

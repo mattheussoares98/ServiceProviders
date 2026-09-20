@@ -4,7 +4,7 @@ Facilities/sites managed by a company.
 
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
-| `name` | VARCHAR(255) | NO | - | Facility name (Unique per company and case-insensitive when active) |
+| `name` | VARCHAR(255) | NO | - | Facility name (Unique per company and case-insensitive when active; non-empty trimmed via `chk_locations_name_not_empty`) |
 | `address` | VARCHAR(500) | YES | - | Street name |
 | `number` | VARCHAR(20) | YES | - | Street/building number |
 | `complement` | VARCHAR(255) | YES | - | Address complement |
@@ -17,8 +17,8 @@ Facilities/sites managed by a company.
 ## Deletion Rules
 
 * **Hard Deletes**: Prohibited by the general `prevent_delete()` trigger.
-* **Soft Deletes**: Blocked if there are active assets or open work orders associated with the location:
+* **Soft Deletes**: Blocked if there are active areas, active assets, or open work orders associated with the location:
   * Trigger: `tr_prevent_delete_locations_with_relations`
+  * Active Areas Check: Blocked if any areas in the location have `deleted_at IS NULL`.
   * Active Assets Check: Blocked if any assets in the location (via areas) have `deleted_at IS NULL`.
   * Open Work Orders Check: Blocked if any work orders in the location have `status != 'completed'` and `deleted_at IS NULL`.
-

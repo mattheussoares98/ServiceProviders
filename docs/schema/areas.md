@@ -5,9 +5,13 @@ Internal zones/rooms within a location.
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
 | `location_id` | UUID | NO | - | FK → `locations.id` (Cascade) |
-| `name` | VARCHAR(255) | NO | - | Zone name (Unique per location and case-insensitive when active) (e.g. Sala 102) |
+| `name` | VARCHAR(255) | NO | - | Zone name (Unique per location and case-insensitive when active; non-empty trimmed via `chk_areas_name_not_empty`) (e.g. Sala 102) |
 | `floor` | VARCHAR(50) | YES | - | Floor level |
 | `description` | VARCHAR(1000) | YES | - | Zone details |
+
+## Creation and Update Rules
+
+* **Parent Location Check**: Blocked via `tr_check_area_parent_location` if referenced `location_id` has `deleted_at IS NOT NULL`.
 
 ## Deletion Rules
 
@@ -17,4 +21,3 @@ Internal zones/rooms within a location.
   * Active Assets Check: Blocked if any assets in the area have `deleted_at IS NULL`.
   * Open Work Orders Check (via asset): Blocked if any work orders linked to assets in this area have `status != 'completed'` and `deleted_at IS NULL`.
   * Open Work Orders Check (direct): Blocked if any work orders with `area_id = this area` and `asset_id IS NULL` have `status != 'completed'` and `deleted_at IS NULL`.
-

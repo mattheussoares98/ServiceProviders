@@ -278,24 +278,18 @@ void main() {
 
     group('createLocation', () {
       test(
-        'should save location locally and return true when offline',
+        'should return failure and not save locally when offline',
         () async {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(
-            () => mockLocalDataSource.saveLocation(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.createLocation(tLocationEntity);
 
           // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
+          expect(result, isA<FailureState<bool>>());
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.saveLocation(tLocationModel),
-          ).called(1);
+          verifyNever(() => mockLocalDataSource.saveLocation(any()));
           verifyNever(() => mockRemoteDataSource.createLocation(any()));
         },
       );
@@ -350,24 +344,18 @@ void main() {
 
     group('updateLocation', () {
       test(
-        'should save location locally and return true when offline',
+        'should return failure and not save locally when offline',
         () async {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(
-            () => mockLocalDataSource.saveLocation(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.updateLocation(tLocationEntity);
 
           // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
+          expect(result, isA<FailureState<bool>>());
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.saveLocation(tLocationModel),
-          ).called(1);
+          verifyNever(() => mockLocalDataSource.saveLocation(any()));
           verifyNever(() => mockRemoteDataSource.updateLocation(any()));
         },
       );
@@ -422,24 +410,18 @@ void main() {
 
     group('deleteLocation', () {
       test(
-        'should delete location locally and return true when offline',
+        'should return failure and not delete locally when offline',
         () async {
           // Arrange
           when(() => mockInternetClient.isConnected).thenReturn(false);
-          when(
-            () => mockLocalDataSource.deleteLocation(any()),
-          ).thenAnswer((_) async => const SuccessState(data: true));
 
           // Act
           final result = await repository.deleteLocation(tLocationEntity.id);
 
           // Assert
-          expect(result, isA<SuccessState<bool>>());
-          expect(result.data, isTrue);
+          expect(result, isA<FailureState<bool>>());
           verify(() => mockInternetClient.isConnected).called(1);
-          verify(
-            () => mockLocalDataSource.deleteLocation(tLocationEntity.id),
-          ).called(1);
+          verifyNever(() => mockLocalDataSource.deleteLocation(any()));
           verifyNever(() => mockRemoteDataSource.deleteLocation(any()));
         },
       );
@@ -614,21 +596,17 @@ void main() {
     });
 
     group('createArea', () {
-      test('should save area locally and return true when offline', () async {
+      test('should return failure and not save locally when offline', () async {
         // Arrange
         when(() => mockInternetClient.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.saveArea(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await repository.createArea(tAreaEntity);
 
         // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
+        expect(result, isA<FailureState<bool>>());
         verify(() => mockInternetClient.isConnected).called(1);
-        verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        verifyNever(() => mockLocalDataSource.saveArea(any()));
         verifyNever(() => mockRemoteDataSource.createArea(any()));
       });
 
@@ -679,21 +657,17 @@ void main() {
     });
 
     group('updateArea', () {
-      test('should save area locally and return true when offline', () async {
+      test('should return failure and not save locally when offline', () async {
         // Arrange
         when(() => mockInternetClient.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.saveArea(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await repository.updateArea(tAreaEntity);
 
         // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
+        expect(result, isA<FailureState<bool>>());
         verify(() => mockInternetClient.isConnected).called(1);
-        verify(() => mockLocalDataSource.saveArea(tAreaModel)).called(1);
+        verifyNever(() => mockLocalDataSource.saveArea(any()));
         verifyNever(() => mockRemoteDataSource.updateArea(any()));
       });
 
@@ -744,21 +718,17 @@ void main() {
     });
 
     group('deleteArea', () {
-      test('should delete area locally and return true when offline', () async {
+      test('should return failure and not delete locally when offline', () async {
         // Arrange
         when(() => mockInternetClient.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.deleteArea(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
 
         // Act
         final result = await repository.deleteArea(tAreaEntity.id);
 
         // Assert
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
+        expect(result, isA<FailureState<bool>>());
         verify(() => mockInternetClient.isConnected).called(1);
-        verify(() => mockLocalDataSource.deleteArea(tAreaEntity.id)).called(1);
+        verifyNever(() => mockLocalDataSource.deleteArea(any()));
         verifyNever(() => mockRemoteDataSource.deleteArea(any()));
       });
 

@@ -234,6 +234,22 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     String? addressState,
     DateTime? createdAt,
   }) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      final message = 'Nome do local não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.saveLocation,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(
@@ -249,7 +265,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     final location = LocationEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
-      name: name.trim(),
+      name: trimmedName,
       postalCode: postalCode?.trimToNull(),
       address: address?.trimToNull(),
       number: number?.trimToNull(),
@@ -295,6 +311,25 @@ class LocationsCubit extends BaseCubit<LocationsState> {
   }
 
   Future<void> deleteLocation(String id) async {
+    final hasLinkedAreas =
+        (state.areasByLocation[id]?.isNotEmpty ?? false) ||
+        state.allAreas.any((a) => a.locationId == id);
+    if (hasLinkedAreas) {
+      final message =
+          'Não é possível excluir um local com áreas vinculadas'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.deleteLocation,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(
@@ -342,6 +377,38 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     String? description,
     DateTime? createdAt,
   }) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      final message = 'Nome da área não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.saveArea,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (state.locations.isNotEmpty &&
+        !state.locations.any((l) => l.id == locationId)) {
+      final message = 'Local selecionado não existe'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            LocationsSections.saveArea,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(
@@ -358,7 +425,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       id: id ?? const Uuid().v4(),
       locationId: locationId,
       companyId: companyId,
-      name: name.trim(),
+      name: trimmedName,
       floor: floor?.trimToNull(),
       description: description?.trimToNull(),
       createdAt: createdAt ?? now,
@@ -507,4 +574,3 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     return super.close();
   }
 }
-

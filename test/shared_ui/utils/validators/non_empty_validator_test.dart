@@ -17,11 +17,9 @@ void main() {
       expect(sut.isValid(nonEmptyString), isTrue);
     });
 
-    test('Should return true for a string with only whitespace', () {
-      // This is an important edge case. A string of spaces is not empty.
-      // If you need to treat this as invalid, you would use `value.trim().isNotEmpty`.
+    test('Should return false for a string with only whitespace', () {
       const whitespaceString = '   ';
-      expect(sut.isValid(whitespaceString), isTrue);
+      expect(sut.isValid(whitespaceString), isFalse);
     });
 
     test('Should return false for an empty string', () {
