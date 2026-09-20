@@ -38,6 +38,52 @@ abstract final class RepositoryHandler {
     return await localCallback?.call() ?? FailureState.noInternet();
   }
 
+  /// Executes a mutation with remote-first strategy and optional local mirroring.
+  ///
+  /// - If [isInternetConnected] is false, invokes [localCallback] if provided,
+  ///   or returns [FailureState.noInternet] for online-only mutations.
+  /// - If online, executes [remoteCallback]. Any remote [FailureState] is returned immediately.
+  /// - If remote succeeds, calls [onRemoteSuccess] if provided. If [onRemoteSuccess]
+  ///   returns a [FailureState], that failure is surfaced.
+  /// - Returns [SuccessState(data: true)] on complete success.
+  static FutureData<bool> executeMutation<T>({
+    required bool isInternetConnected,
+    required FutureData<T> Function() remoteCallback,
+    FutureData<Object?> Function(T data)? onRemoteSuccess,
+    FutureData<bool> Function()? localCallback,
+  }) async {
+    if (!isInternetConnected) {
+      return await localCallback?.call() ?? FailureState.noInternet();
+    }
+
+    final remoteResult = await remoteCallback();
+    if (remoteResult is FailureState) {
+      return FailureState<bool>(
+        message: remoteResult.message,
+        error: remoteResult.error,
+        statusCode: remoteResult.statusCode,
+        response: remoteResult.response,
+      );
+    }
+
+    if (onRemoteSuccess != null) {
+      final data = remoteResult.data;
+      if (data != null || null is T) {
+        final sideEffectState = await onRemoteSuccess(data as T);
+        if (sideEffectState is FailureState<Object?>) {
+          return FailureState<bool>(
+            message: sideEffectState.message,
+            error: sideEffectState.error,
+            statusCode: sideEffectState.statusCode,
+            response: sideEffectState.response,
+          );
+        }
+      }
+    }
+
+    return const SuccessState(data: true);
+  }
+
   /// Fetches a DTO from remote/local and maps it to a domain model.
   /// Expects the DTO type [T] to implement [DataConvertible].
   static FutureData<R>

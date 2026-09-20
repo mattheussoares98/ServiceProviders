@@ -752,7 +752,7 @@ void main() {
       blocTest<AssetsCubit, AssetsState>(
         'VAL-034: should reject deletion when asset has active child assets in state',
         seed: () {
-          final parent = AssetFactory.makeAssetEntity();
+          final parent = tAsset;
           final child = AssetFactory.makeAssetEntity().copyWith(parentAssetId: parent.id);
           return cubit.state.copyWith(assets: [parent, child]);
         },

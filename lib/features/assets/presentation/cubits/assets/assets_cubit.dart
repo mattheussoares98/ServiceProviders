@@ -135,6 +135,38 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     String? notes,
     DateTime? createdAt,
   }) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      final message = 'Nome do ativo não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            AssetsSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    final trimmedParent = parentAssetId?.trimToNull();
+    if (id != null && trimmedParent != null && trimmedParent == id) {
+      final message = 'Ativo não pode ser pai de si mesmo'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            AssetsSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(AssetsSections.save, SectionStatus.running),
@@ -150,8 +182,8 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       companyId: companyId,
       areaId: areaId,
       categoryId: categoryId?.trimToNull(),
-      parentAssetId: parentAssetId?.trimToNull(),
-      name: name.trim(),
+      parentAssetId: trimmedParent,
+      name: trimmedName,
       code: code?.trimToNull(),
       manufacturer: manufacturer?.trimToNull(),
       model: model?.trimToNull(),
@@ -194,6 +226,25 @@ class AssetsCubit extends BaseCubit<AssetsState> {
   }
 
   Future<bool> deleteAsset(String id) async {
+    final hasActiveChildren = state.assets.any(
+      (a) => a.parentAssetId == id && a.deletedAt == null,
+    );
+    if (hasActiveChildren) {
+      final message =
+          'Não é possível excluir ativo com subativos vinculados'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            AssetsSections.delete,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(AssetsSections.delete, SectionStatus.running),

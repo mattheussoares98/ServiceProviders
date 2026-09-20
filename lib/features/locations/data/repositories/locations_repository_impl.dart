@@ -71,86 +71,32 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       );
 
   @override
-  FutureBool createLocation(LocationEntity location) async {
-    if (!_internet.isConnected) {
-      return FailureState(message: 'Sem conexão com a internet'.hardcoded);
-    }
-    final result = await _remoteDataSource.createLocation(
-      LocationModel.fromEntity(location),
-    );
-    if (result is SuccessState<LocationModel>) {
-      final localResult = await _localDataSource.saveLocation(result.data!);
-      if (localResult is FailureState) {
-        return FailureState(
-          message: localResult.message,
-          error: localResult.error,
-          statusCode: localResult.statusCode,
-          response: localResult.response,
-        );
-      }
-      return const SuccessState(data: true);
-    }
-    return FailureState(
-      message: result.message,
-      error: result.error,
-      statusCode: result.statusCode,
-      response: result.response,
-    );
-  }
+  FutureBool createLocation(LocationEntity location) =>
+      RepositoryHandler.executeMutation<LocationModel>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.createLocation(
+          LocationModel.fromEntity(location),
+        ),
+        onRemoteSuccess: (model) => _localDataSource.saveLocation(model!),
+      );
 
   @override
-  FutureBool updateLocation(LocationEntity location) async {
-    if (!_internet.isConnected) {
-      return FailureState(message: 'Sem conexão com a internet'.hardcoded);
-    }
-    final result = await _remoteDataSource.updateLocation(
-      LocationModel.fromEntity(location),
-    );
-    if (result is SuccessState<LocationModel>) {
-      final localResult = await _localDataSource.saveLocation(result.data!);
-      if (localResult is FailureState) {
-        return FailureState(
-          message: localResult.message,
-          error: localResult.error,
-          statusCode: localResult.statusCode,
-          response: localResult.response,
-        );
-      }
-      return const SuccessState(data: true);
-    }
-    return FailureState(
-      message: result.message,
-      error: result.error,
-      statusCode: result.statusCode,
-      response: result.response,
-    );
-  }
+  FutureBool updateLocation(LocationEntity location) =>
+      RepositoryHandler.executeMutation<LocationModel>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.updateLocation(
+          LocationModel.fromEntity(location),
+        ),
+        onRemoteSuccess: (model) => _localDataSource.saveLocation(model!),
+      );
 
   @override
-  FutureBool deleteLocation(String id) async {
-    if (!_internet.isConnected) {
-      return FailureState(message: 'Sem conexão com a internet'.hardcoded);
-    }
-    final result = await _remoteDataSource.deleteLocation(id);
-    if (result is SuccessState<void>) {
-      final localResult = await _localDataSource.deleteLocation(id);
-      if (localResult is FailureState) {
-        return FailureState(
-          message: localResult.message,
-          error: localResult.error,
-          statusCode: localResult.statusCode,
-          response: localResult.response,
-        );
-      }
-      return const SuccessState(data: true);
-    }
-    return FailureState(
-      message: result.message,
-      error: result.error,
-      statusCode: result.statusCode,
-      response: result.response,
-    );
-  }
+  FutureBool deleteLocation(String id) =>
+      RepositoryHandler.executeMutation<void>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.deleteLocation(id),
+        onRemoteSuccess: (_) => _localDataSource.deleteLocation(id),
+      );
 
   @override
   FutureList<AreaEntity> getAreas(String companyId) =>
@@ -185,86 +131,32 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       );
 
   @override
-  FutureBool createArea(AreaEntity area) async {
-    if (!_internet.isConnected) {
-      return FailureState(message: 'Sem conexão com a internet'.hardcoded);
-    }
-    final result = await _remoteDataSource.createArea(
-      AreaRequestModel.fromEntity(area),
-    );
-    if (result is SuccessState<AreaModel>) {
-      final localResult = await _localDataSource.saveArea(result.data!);
-      if (localResult is FailureState) {
-        return FailureState(
-          message: localResult.message,
-          error: localResult.error,
-          statusCode: localResult.statusCode,
-          response: localResult.response,
-        );
-      }
-      return const SuccessState(data: true);
-    }
-    return FailureState(
-      message: result.message,
-      error: result.error,
-      statusCode: result.statusCode,
-      response: result.response,
-    );
-  }
+  FutureBool createArea(AreaEntity area) =>
+      RepositoryHandler.executeMutation<AreaModel>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.createArea(
+          AreaRequestModel.fromEntity(area),
+        ),
+        onRemoteSuccess: (model) => _localDataSource.saveArea(model!),
+      );
 
   @override
-  FutureBool updateArea(AreaEntity area) async {
-    if (!_internet.isConnected) {
-      return FailureState(message: 'Sem conexão com a internet'.hardcoded);
-    }
-    final result = await _remoteDataSource.updateArea(
-      AreaRequestModel.fromEntity(area),
-    );
-    if (result is SuccessState<AreaModel>) {
-      final localResult = await _localDataSource.saveArea(result.data!);
-      if (localResult is FailureState) {
-        return FailureState(
-          message: localResult.message,
-          error: localResult.error,
-          statusCode: localResult.statusCode,
-          response: localResult.response,
-        );
-      }
-      return const SuccessState(data: true);
-    }
-    return FailureState(
-      message: result.message,
-      error: result.error,
-      statusCode: result.statusCode,
-      response: result.response,
-    );
-  }
+  FutureBool updateArea(AreaEntity area) =>
+      RepositoryHandler.executeMutation<AreaModel>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.updateArea(
+          AreaRequestModel.fromEntity(area),
+        ),
+        onRemoteSuccess: (model) => _localDataSource.saveArea(model!),
+      );
 
   @override
-  FutureBool deleteArea(String id) async {
-    if (!_internet.isConnected) {
-      return FailureState(message: 'Sem conexão com a internet'.hardcoded);
-    }
-    final result = await _remoteDataSource.deleteArea(id);
-    if (result is SuccessState<void>) {
-      final localResult = await _localDataSource.deleteArea(id);
-      if (localResult is FailureState) {
-        return FailureState(
-          message: localResult.message,
-          error: localResult.error,
-          statusCode: localResult.statusCode,
-          response: localResult.response,
-        );
-      }
-      return const SuccessState(data: true);
-    }
-    return FailureState(
-      message: result.message,
-      error: result.error,
-      statusCode: result.statusCode,
-      response: result.response,
-    );
-  }
+  FutureBool deleteArea(String id) => RepositoryHandler.executeMutation<void>(
+    isInternetConnected: _internet.isConnected,
+    remoteCallback: () => _remoteDataSource.deleteArea(id),
+    onRemoteSuccess: (_) => _localDataSource.deleteArea(id),
+  );
+
 
   @override
   Stream<RealtimeEvent<LocationEntity>> watchLocationsRealtime({

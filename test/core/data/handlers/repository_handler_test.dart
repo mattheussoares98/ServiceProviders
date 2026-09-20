@@ -264,4 +264,87 @@ void main() {
       expect(event.entity, isNull);
     });
   });
+
+  group('RepositoryHandler.executeMutation', () {
+    test('returns FailureState.noInternet when offline and localCallback is null', () async {
+      final result = await RepositoryHandler.executeMutation<String>(
+        isInternetConnected: false,
+        remoteCallback: () async => const SuccessState(data: 'remote'),
+      );
+
+      expect(result.message, kNoInternet);
+    });
+
+    test('invokes localCallback when offline and provided', () async {
+      final result = await RepositoryHandler.executeMutation<String>(
+        isInternetConnected: false,
+        remoteCallback: () async => const SuccessState(data: 'remote'),
+        localCallback: () async => const SuccessState(data: true),
+      );
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+    });
+
+    test('returns remote failure when remoteCallback fails', () async {
+      final result = await RepositoryHandler.executeMutation<String>(
+        isInternetConnected: true,
+        remoteCallback: () async => FailureState(
+          message: 'Server error',
+          statusCode: 500,
+        ),
+      );
+
+      expect(result, isA<FailureState<bool>>());
+      expect(result.message, 'Server error');
+      expect(result.statusCode, 500);
+    });
+
+    test('propagates local mirror failure when onRemoteSuccess fails', () async {
+      final result = await RepositoryHandler.executeMutation<String>(
+        isInternetConnected: true,
+        remoteCallback: () async => const SuccessState(data: 'remote-data'),
+        onRemoteSuccess: (data) async => FailureState<bool>(
+          message: 'disk full',
+          statusCode: 507,
+        ),
+      );
+
+      expect(result, isA<FailureState<bool>>());
+      expect(result.message, 'disk full');
+      expect(result.statusCode, 507);
+    });
+
+    test('returns SuccessState(true) when remote and local mirror succeed', () async {
+      String? mirrored;
+      final result = await RepositoryHandler.executeMutation<String>(
+        isInternetConnected: true,
+        remoteCallback: () async => const SuccessState(data: 'saved-item'),
+        onRemoteSuccess: (data) async {
+          mirrored = data;
+          return const SuccessState(data: true);
+        },
+      );
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+      expect(mirrored, 'saved-item');
+    });
+
+    test('handles void remoteCallback (delete operation)', () async {
+      var deleted = false;
+      final result = await RepositoryHandler.executeMutation<void>(
+        isInternetConnected: true,
+        remoteCallback: () async => SuccessState.nil,
+        onRemoteSuccess: (_) async {
+          deleted = true;
+          return const SuccessState(data: true);
+        },
+      );
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+      expect(deleted, isTrue);
+    });
+  });
 }
