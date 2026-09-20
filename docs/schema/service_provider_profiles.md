@@ -16,6 +16,10 @@ Stores individual profiles/workers belonging to a service provider company.
 | `created_at` | TIMESTAMPTZ | NO | `now()` | Creation timestamp |
 | `updated_at` | TIMESTAMPTZ | NO | `now()` | Last update timestamp |
 
+### Constraints
+- `chk_service_provider_profiles_name_not_empty`: `CHECK (length(trim(name)) > 0)`
+- `chk_service_provider_profiles_email_not_empty`: `CHECK (length(trim(email)) > 0)`
+
 ---
 
 ## Local Schema (Drift - SQLite)

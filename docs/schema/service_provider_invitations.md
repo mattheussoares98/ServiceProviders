@@ -15,6 +15,9 @@ Stores pending and historical invitations issued to service provider companies.
 | `accepted_at` | TIMESTAMPTZ | YES | NULL | Acceptance timestamp |
 | `expires_at` | TIMESTAMPTZ | YES | NULL | Expiration timestamp |
 
+### Constraints
+- `chk_service_provider_invitations_email_not_empty`: `CHECK (length(trim(email)) > 0)`
+
 ---
 
 ## Helper RPCs & Functions

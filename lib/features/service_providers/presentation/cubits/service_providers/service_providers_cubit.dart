@@ -333,6 +333,19 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     String? contactPhone,
     bool sendInvite = false,
   }) async {
+    if (name.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            ServiceProvidersSections.saveCompany,
+            SectionStatus.error,
+            errorMessage: 'Nome da empresa prestadora não pode ser vazio'.hardcoded,
+          ),
+        ),
+      );
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(
@@ -515,6 +528,19 @@ class ServiceProvidersCubit extends BaseCubit<ServiceProvidersState> {
     required String serviceProviderCompanyId,
     required String email,
   }) async {
+    if (email.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            ServiceProvidersSections.sendInvitation,
+            SectionStatus.error,
+            errorMessage: 'E-mail do convite não pode ser vazio'.hardcoded,
+          ),
+        ),
+      );
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(

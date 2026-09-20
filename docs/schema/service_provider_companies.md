@@ -19,6 +19,9 @@ Stores third-party service provider companies associated with a tenant company.
 | `updated_at` | TIMESTAMPTZ | NO | `now()` | Last update timestamp |
 | `deleted_at` | TIMESTAMPTZ | YES | `NULL` | Soft delete timestamp |
 
+### Constraints
+- `chk_service_provider_companies_name_not_empty`: `CHECK (length(trim(name)) > 0)`
+
 ---
 
 ## Local Schema (Drift - SQLite)
