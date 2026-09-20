@@ -2,6 +2,7 @@ import 'package:o_jogo_da_obra/core/data/models/data_convertible.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 
 /// A utility for repository implementations to coordinate remote and local
@@ -63,6 +64,12 @@ abstract final class RepositoryHandler {
         error: remoteResult.error,
         statusCode: remoteResult.statusCode,
         response: remoteResult.response,
+      );
+    }
+
+    if (remoteResult.data == null && null is! T) {
+      return FailureState<bool>(
+        message: 'Resposta vazia do servidor'.hardcoded,
       );
     }
 

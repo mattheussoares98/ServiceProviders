@@ -535,7 +535,7 @@ void main() {
           isA<MaintenancePlansState>().having(
             (s) => s.sections[MaintenancePlansSections.save],
             'save section',
-            const SectionState.error(),
+            const SectionState.error('O título do plano não pode ser vazio'),
           ),
         ],
         verify: (_) {
@@ -564,7 +564,7 @@ void main() {
           isA<MaintenancePlansState>().having(
             (s) => s.sections[MaintenancePlansSections.save],
             'save section',
-            const SectionState.error(),
+            const SectionState.error('Intervalo ou tempo de antecedência inválido'),
           ),
         ],
         verify: (_) {

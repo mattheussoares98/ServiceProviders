@@ -41,53 +41,29 @@ final class MaintenancePlansRepositoryImpl
       );
 
   @override
-  FutureBool createMaintenancePlan(MaintenancePlanEntity plan) async {
-    if (!_internet.isConnected) {
-      return FailureState(
-        message:
-            'A criação de planos de manutenção requer conexão com a internet',
+  FutureBool createMaintenancePlan(MaintenancePlanEntity plan) =>
+      RepositoryHandler.executeMutation<MaintenancePlanModel>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.createPlan(
+          MaintenancePlanModel.fromEntity(plan),
+        ),
       );
-    }
-    final result = await _remoteDataSource.createPlan(
-      MaintenancePlanModel.fromEntity(plan),
-    );
-    if (result is SuccessState<MaintenancePlanModel> && result.data != null) {
-      return const SuccessState(data: true);
-    }
-    return FailureState(message: result.message);
-  }
 
   @override
-  FutureBool updateMaintenancePlan(MaintenancePlanEntity plan) async {
-    if (!_internet.isConnected) {
-      return FailureState(
-        message:
-            'A edição de planos de manutenção requer conexão com a internet',
+  FutureBool updateMaintenancePlan(MaintenancePlanEntity plan) =>
+      RepositoryHandler.executeMutation<MaintenancePlanModel>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.updatePlan(
+          MaintenancePlanModel.fromEntity(plan),
+        ),
       );
-    }
-    final result = await _remoteDataSource.updatePlan(
-      MaintenancePlanModel.fromEntity(plan),
-    );
-    if (result is SuccessState<MaintenancePlanModel> && result.data != null) {
-      return const SuccessState(data: true);
-    }
-    return FailureState(message: result.message);
-  }
 
   @override
-  FutureBool deleteMaintenancePlan(String id) async {
-    if (!_internet.isConnected) {
-      return FailureState(
-        message:
-            'A exclusão de planos de manutenção requer conexão com a internet',
+  FutureBool deleteMaintenancePlan(String id) =>
+      RepositoryHandler.executeMutation<void>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.deletePlan(id),
       );
-    }
-    final result = await _remoteDataSource.deletePlan(id);
-    if (result is SuccessState) {
-      return const SuccessState(data: true);
-    }
-    return FailureState(message: result.message);
-  }
 
   @override
   FutureData<String> generateWorkOrder(String planId) async {

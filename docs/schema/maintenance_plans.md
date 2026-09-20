@@ -27,3 +27,8 @@ Schedules defining automated work order generation.
 | `last_generated_work_order_id` | UUID | YES | - | FK → `work_orders.id` (Set Null) |
 | `last_error` | VARCHAR(1000) | YES | - | Last error message if generation failed |
 | `next_due_date` | TIMESTAMP | YES | - | Next predicted due/execution date |
+
+### Constraints
+- `chk_maintenance_plans_title_not_empty`: `CHECK (length(trim(title)) > 0)`
+- `chk_mp_interval_value`: `CHECK (interval_value > 0)`
+- `chk_mp_lead_time`: `CHECK (lead_time_days >= 0 AND lead_time_days <= 30)`

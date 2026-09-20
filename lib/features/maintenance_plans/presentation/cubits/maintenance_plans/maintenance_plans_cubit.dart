@@ -81,6 +81,36 @@ class MaintenancePlansCubit extends BaseCubit<MaintenancePlansState> {
   }
 
   Future<bool> saveMaintenancePlan(MaintenancePlanEntity plan) async {
+    if (plan.title.trim().isEmpty) {
+      final message = 'O título do plano não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (plan.intervalValue <= 0 || plan.leadTimeDays < 0) {
+      final message = 'Intervalo ou tempo de antecedência inválido'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     if (plan.locationId == null) {
       final message = 'Selecione um LOCAL para o plano'.hardcoded;
       emit(
