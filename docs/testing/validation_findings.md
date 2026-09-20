@@ -471,6 +471,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `NotificationsRepositoryImpl.deleteDeviceToken` forwards empty or whitespace-only device token strings directly to the remote data source.
 - Source: `lib/features/notifications/data/repositories/notifications_repository_impl.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-051 — AccessLogsCubit.setDateRange allows inverted date range without error
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid filter state / date range validation.
+- Regression: `test/features/access_logs/presentation/cubits/access_logs/access_logs_cubit_test.dart`, "VAL-051: setDateRange rejects inverted date range where startDate is after endDate".
+- Reproduction: `flutter test --no-pub test/features/access_logs/presentation/cubits/access_logs/access_logs_cubit_test.dart --name "VAL-051" --reporter expanded`.
+- Expected: calling `AccessLogsCubit.setDateRange` with an inverted range (`startDate.isAfter(endDate)`) emits `SectionStatus.error` and avoids dispatching an invalid query per LOG-02 ("Filter/sort/page where exposed using deterministic timestamps, empty result and date/timezone boundaries").
+- Actual: `AccessLogsCubit.setDateRange` sets the invalid date range and immediately calls `loadInitialData()`.
+- Source: `lib/features/access_logs/presentation/cubits/access_logs/access_logs_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-052 — AccessLogsCubit.loadMore fabricates duplicate entries on pagination overlap
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 data integrity / list deduplication failure.
+- Regression: `test/features/access_logs/presentation/cubits/access_logs/access_logs_cubit_test.dart`, "VAL-052: loadMore deduplicates incoming log entries to prevent duplicate IDs".
+- Reproduction: `flutter test --no-pub test/features/access_logs/presentation/cubits/access_logs/access_logs_cubit_test.dart --name "VAL-052" --reporter expanded`.
+- Expected: `AccessLogsCubit.loadMore` deduplicates newly fetched entries against `state.logs` by ID per LOG-02 ("Error/retry and realtime refresh preserve visible ordering and do not fabricate duplicate entries").
+- Actual: `AccessLogsCubit.loadMore` uses `[...state.logs, ...newLogs]`, appending duplicate log entities if IDs overlap.
+- Source: `lib/features/access_logs/presentation/cubits/access_logs/access_logs_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 

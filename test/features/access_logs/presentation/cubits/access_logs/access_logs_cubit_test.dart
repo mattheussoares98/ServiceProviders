@@ -254,5 +254,61 @@ void main() {
             ),
       ],
     );
+
+    group('VAL-051 & VAL-052 regression tests', () {
+      blocTest<AccessLogsCubit, AccessLogsState>(
+        'VAL-051: setDateRange rejects inverted date range where startDate is after endDate',
+        setUp: () {
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tCompanyId);
+          when(
+            () => mockGetUsersUseCase.call(tCompanyId),
+          ).thenAnswer((_) async => SuccessState(data: tUsers));
+          when(
+            () => mockGetAccessLogsUseCase.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLogs));
+        },
+        build: () => AccessLogsCubit(useCases: useCases),
+        act: (cubit) {
+          cubit.setDateRange(
+            startDate: DateTime(2026, 9, 10),
+            endDate: DateTime(2026, 9, 1),
+          );
+        },
+        expect: () => [
+          isA<AccessLogsState>().having(
+            (s) => s.sections[BaseSections.load]?.status,
+            'load status is error',
+            SectionStatus.error,
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockGetAccessLogsUseCase.call(any()));
+        },
+      );
+
+      blocTest<AccessLogsCubit, AccessLogsState>(
+        'VAL-052: loadMore deduplicates incoming log entries to prevent duplicate IDs',
+        seed: () => AccessLogsState(logs: tLogs, page: 0, hasReachedMax: false),
+        setUp: () {
+          when(
+            () => mockGetActiveCompanyIdUseCase.call(),
+          ).thenReturn(tCompanyId);
+          when(
+            () => mockGetAccessLogsUseCase.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: tLogs));
+        },
+        build: () => AccessLogsCubit(useCases: useCases),
+        act: (cubit) => cubit.loadMore(),
+        expect: () => [
+          isA<AccessLogsState>().having(
+            (s) => s.logs.length,
+            'logs length does not duplicate',
+            tLogs.length,
+          ),
+        ],
+      );
+    });
   });
 }
