@@ -263,3 +263,21 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: calling `CategoriesCubit.saveCategory` with a name matching an existing category in `state.categories` (case-insensitive) rejects the operation with `SectionStatus.error` without delegating to `CreateCategoryUseCase` per CAT-02 ("Empty/duplicate/case/long names and repeated submit; no duplicates or misleading success").
 - Actual: `CategoriesCubit.saveCategory` performs no duplicate check and delegates to `CreateCategoryUseCase` unconditionally.
 - Source: `lib/features/categories/presentation/cubits/categories/categories_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-028 — SectorsCubit.saveSector does not reject whitespace-only sector names
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/sectors/presentation/cubits/sectors/sectors_cubit_test.dart`, "should reject whitespace-only name without calling createSector usecase".
+- Reproduction: `flutter test --no-pub test/features/sectors/presentation/cubits/sectors/sectors_cubit_test.dart --name "should reject whitespace-only name without calling createSector" --reporter expanded`.
+- Expected: calling `SectorsCubit.saveSector(id: null, name: '   ')` rejects the empty/whitespace name and emits `SectionStatus.error` without delegating to `CreateSectorUseCase` per SEC-02.
+- Actual: `SectorsCubit.saveSector` trims the name to `""`, constructs an invalid `SectorEntity(name: "")`, and delegates to `CreateSectorUseCase`.
+- Source: `lib/features/sectors/presentation/cubits/sectors/sectors_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-029 — SectorsCubit.saveSector does not check for duplicate names within company
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 duplicate record creation / uniqueness guard failure.
+- Regression: `test/features/sectors/presentation/cubits/sectors/sectors_cubit_test.dart`, "should reject creating sector with duplicate name already existing in state".
+- Reproduction: `flutter test --no-pub test/features/sectors/presentation/cubits/sectors/sectors_cubit_test.dart --name "should reject creating sector with duplicate name" --reporter expanded`.
+- Expected: calling `SectorsCubit.saveSector` with a name matching an existing sector in `state.sectors` (case-insensitive) rejects the operation with `SectionStatus.error` without delegating to `CreateSectorUseCase` per SEC-02 ("Required/duplicate/long input, rapid submit and network failure leave no partial record or false success").
+- Actual: `SectorsCubit.saveSector` performs no duplicate check and delegates to `CreateSectorUseCase` unconditionally.
+- Source: `lib/features/sectors/presentation/cubits/sectors/sectors_cubit.dart`. Test remains enabled and failing; no application fix applied.

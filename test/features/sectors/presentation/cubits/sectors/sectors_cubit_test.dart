@@ -281,6 +281,61 @@ void main() {
           verifyNever(() => mockGetSectors.call(any()));
         },
       );
+
+      blocTest<SectorsCubit, SectorsState>(
+        'should reject whitespace-only name without calling createSector usecase',
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveSector(
+            id: null,
+            name: '   ',
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<SectorsState>().having(
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateSector.call(any()));
+        },
+      );
+
+      blocTest<SectorsCubit, SectorsState>(
+        'should reject creating sector with duplicate name already existing in state',
+        seed: () => cubit.state.copyWith(
+          sectors: [tSector],
+        ),
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveSector(
+            id: null,
+            name: tSector.name.toUpperCase(),
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<SectorsState>().having(
+            (s) => s.sections[SectorsSections.save],
+            'sections[save]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateSector.call(any()));
+        },
+      );
     });
 
     group('deleteSector', () {
