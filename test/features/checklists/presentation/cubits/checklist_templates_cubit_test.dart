@@ -275,6 +275,74 @@ void main() {
         ),
       ],
     );
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'VAL-037: should reject whitespace-only template name without calling createChecklistTemplate',
+      setUp: () {
+        when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
+        when(() => mockCreateChecklistTemplate(any()))
+            .thenAnswer((_) async => const SuccessState(data: true));
+        when(() => mockGetChecklists(any()))
+            .thenAnswer((_) async => const SuccessState(data: []));
+      },
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      act: (cubit) async {
+        expect(
+          await cubit.saveTemplate(
+            id: null,
+            name: '   ',
+            description: 'Descrição',
+          ),
+          isFalse,
+        );
+      },
+      expect: () => [
+        isA<ChecklistTemplatesState>().having(
+          (s) => s.sections[ChecklistTemplatesSections.saveTemplate]?.status,
+          'saveTemplate error',
+          SectionStatus.error,
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => mockCreateChecklistTemplate(any()));
+        verifyNever(() => mockUpdateChecklistTemplate(any()));
+      },
+    );
+
+    blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
+      'VAL-038: should reject selection item type without options without calling createChecklistItem',
+      setUp: () {
+        when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
+        when(() => mockCreateChecklistItem(any()))
+            .thenAnswer((_) async => const SuccessState(data: true));
+        when(() => mockGetChecklistItemsByTemplate(any()))
+            .thenAnswer((_) async => const SuccessState(data: []));
+      },
+      build: () => ChecklistTemplatesCubit(useCases: useCases),
+      act: (cubit) async {
+        expect(
+          await cubit.saveItem(
+            id: null,
+            templateId: tTemplates.first.id,
+            label: 'Escolha uma opção',
+            type: ChecklistItemType.selection,
+            isRequired: true,
+            options: null,
+          ),
+          isFalse,
+        );
+      },
+      expect: () => [
+        isA<ChecklistTemplatesState>().having(
+          (s) => s.sections[ChecklistTemplatesSections.saveItem]?.status,
+          'saveItem error',
+          SectionStatus.error,
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => mockCreateChecklistItem(any()));
+      },
+    );
   });
 
   group('Navigation', () {

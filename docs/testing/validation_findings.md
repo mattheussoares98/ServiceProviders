@@ -345,5 +345,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `ServiceProvidersCubit.sendInvitation` forwards whitespace-only email to `SendServiceProviderInvitationUseCase` without validation.
 - Source: `lib/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-037 — ChecklistTemplatesCubit.saveTemplate does not reject whitespace-only template name
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/checklists/presentation/cubits/checklist_templates_cubit_test.dart`, "VAL-037: should reject whitespace-only template name without calling createChecklistTemplate".
+- Reproduction: `flutter test --no-pub test/features/checklists/presentation/cubits/checklist_templates_cubit_test.dart --name "VAL-037" --reporter expanded`.
+- Expected: calling `ChecklistTemplatesCubit.saveTemplate` with `name: '   '` rejects empty/whitespace name with `SectionStatus.error` and returns false without delegating to `CreateChecklistTemplateUseCase` per CHK-01 ("Create a template, add/reorder/edit/remove items, update template fields and reload...").
+- Actual: `ChecklistTemplatesCubit.saveTemplate` trims name to `""` and delegates to `CreateChecklistTemplateUseCase` with an empty string.
+- Source: `lib/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-038 — ChecklistTemplatesCubit.saveItem does not validate options for selection/multiSelection types
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / incomplete checklist item options.
+- Regression: `test/features/checklists/presentation/cubits/checklist_templates_cubit_test.dart`, "VAL-038: should reject selection item type without options without calling createChecklistItem".
+- Reproduction: `flutter test --no-pub test/features/checklists/presentation/cubits/checklist_templates_cubit_test.dart --name "VAL-038" --reporter expanded`.
+- Expected: calling `ChecklistTemplatesCubit.saveItem` with `type: ChecklistItemType.selection` and `options: null` (or empty) rejects the missing options with `SectionStatus.error` and returns false without delegating to `CreateChecklistItemUseCase` per CHK-02 ("Cover all seven item types: boolean, text, number, photo, documentation, selection and multi-selection... missing/duplicate options, changed options...").
+- Actual: `ChecklistTemplatesCubit.saveItem` accepts `options: null` for selection types and delegates to `CreateChecklistItemUseCase`, creating an unanswerable selection item.
+- Source: `lib/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+
 
 
