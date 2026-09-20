@@ -83,7 +83,7 @@ abstract final class AttachmentFileValidator {
             : (parameters?.maxImageSizeBytes ?? _defaultImageBytes),
     };
 
-    if (sizeBytes > maxBytes) {
+    if (sizeBytes <= 0 || sizeBytes > maxBytes) {
       return AttachmentInvalidSize(maxBytes: maxBytes, actualBytes: sizeBytes);
     }
 

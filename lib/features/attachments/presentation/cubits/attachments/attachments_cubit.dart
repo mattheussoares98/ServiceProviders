@@ -91,6 +91,10 @@ class AttachmentsCubit extends BaseCubit<AttachmentsState> {
   }
 
   Future<void> retryUpload(AttachmentEntity attachment) async {
+    if (state.uploadingIds.contains(attachment.id)) {
+      return;
+    }
+
     final updatedList = state.attachments.map((item) {
       if (item.id == attachment.id) {
         return item.copyWith(uploadStatus: UploadStatus.pending);
