@@ -507,6 +507,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `ConfigurationsCubit.togglePushNotifications` uses `unawaited(_useCases.saveConfigurations(enabled))` without inspecting errors or reverting the optimistic change.
 - Source: `lib/features/configurations/presentation/cubits/configurations/configurations_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-055 — CalculateWorkOrderKpisUseCase counts orders without SLA as completed within SLA
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 business logic / KPI metric calculation error.
+- Regression: `test/features/work_orders/domain/use_cases/use_cases_test.dart`, "VAL-055: does not count completed orders with no SLA deadline as completedWithinSlaCount".
+- Reproduction: `flutter test --no-pub test/features/work_orders/domain/use_cases/use_cases_test.dart --name "VAL-055" --reporter expanded`.
+- Expected: completed orders with no SLA deadline (`slaDeadlineAt == null`) should not increment `completedWithinSlaCount` or artificially inflate `deliveryRate` per HOME-02 ("Compute SLA KPI with known due dates, pauses and responsibilities; date-range boundaries, zero denominator, timezone and cancelled/deleted records follow the approved metric definition").
+- Actual: `CalculateWorkOrderKpisUseCase` treats `slaDeadlineAt == null` as non-breached, erroneously incrementing `completedWithinSlaCount`.
+- Source: `lib/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-056 — DashboardKpisCubit.changeDateRange allows inverted date range without error
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid filter state / date range boundary validation.
+- Regression: `test/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit_test.dart`, "VAL-056: changeDateRange emits error and avoids computing when startDate is after endDate".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit_test.dart --name "VAL-056" --reporter expanded`.
+- Expected: calling `DashboardKpisCubit.changeDateRange` with an inverted range (`startDate.isAfter(endDate)`) emits `SectionStatus.error` and avoids invoking `CalculateWorkOrderKpisUseCase` per HOME-02 ("Compute SLA KPI with known due dates, pauses and responsibilities; date-range boundaries...").
+- Actual: `DashboardKpisCubit.changeDateRange` does not validate date ordering, constructing inverted bounds and computing metrics as success.
+- Source: `lib/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 

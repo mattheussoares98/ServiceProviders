@@ -1104,6 +1104,30 @@ void main() {
       expect(result.breachRate, 100.0);
       expect(result.mttrMinutes, 120.0);
     });
+
+    test(
+      'VAL-055: does not count completed orders with no SLA deadline as completedWithinSlaCount',
+      () {
+        final orderWithoutSla = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+          status: WorkOrderStatus.completed,
+          createdAt: now.subtract(const Duration(days: 2)),
+          completedAt: now.subtract(const Duration(hours: 1)),
+          annulSlaDeadlineAt: true,
+          slaBreached: false,
+        );
+
+        final result = calculateWorkOrderKpisUseCase(
+          CalculateWorkOrderKpisParams(
+            workOrders: [orderWithoutSla],
+            referenceDate: now,
+          ),
+        );
+
+        expect(result.completedCount, 1);
+        expect(result.completedWithinSlaCount, 0);
+        expect(result.deliveryRate, 0.0);
+      },
+    );
   });
 
   group('WatchPauseRequestsRealtimeUseCase', () {

@@ -112,5 +112,30 @@ void main() {
         ).called(1);
       },
     );
+
+    blocTest<DashboardKpisCubit, DashboardKpisState>(
+      'VAL-056: changeDateRange emits error and avoids computing when startDate is after endDate',
+      build: () {
+        when(
+          () => mockCalculateWorkOrderKpisUseCase.call(any()),
+        ).thenReturn(tMetrics);
+        return DashboardKpisCubit(useCases: useCases);
+      },
+      act: (cubit) => cubit.changeDateRange(
+        DateTime(2026, 8, 20),
+        DateTime(2026, 8, 10),
+        tWorkOrders,
+      ),
+      expect: () => [
+        isA<DashboardKpisState>().having(
+          (s) => s.sections[BaseSections.load],
+          'sections[load]',
+          const SectionState.error(),
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => mockCalculateWorkOrderKpisUseCase.call(any()));
+      },
+    );
   });
 }
