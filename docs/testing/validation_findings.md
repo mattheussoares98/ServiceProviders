@@ -281,3 +281,22 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: calling `SectorsCubit.saveSector` with a name matching an existing sector in `state.sectors` (case-insensitive) rejects the operation with `SectionStatus.error` without delegating to `CreateSectorUseCase` per SEC-02 ("Required/duplicate/long input, rapid submit and network failure leave no partial record or false success").
 - Actual: `SectorsCubit.saveSector` performs no duplicate check and delegates to `CreateSectorUseCase` unconditionally.
 - Source: `lib/features/sectors/presentation/cubits/sectors/sectors_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-030 — SlaPoliciesCubit.saveSlaPolicy does not validate zero or negative targetHours
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / duration boundary validation.
+- Regression: `test/features/sla_policies/presentation/cubits/sla_policies_cubit_test.dart`, "VAL-030: should reject zero or negative targetHours and not invoke create use case".
+- Reproduction: `flutter test --no-pub test/features/sla_policies/presentation/cubits/sla_policies_cubit_test.dart --name "VAL-030" --reporter expanded`.
+- Expected: calling `SlaPoliciesCubit.saveSlaPolicy(name: 'Standard SLA', targetHours: 0, appliesTo: SlaAppliesTo.both)` rejects non-positive durations with `SectionStatus.error` without delegating to `CreateSlaPolicyUseCase` per SLA-01 ("Validate zero/negative/excessive durations and duplicate policy names against approved constraints").
+- Actual: `SlaPoliciesCubit.saveSlaPolicy` accepts `targetHours <= 0`, constructs an invalid `SlaPolicyEntity`, and delegates to `CreateSlaPolicyUseCase`.
+- Source: `lib/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-031 — SlaPoliciesCubit.saveSlaPolicy does not reject whitespace-only policy names
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/sla_policies/presentation/cubits/sla_policies_cubit_test.dart`, "VAL-031: should reject empty or whitespace-only name without invoking use case".
+- Reproduction: `flutter test --no-pub test/features/sla_policies/presentation/cubits/sla_policies_cubit_test.dart --name "VAL-031" --reporter expanded`.
+- Expected: calling `SlaPoliciesCubit.saveSlaPolicy(name: '   ', targetHours: 24, appliesTo: SlaAppliesTo.both)` rejects empty/whitespace names with `SectionStatus.error` without delegating to `CreateSlaPolicyUseCase` per SLA-01.
+- Actual: `SlaPoliciesCubit.saveSlaPolicy` accepts whitespace-only names without trimming or empty validation and delegates to `CreateSlaPolicyUseCase`.
+- Source: `lib/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart`. Test remains enabled and failing; no application fix applied.
+

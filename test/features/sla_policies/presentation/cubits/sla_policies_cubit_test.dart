@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
+import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_applies_to.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/entities/sla_policy_entity.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/create_sla_policy_use_case.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/domain/use_cases/delete_sla_policy_use_case.dart';
@@ -336,6 +337,62 @@ void main() {
         verify: (_) {
           verify(() => mockCreateSlaPolicy.call(any())).called(1);
           verifyNever(() => mockGetSlaPolicies.call(any()));
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'VAL-030: should reject zero or negative targetHours and not invoke create use case',
+        build: () {
+          when(
+            () => mockCreateSlaPolicy.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.saveSlaPolicy(
+          name: 'Standard SLA',
+          targetHours: 0,
+          appliesTo: SlaAppliesTo.both,
+        ),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            const SectionState.error('Duração do SLA deve ser maior que zero'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateSlaPolicy.call(any()));
+        },
+      );
+
+      blocTest<SlaPoliciesCubit, SlaPoliciesState>(
+        'VAL-031: should reject empty or whitespace-only name without invoking use case',
+        build: () {
+          when(
+            () => mockCreateSlaPolicy.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockGetSlaPolicies.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) => cubit.saveSlaPolicy(
+          name: '   ',
+          targetHours: 24,
+          appliesTo: SlaAppliesTo.both,
+        ),
+        expect: () => [
+          isA<SlaPoliciesState>().having(
+            (s) => s.sections[SlaPoliciesSections.save],
+            'sections[save]',
+            const SectionState.error('Nome não pode ser vazio'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateSlaPolicy.call(any()));
         },
       );
     });
