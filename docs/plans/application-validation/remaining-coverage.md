@@ -1,24 +1,27 @@
-# Remaining validation coverage
+# Remaining validation gaps (Post-step-execution)
 
-Updated: 2026-09-19, after removing new widget tests from scope. This is a coverage-gap summary, not a claim that every listed feature lacks existing tests. Existing tests need to be reconciled against the planned cases before adding missing coverage.
+Updated: 2026-09-20. All 24 local feature step plans (CRUD, persistence contracts, domain, cubit/state, and routing guard regressions) have been executed, their regressions enabled, and their findings catalogued in [validation findings](../../testing/validation_findings.md) (VAL-001 through VAL-060).
 
-## Current authorized work
-
-1. **Domain rules across features.** Expand and execute boundary/error cases for authentication/session selection, company settings, users, registries, assets, providers, checklists, work orders, notifications, settings, and dashboard calculations. Location/area error propagation and maintenance recurrence have partial executed coverage. Invalid recurrence input and other business decisions remain outstanding.
-2. **Cubit/state behavior.** Validate loaded-data preservation after failed writes, retries, optional-value clearing, loading/error sections, reloads after CRUD, list/detail consistency, and subscription disposal. Location state has partial executed coverage; most other feature state plans remain unvalidated in this campaign.
-3. **Remaining CRUD/persistence contracts.** Map existing data tests and new local persistence tests against every feature's scenarios. Fill actual gaps in failure propagation, dependent deletion, restore/deactivation, filters, and cache consistency. Broad local persistence coverage already exists; do not duplicate it just to raise counts.
-4. **Work-order business flows.** Cover the status transition matrix, pause/resume, completion approval/rejection, mandatory checklist/evidence rules, assignments, tasks, observations, and related failure invariants at the domain/state layers. Local lifecycle persistence alone does not establish those rules.
-5. **Final non-widget regression review.** Run relevant files individually, record results before the next file, keep failing regressions enabled, and reconcile case coverage and known defects. Production fixes remain out of scope.
+The following gaps remain outside the completed local automated test campaign:
 
 ## Deferred release-validation gaps
 
-- Live CRUD and independently authenticated reloads using the configured ordinary accounts; company isolation and role/provider access checks.
-- Readiness blockers: password parsing (VAL-001), supervisor permission configuration (VAL-002), and runner-report parsing (VAL-003).
-- Actual offline reconnect/replay and app restart behavior; scheduled maintenance generation and database/Dart recurrence parity.
-- Real attachment upload/download, device notifications, and supported-device user journeys. External email/push actions retain their explicit authorization requirements.
+1. **Live database authentication & RLS enforcement**
+   - Independent verification with ordinary configured accounts (ADMIN_A, SUPERVISOR_A, TECH_A, PROVIDER_A, USER_B) across isolated test companies A and B.
+   - Requires resolving live readiness blockers: password parsing with dotenv interpolation ([VAL-001](../../testing/validation_findings.md#val-001--live-test-environment-parsing-changes-unquoted-passwords)) and supervisor permission naming reconciliation ([VAL-002](../../testing/validation_findings.md#val-002--supervisor-setup-does-not-match-application-permission-names)).
 
-These deferred gaps prevent claiming full application validation. They are not instructions to resume live/security/device work now. New widget-test creation is excluded; manual real-app checks remain separate.
+2. **Test reporter daemon envelope support**
+   - Resolving Flutter machine daemon envelope parsing in `tool/integration_run_summary.dart` ([VAL-003](../../testing/validation_findings.md#val-003--integration-report-treats-a-flutter-daemon-event-as-malformed)).
 
-## Completion rule
+3. **Live sync engine replay and offline recovery**
+   - Real network toggling, mobile process lifecycle termination/restart, and actual Supabase/Drift bidirectional sync verification under flaky connectivity.
+   - Deployed database recurrence parity and scheduler execution for maintenance plans.
 
-No feature is yet fully validated against its remaining acceptance criteria. Keep its step file until coverage and required checks are complete. A known defect stays in the [findings list](../../testing/validation_findings.md) for future fixes; do not change production code to make a regression pass.
+4. **External services & hardware capabilities**
+   - Real binary file upload/download via Cloudflare R2 / presigned URLs.
+   - Push notification delivery via FCM/APNs and email delivery verification with explicit test recipients.
+   - Supported release platform checks on physical iOS and Android hardware.
+
+## Production defect fixes
+
+The 60 identified application defects (VAL-001 through VAL-060) have active, failing regression tests in the codebase. Addressing these defects requires separate, authorized layer-by-layer fixes.
