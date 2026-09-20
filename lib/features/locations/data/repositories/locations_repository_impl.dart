@@ -1,9 +1,7 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/clients/remote/internet_client.dart';
 import 'package:o_jogo_da_obra/core/data/handlers/repository_handler.dart';
-import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/core/utils/type_defs.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_local_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
@@ -77,7 +75,7 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         remoteCallback: () => _remoteDataSource.createLocation(
           LocationModel.fromEntity(location),
         ),
-        onRemoteSuccess: (model) => _localDataSource.saveLocation(model!),
+        onRemoteSuccess: _localDataSource.saveLocation,
       );
 
   @override
@@ -87,7 +85,7 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         remoteCallback: () => _remoteDataSource.updateLocation(
           LocationModel.fromEntity(location),
         ),
-        onRemoteSuccess: (model) => _localDataSource.saveLocation(model!),
+        onRemoteSuccess: _localDataSource.saveLocation,
       );
 
   @override
@@ -137,7 +135,7 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         remoteCallback: () => _remoteDataSource.createArea(
           AreaRequestModel.fromEntity(area),
         ),
-        onRemoteSuccess: (model) => _localDataSource.saveArea(model!),
+        onRemoteSuccess: _localDataSource.saveArea,
       );
 
   @override
@@ -147,7 +145,7 @@ final class LocationsRepositoryImpl implements LocationsRepository {
         remoteCallback: () => _remoteDataSource.updateArea(
           AreaRequestModel.fromEntity(area),
         ),
-        onRemoteSuccess: (model) => _localDataSource.saveArea(model!),
+        onRemoteSuccess: _localDataSource.saveArea,
       );
 
   @override

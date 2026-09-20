@@ -273,7 +273,7 @@ void main() {
         act: (cubit) {
           cubit.setDateRange(
             startDate: DateTime(2026, 9, 10),
-            endDate: DateTime(2026, 9, 1),
+            endDate: DateTime(2026, 9),
           );
         },
         expect: () => [
@@ -290,7 +290,7 @@ void main() {
 
       blocTest<AccessLogsCubit, AccessLogsState>(
         'VAL-052: loadMore deduplicates incoming log entries to prevent duplicate IDs',
-        seed: () => AccessLogsState(logs: tLogs, page: 0, hasReachedMax: false),
+        seed: () => AccessLogsState(logs: tLogs),
         setUp: () {
           when(
             () => mockGetActiveCompanyIdUseCase.call(),

@@ -84,10 +84,14 @@ void main() {
     );
 
     when(() => mockGetActiveCompanyId()).thenReturn('default-company-id');
-    when(() => mockWatchChecklistTemplatesRealtime(companyId: any(named: 'companyId')))
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockWatchChecklistItemsRealtime(companyId: any(named: 'companyId')))
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockWatchChecklistTemplatesRealtime(
+        companyId: any(named: 'companyId'),
+      ),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockWatchChecklistItemsRealtime(companyId: any(named: 'companyId')),
+    ).thenAnswer((_) => const Stream.empty());
   });
 
   tearDown(GetIt.I.reset);
@@ -280,10 +284,12 @@ void main() {
       'VAL-037: should reject whitespace-only template name without calling createChecklistTemplate',
       setUp: () {
         when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
-        when(() => mockCreateChecklistTemplate(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockGetChecklists(any()))
-            .thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockCreateChecklistTemplate(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetChecklists(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       act: (cubit) async {
@@ -313,10 +319,12 @@ void main() {
       'VAL-038: should reject selection item type without options without calling createChecklistItem',
       setUp: () {
         when(() => mockGetActiveCompanyId()).thenReturn(tCompanyId);
-        when(() => mockCreateChecklistItem(any()))
-            .thenAnswer((_) async => const SuccessState(data: true));
-        when(() => mockGetChecklistItemsByTemplate(any()))
-            .thenAnswer((_) async => const SuccessState(data: []));
+        when(
+          () => mockCreateChecklistItem(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        when(
+          () => mockGetChecklistItemsByTemplate(any()),
+        ).thenAnswer((_) async => const SuccessState(data: []));
       },
       build: () => ChecklistTemplatesCubit(useCases: useCases),
       act: (cubit) async {
@@ -327,7 +335,6 @@ void main() {
             label: 'Escolha uma opção',
             type: ChecklistItemType.selection,
             isRequired: true,
-            options: null,
           ),
           isFalse,
         );
@@ -425,10 +432,7 @@ void main() {
       act: (cubit) =>
           cubit.reorderItems(templateId: tTemplateId, oldIndex: 0, newIndex: 2),
       verify: (cubit) {
-        expect(
-          cubit.state.templateItems.map((e) => e.sortOrder),
-          [0, 1, 2],
-        );
+        expect(cubit.state.templateItems.map((e) => e.sortOrder), [0, 1, 2]);
         // The item that was first is now last.
         expect(cubit.state.templateItems.last.sortOrder, 2);
         // All three shifted, so all three persist.
@@ -452,9 +456,9 @@ void main() {
     blocTest<ChecklistTemplatesCubit, ChecklistTemplatesState>(
       'reloads from source when a persist fails',
       setUp: () {
-        when(
-          () => mockUpdateChecklistItem(any()),
-        ).thenAnswer((_) async => FailureState<bool>(message: faker.lorem.word()));
+        when(() => mockUpdateChecklistItem(any())).thenAnswer(
+          (_) async => FailureState<bool>(message: faker.lorem.word()),
+        );
         when(
           () => mockGetChecklistItemsByTemplate(any()),
         ).thenAnswer((_) async => SuccessState(data: orderedItems()));

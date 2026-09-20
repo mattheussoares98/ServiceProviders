@@ -86,9 +86,7 @@ void main() {
       ),
     );
     registerFallbackValue(MaintenancePlanFactory.makeAttachmentEntity());
-    registerFallbackValue(
-      const DeleteAttachmentParams(attachmentId: '123'),
-    );
+    registerFallbackValue(const DeleteAttachmentParams(attachmentId: '123'));
   });
 
   late UserProfileEntity tUser;
@@ -624,11 +622,17 @@ void main() {
       ],
       verify: (_) {
         verify(
-          () => mockDeleteAttachment(any(
-            that: isA<DeleteAttachmentParams>()
-                .having((p) => p.attachmentId, 'attachmentId', tUploadedAttachmentList.first.id)
-                .having((p) => p.workOrderId, 'workOrderId', tWorkOrderId),
-          )),
+          () => mockDeleteAttachment(
+            any(
+              that: isA<DeleteAttachmentParams>()
+                  .having(
+                    (p) => p.attachmentId,
+                    'attachmentId',
+                    tUploadedAttachmentList.first.id,
+                  )
+                  .having((p) => p.workOrderId, 'workOrderId', tWorkOrderId),
+            ),
+          ),
         ).called(1);
       },
     );
@@ -672,9 +676,9 @@ void main() {
             .having((s) => s.pendingDeletions, 'pendingDeletions', isEmpty),
       ],
       verify: (_) {
-        final captured = verify(
-          () => mockDeleteAttachment(captureAny()),
-        ).captured.last as DeleteAttachmentParams;
+        final captured =
+            verify(() => mockDeleteAttachment(captureAny())).captured.last
+                as DeleteAttachmentParams;
         expect(captured.attachmentId, tUploadedAttachmentList.first.id);
         expect(captured.workOrderId, isNull);
       },
@@ -799,7 +803,7 @@ void main() {
         ).thenAnswer((_) async => const SuccessState(data: true));
         return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId)
           ..emit(
-            AttachmentsState.empty().copyWith(
+            const AttachmentsState.empty().copyWith(
               attachments: [tUploaded],
               uploadingIds: {tUploaded.id},
             ),

@@ -235,9 +235,9 @@ void main() {
     when(
       () => mockWatchChangeRequestsRealtime(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
-    when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
-      (_) async => const SuccessState(data: true),
-    );
+    when(
+      () => mockCanProviderCreateWorkOrder(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
     useCases = WorkOrdersCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -1266,12 +1266,15 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'VAL-039: should reject whitespace-only title without invoking create use case',
           build: () {
-            when(() => mockCreateWorkOrder.call(any()))
-                .thenAnswer((_) async => const SuccessState(data: true));
-            when(() => mockGetWorkOrders.call(any()))
-                .thenAnswer((_) async => const SuccessState(data: []));
-            when(() => mockGetChangeRequests.call(any()))
-                .thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
             return cubit;
           },
           act: (cubit) async {
@@ -1290,7 +1293,9 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              const SectionState.error('Título da ordem de serviço não pode ser vazio'),
+              const SectionState.error(
+                'Título da ordem de serviço não pode ser vazio',
+              ),
             ),
           ],
           verify: (_) {
@@ -1301,12 +1306,15 @@ void main() {
         blocTest<WorkOrdersCubit, WorkOrdersState>(
           'VAL-040: should reject negative financial values without invoking create use case',
           build: () {
-            when(() => mockCreateWorkOrder.call(any()))
-                .thenAnswer((_) async => const SuccessState(data: true));
-            when(() => mockGetWorkOrders.call(any()))
-                .thenAnswer((_) async => const SuccessState(data: []));
-            when(() => mockGetChangeRequests.call(any()))
-                .thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
             return cubit;
           },
           act: (cubit) async {
@@ -1318,7 +1326,7 @@ void main() {
               priority: tWorkOrder.priority,
               status: tWorkOrder.status,
               type: tWorkOrder.type,
-              laborCost: -50.0,
+              laborCost: -50,
             );
             expect(result, isFalse);
           },
@@ -1326,7 +1334,9 @@ void main() {
             isA<WorkOrdersState>().having(
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
-              const SectionState.error('Valores financeiros não podem ser negativos'),
+              const SectionState.error(
+                'Valores financeiros não podem ser negativos',
+              ),
             ),
           ],
           verify: (_) {
@@ -1907,9 +1917,9 @@ void providerModeTests() {
       mockGetAttachments = MockGetAttachmentsUseCase();
       mockSyncEngine = MockSyncEngine();
       mockCanProviderCreateWorkOrder = MockCanProviderCreateWorkOrderUseCase();
-      when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
-        (_) async => const SuccessState(data: true),
-      );
+      when(
+        () => mockCanProviderCreateWorkOrder(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
       when(
         () => mockSyncEngine.onSyncCompleted,
       ).thenAnswer((_) => const Stream.empty());
@@ -2221,9 +2231,9 @@ void providerModeTests() {
         'refuses to create when contracting company does not allow provider to create work orders',
         build: () {
           stubCreation();
-          when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
-            (_) async => const SuccessState(data: false),
-          );
+          when(
+            () => mockCanProviderCreateWorkOrder(any()),
+          ).thenAnswer((_) async => const SuccessState(data: false));
           return buildCubit();
         },
         act: (cubit) async {
@@ -2241,9 +2251,9 @@ void providerModeTests() {
         'sets canProviderCreateWorkOrder to false when company parameter prohibits it',
         build: () {
           stubCreation();
-          when(() => mockCanProviderCreateWorkOrder(any())).thenAnswer(
-            (_) async => const SuccessState(data: false),
-          );
+          when(
+            () => mockCanProviderCreateWorkOrder(any()),
+          ).thenAnswer((_) async => const SuccessState(data: false));
           return buildCubit();
         },
         act: (cubit) async {
