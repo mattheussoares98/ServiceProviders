@@ -107,6 +107,37 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     required SlaAppliesTo appliesTo,
     DateTime? createdAt,
   }) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      final message = 'Nome não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            SlaPoliciesSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (targetHours <= 0) {
+      final message = 'Duração do SLA deve ser maior que zero'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            SlaPoliciesSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(SlaPoliciesSections.save, SectionStatus.running),
@@ -120,7 +151,7 @@ class SlaPoliciesCubit extends BaseCubit<SlaPoliciesState> {
     final policy = SlaPolicyEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
-      name: name,
+      name: trimmedName,
       targetHours: targetHours,
       appliesTo: appliesTo,
       createdAt: createdAt ?? now,
