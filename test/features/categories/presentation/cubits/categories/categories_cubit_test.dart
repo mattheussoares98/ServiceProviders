@@ -360,6 +360,61 @@ void main() {
           verifyNever(() => mockGetCategories.call(any()));
         },
       );
+
+      blocTest<CategoriesCubit, CategoriesState>(
+        'should reject whitespace-only name without calling createCategory usecase',
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveCategory(
+            id: null,
+            name: '   ',
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<CategoriesState>().having(
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateCategory.call(any()));
+        },
+      );
+
+      blocTest<CategoriesCubit, CategoriesState>(
+        'should reject creating category with duplicate name already existing in state',
+        seed: () => cubit.state.copyWith(
+          categories: [tCategory],
+        ),
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveCategory(
+            id: null,
+            name: tCategory.name.toUpperCase(),
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<CategoriesState>().having(
+            (s) => s.sections[CategoriesSections.save],
+            'sections[save]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateCategory.call(any()));
+        },
+      );
     });
 
     group('deleteCategory', () {

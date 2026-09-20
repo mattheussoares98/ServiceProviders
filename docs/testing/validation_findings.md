@@ -245,3 +245,21 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: calling `LocationsCubit.saveArea` with a `locationId` that does not exist in `state.locations` rejects the operation with `SectionStatus.error` without delegating to `CreateAreaUseCase` per AREA-03 ("deleted/missing parent, parent deleted during editing, and forged company/location IDs cannot produce orphan data").
 - Actual: `LocationsCubit.saveArea` immediately builds an `AreaEntity` with the unverified `locationId` and delegates to `CreateAreaUseCase`.
 - Source: `lib/features/locations/presentation/cubits/locations/locations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-026 — CategoriesCubit.saveCategory does not reject whitespace-only category names
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/categories/presentation/cubits/categories/categories_cubit_test.dart`, "should reject whitespace-only name without calling createCategory usecase".
+- Reproduction: `flutter test --no-pub test/features/categories/presentation/cubits/categories/categories_cubit_test.dart --name "should reject whitespace-only name without calling createCategory" --reporter expanded`.
+- Expected: calling `CategoriesCubit.saveCategory(id: null, name: '   ')` rejects the empty/whitespace name and emits `SectionStatus.error` without delegating to `CreateCategoryUseCase` per CAT-02.
+- Actual: `CategoriesCubit.saveCategory` trims the name to `""`, constructs an invalid `CategoryEntity(name: "")`, and delegates to `CreateCategoryUseCase`.
+- Source: `lib/features/categories/presentation/cubits/categories/categories_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-027 — CategoriesCubit.saveCategory does not check for duplicate names within company
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 duplicate record creation / uniqueness guard failure.
+- Regression: `test/features/categories/presentation/cubits/categories/categories_cubit_test.dart`, "should reject creating category with duplicate name already existing in state".
+- Reproduction: `flutter test --no-pub test/features/categories/presentation/cubits/categories/categories_cubit_test.dart --name "should reject creating category with duplicate name" --reporter expanded`.
+- Expected: calling `CategoriesCubit.saveCategory` with a name matching an existing category in `state.categories` (case-insensitive) rejects the operation with `SectionStatus.error` without delegating to `CreateCategoryUseCase` per CAT-02 ("Empty/duplicate/case/long names and repeated submit; no duplicates or misleading success").
+- Actual: `CategoriesCubit.saveCategory` performs no duplicate check and delegates to `CreateCategoryUseCase` unconditionally.
+- Source: `lib/features/categories/presentation/cubits/categories/categories_cubit.dart`. Test remains enabled and failing; no application fix applied.
