@@ -462,6 +462,39 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     String? slaPolicyId,
     AppMode openedBy = AppMode.internal,
   }) async {
+    if (title.trim().isEmpty) {
+      final message = 'Título da ordem de serviço não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.saveWorkOrder,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if ((laborCost != null && laborCost < 0) ||
+        (partsCost != null && partsCost < 0) ||
+        (totalCost != null && totalCost < 0) ||
+        (price != null && price < 0)) {
+      final message = 'Valores financeiros não podem ser negativos'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.saveWorkOrder,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(

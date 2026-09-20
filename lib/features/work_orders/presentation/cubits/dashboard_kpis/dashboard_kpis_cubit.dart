@@ -49,6 +49,15 @@ class DashboardKpisCubit extends BaseCubit<DashboardKpisState> {
     List<WorkOrderEntity> workOrders, {
     DateTime? referenceDate,
   }) {
+    if (startDate.isAfter(endDate)) {
+      emit(
+        state.copyWith(
+          sections: withSection(BaseSections.load, SectionStatus.error),
+        ),
+      );
+      return;
+    }
+
     final startOfDay = DateTime(startDate.year, startDate.month, startDate.day);
     final endOfDay = DateTime(
       endDate.year,

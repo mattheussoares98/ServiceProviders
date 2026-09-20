@@ -225,6 +225,23 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
+    if (hasPendingPauses) {
+      final message =
+          'Já existe uma solicitação de pausa pendente para esta ordem de serviço'
+              .hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.requestPause,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     if (hasPendingCompletions) {
       final message =
           'Existe uma solicitação de conclusão pendente para esta ordem de serviço'
@@ -234,6 +251,7 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
           sections: withSection(
             PauseWorkflowSections.requestPause,
             SectionStatus.error,
+            errorMessage: message,
           ),
         ),
       );
@@ -327,6 +345,22 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
     String? reasonId,
     String? reviewedById,
   }) async {
+    final existingPause = state.pauseRequests.firstWhereOrNull((r) => r.id == id);
+    if (existingPause != null && existingPause.status != PauseRequestStatus.pending) {
+      final message = 'Solicitação de pausa já foi revisada'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            PauseWorkflowSections.reviewPause,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     final currentUserId = reviewedById ?? _useCases.getSessionUser().id;
     emit(
       state.copyWith(

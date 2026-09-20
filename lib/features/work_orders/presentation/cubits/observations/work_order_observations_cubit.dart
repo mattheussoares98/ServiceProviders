@@ -101,6 +101,18 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
     required WorkOrderEntity workOrder,
     required String content,
   }) async {
+    if (content.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrderObservationsSections.saveObservation,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      return false;
+    }
+
     final user = _useCases.getSessionUser();
     final isProviderMode =
         AppMode.fromName(_useCases.getSelectedMode()) == AppMode.provider;
@@ -184,6 +196,20 @@ class WorkOrderObservationsCubit extends BaseCubit<WorkOrderObservationsState> {
   }
 
   Future<bool> deleteObservation(String observationId) async {
+    final isProviderMode =
+        AppMode.fromName(_useCases.getSelectedMode()) == AppMode.provider;
+    if (isProviderMode) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrderObservationsSections.deleteObservation,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(

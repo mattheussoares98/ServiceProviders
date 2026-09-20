@@ -91,7 +91,7 @@ class CalculateWorkOrderKpisUseCase
 
       if (isBreached) {
         slaBreachedCount++;
-      } else {
+      } else if (wo.slaDeadlineAt != null) {
         completedWithinSlaCount++;
       }
 
