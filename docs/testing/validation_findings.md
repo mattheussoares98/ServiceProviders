@@ -131,3 +131,12 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: the manual street remains. Actual: the delayed response replaces it with the postal service street.
 - Source: CreateUpdateLocationPage.onCepChanged unconditionally assigns a returned nonempty street. The test uses a deterministic Completer, without a live address service.
 - Evidence: `build/file-validation/locations_widget.log`, durable record `runs/2026-09-19-domain-state-widget.jsonl`.
+
+## VAL-013 — Category minimum name length counts surrounding whitespace
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid form submission.
+- Regression: `test/features/categories/presentation/pages/category_form_test.dart`, rejects invalid trimmed category name " a ". Executed before the user excluded further widget-test creation.
+- Reproduction: enter a one-character name surrounded by spaces and a description, then save.
+- Expected: reject the name because its trimmed length is below the form's three-character minimum.
+- Actual: saveCategory is called with " a "; MinLengthValidator counts raw characters while CategoriesCubit trims the name. Remote acceptance is unverified.
+- Evidence: `build/file-validation/category_form.log`; final file result 5 passed, 1 failed. Whitespace-only and two-character names were rejected in this form. No application fix applied.

@@ -43,7 +43,7 @@ Expand these families into atomic case IDs in the run record. Apply [PERSIST, PE
 
 - [ ] Complete
 - **Layer:** UI validation.
-- **Actions/files:** Dashboard KPI cards, date-range controls, recent work, drawer/quick actions and provider home; record actual list/count correspondence. Inspect `lib/features/home/presentation/` and relevant routed/shared UI. Add focused widget tests and selected proposed `integration_test/` journeys; execute remaining cases with recorded manual steps on the agreed platforms.
+- **Actions/files:** Dashboard KPI cards, date-range controls, recent work, drawer/quick actions and provider home; record actual list/count correspondence. Inspect `lib/features/home/presentation/` and relevant routed/shared UI. Retain selected proposed real-app journeys for the later device-validation stage; execute these with recorded manual steps on the agreed platforms when that stage resumes.
 - **Acceptance criteria:** Every required HOME scenario passes in the real app, including restart/second-session checks for accepted mutations, permission denials, empty/loading/error/retry and relevant accessibility/layout checks. No open critical feature defect or silently skipped prerequisite.
-- **Validation:** Format, targeted analysis and affected widget tests; execute the recorded real-app command/manual journey with sanitized UI and authenticated-read evidence. Verify run-owned cleanup and reopen earlier phases if new defects invalidate them.
+- **Validation:** Execute the recorded real-app command/manual journey with sanitized UI and authenticated-read evidence. Verify run-owned cleanup and reopen earlier phases if new defects invalidate them.
 - **Evidence:** Not run. Record command/check, result, date and run link.

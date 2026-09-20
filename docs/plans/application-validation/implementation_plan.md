@@ -8,7 +8,9 @@ Find reproducible defects in real user journeys and establish repeatable regress
 
 ## Scope and strategy
 
-Validate every implemented feature in the current checkout, one feature at a time. Combine deterministic unit tests, repository/database integration tests, Cubit tests, widget tests, a focused set of real application journeys, and exploratory sessions. Use existing Flutter, bloc_test, mocktail, in-memory Drift, and Patrol infrastructure before adding tools. A database test does not prove that a screen works, and a screen displaying a saved value does not prove it reached the server.
+**Current scope:** automated CRUD, local persistence, domain, and Cubit/state tests. Do not create additional widget tests; they are not a completion requirement. Existing results remain historical evidence. Live database/security and real-device journeys remain deferred, separate release-validation gaps. See [remaining coverage](remaining-coverage.md).
+
+Validate every implemented feature in the current checkout, one feature at a time. Combine deterministic unit tests, repository/database integration tests, Cubit tests, a focused set of real application journeys, and exploratory sessions. Use existing Flutter, bloc_test, mocktail, in-memory Drift, and Patrol infrastructure before adding tools. A database test does not prove that a screen works, and a screen displaying a saved value does not prove it reached the server.
 
 Every supported create/update/delete action uses the [persistence protocol](validation-protocol.md). Features with deactivation, invitation revocation, append-only history, or settings updates use their actual lifecycle; do not invent delete actions. Run permissions against ordinary authenticated users as well as the existing privileged users. Test internal and provider modes separately.
 
@@ -25,7 +27,7 @@ The initial planning investigation was read-only. Execution evidence below and i
 
 ## Execution updates from the user
 
-- 2026-09-19: cross-layer CRUD, persistence, domain, state, and widget test work is authorized. Keep live/security/recovery execution deferred in the current scope. Small meaningful test and plan commits are authorized; temporary validation headers stay uncommitted.
+- 2026-09-19: cross-layer CRUD, persistence, domain, and state test work is authorized. The later scope revision excludes new widget tests. Keep live/security/recovery execution deferred in the current scope. Small meaningful test and plan commits are authorized; temporary validation headers stay uncommitted.
 
 - Implement the tests, run exactly one test file at a time, and finish recording its result before starting the next file.
 - Add a dated validation status at the beginning of each executed test file. A failed/blocked execution is not marked passed, and a header never disables future regression runs.
@@ -85,7 +87,7 @@ Steps 03–23 map to all 19 `lib/features/` directories; areas, tasks, pause rea
 - Persistence, dependency-safe deletion, lifecycle branches, and recovery pass on the target release build. Native-dependent cases run on real supported devices; unavailable platforms remain unvalidated.
 - The critical end-to-end journey passes on two consecutive clean fixture runs. Flaky cases are investigated rather than retried until green.
 - Fixtures are reconciled, profile permissions restored, pending queues accounted for, and permitted append-only test history inventoried. Preserve reproduction evidence before cleanup.
-- Targeted analysis/tests and the final ordinary regression suite pass. Live result counts match discovered/registered cases, and console, JSONL, and summary agree.
+- Targeted analysis and the final selected CRUD/persistence/domain/state regression files pass. Live result counts match discovered/registered cases, and console, JSONL, and summary agree.
 
 ## Plan validation
 

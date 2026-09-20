@@ -1,6 +1,6 @@
 # Application validation execution — 2026-09-19
 
-Scope: data tests, supporting test infrastructure, and incremental domain/state/widget coverage. Checkout: `a50dc25eaf94ddb8c40adcdd101f861b418965e4` plus the working changes recorded by each source digest. Tests run one file at a time; the dated status is written before the next file starts. Completion comments do not disable regression execution.
+Current scope: CRUD, persistence, domain, and Cubit/state tests. Further widget-test creation is excluded by the latest user instruction; prior widget results below remain historical evidence. Checkout: `a50dc25eaf94ddb8c40adcdd101f861b418965e4` plus the working changes recorded by each source digest. Tests run one file at a time; the dated status is written before the next file starts. Completion comments do not disable regression execution.
 
 This is partial validation, not a release approval or full feature completion. The application, database schema, live permissions, and `.env` were not changed. Confirmed defects remain unfixed, and their regression assertions remain enabled and failing. Read the [durable findings](validation_findings.md) before interpreting the results.
 
@@ -64,3 +64,9 @@ Executed sequentially, recording each file before starting the next. See [per-fi
 - Area creation form: 3 passed, 1 failed. Required-name rejection, retained fields/location across failed-create retry, and abandoning edits are covered; whitespace submission also reproduces VAL-011. The draft back-navigation finder was corrected to target the app's actual arrow button.
 - Maintenance-plan use cases: 24 passed, including 13 new calendar cases for leap years, year rollover, long intervals, weekday anchors, UTC offset boundaries, and restoring the 31st after February. These verify Dart calculations only; database recurrence parity and invalid-input validation remain outstanding.
 - Continuation total: **5 files, 102 passed, 3 failed**; **31 added cases** (28 passed, 3 failed). No additional live or reporter tests were run in this continuation.
+
+## Scope revision and final pre-revision results — 2026-09-19
+
+- No further widget tests will be created. Their creation is removed from plan actions, validation commands, and completion requirements. Existing tests/results are preserved; no test deletion was requested.
+- Before this scope change, registry edit/delete coverage passed 7/7, and the category form passed 5/6, exposing VAL-013. Both ran sequentially with passing targeted analysis. Their results are recorded in the existing per-file JSONL log.
+- Current remaining work is summarized in [remaining coverage](../plans/application-validation/remaining-coverage.md). Live database/security/device execution remains deferred. No new test run was started for this documentation revision.
