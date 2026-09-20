@@ -435,6 +435,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `AttachmentsCubit.retryUpload` immediately triggers `_uploadAttachment(attachment)` without verifying if the attachment is currently actively uploading.
 - Source: `lib/features/attachments/presentation/cubits/attachments/attachments_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-047 — MaintenancePlansCubit.saveMaintenancePlan allows empty or whitespace-only title
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/maintenance_plans/presentation/cubits/maintenance_plans_cubit_test.dart`, "VAL-047: rejects whitespace-only title without invoking create use case".
+- Reproduction: `flutter test --no-pub test/features/maintenance_plans/presentation/cubits/maintenance_plans_cubit_test.dart --name "VAL-047" --reporter expanded`.
+- Expected: calling `MaintenancePlansCubit.saveMaintenancePlan` with a whitespace-only title (e.g. `'   '`) rejects the operation with `SectionStatus.error` and returns false without calling `createMaintenancePlan` or `updateMaintenancePlan` per PLAN-01 ("Create plan with location/area/asset, internal/provider assignment, checklist, priority, currency/price, duration and lead time. Reload, edit/clear optional references...").
+- Actual: `MaintenancePlansCubit.saveMaintenancePlan` only checks `plan.locationId == null`, delegating to `CreateMaintenancePlanUseCase` with an empty title.
+- Source: `lib/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-048 — MaintenancePlansCubit.saveMaintenancePlan allows invalid intervalValue or negative leadTimeDays
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / scheduling boundary validation.
+- Regression: `test/features/maintenance_plans/presentation/cubits/maintenance_plans_cubit_test.dart`, "VAL-048: rejects non-positive intervalValue or negative leadTimeDays without invoking create use case".
+- Reproduction: `flutter test --no-pub test/features/maintenance_plans/presentation/cubits/maintenance_plans_cubit_test.dart --name "VAL-048" --reporter expanded`.
+- Expected: calling `MaintenancePlansCubit.saveMaintenancePlan` with `intervalValue <= 0` or `leadTimeDays < 0` rejects the plan with `SectionStatus.error` and returns false without calling `createMaintenancePlan` or `updateMaintenancePlan` per PLAN-01 ("Invalid intervals, lead-time bounds and foreign/deleted references fail").
+- Actual: `MaintenancePlansCubit.saveMaintenancePlan` performs no validation on recurrence intervals or lead time days, delegating directly to `CreateMaintenancePlanUseCase`.
+- Source: `lib/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 

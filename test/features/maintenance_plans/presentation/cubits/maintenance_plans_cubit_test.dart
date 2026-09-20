@@ -512,5 +512,65 @@ void main() {
         expect(state.plansWithErrors, [inactivePlan]);
       });
     });
+
+    group('VAL-047 & VAL-048 regression tests', () {
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'VAL-047: rejects whitespace-only title without invoking create use case',
+        build: () {
+          when(
+            () => mockGetMaintenancePlans.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockCreateMaintenancePlan.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          return cubit;
+        },
+        act: (c) async {
+          final result = await c.saveMaintenancePlan(
+            tPlan.copyWith(title: '   '),
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.save],
+            'save section',
+            const SectionState.error(),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateMaintenancePlan.call(any()));
+        },
+      );
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'VAL-048: rejects non-positive intervalValue or negative leadTimeDays without invoking create use case',
+        build: () {
+          when(
+            () => mockGetMaintenancePlans.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: []));
+          when(
+            () => mockCreateMaintenancePlan.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          return cubit;
+        },
+        act: (c) async {
+          final result = await c.saveMaintenancePlan(
+            tPlan.copyWith(intervalValue: 0, leadTimeDays: -1),
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.save],
+            'save section',
+            const SectionState.error(),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateMaintenancePlan.call(any()));
+        },
+      );
+    });
   });
 }
