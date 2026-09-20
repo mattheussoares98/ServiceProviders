@@ -116,5 +116,16 @@ void main() {
       expect(result, isA<AttachmentInvalidSize>());
       expect((result as AttachmentInvalidSize).maxBytes, 50 * 1024 * 1024);
     });
+
+    test(
+      'VAL-045: should reject zero-byte or negative-byte files as invalid size',
+      () {
+        final zeroResult = AttachmentFileValidator.validate('jpg', 0);
+        expect(zeroResult, isA<AttachmentInvalidSize>());
+
+        final negativeResult = AttachmentFileValidator.validate('jpg', -1);
+        expect(negativeResult, isA<AttachmentInvalidSize>());
+      },
+    );
   });
 }

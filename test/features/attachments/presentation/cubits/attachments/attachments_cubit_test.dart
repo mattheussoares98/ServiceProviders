@@ -784,5 +784,36 @@ void main() {
         verify(() => mockOpenAttachment(tAttachment)).called(1);
       },
     );
+
+    blocTest<AttachmentsCubit, AttachmentsState>(
+      'VAL-046: should not trigger upload when attachment is already actively uploading',
+      build: () {
+        final tUploaded = tAttachment.copyWith(
+          uploadStatus: UploadStatus.uploaded,
+        );
+        when(
+          () => mockGetAttachments(any()),
+        ).thenAnswer((_) async => SuccessState(data: [tUploaded]));
+        when(
+          () => mockUploadAttachment(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return AttachmentsCubit(useCases: useCases, workOrderId: tWorkOrderId)
+          ..emit(
+            AttachmentsState.empty().copyWith(
+              attachments: [tUploaded],
+              uploadingIds: {tUploaded.id},
+            ),
+          );
+      },
+      act: (cubit) async {
+        final tUploaded = tAttachment.copyWith(
+          uploadStatus: UploadStatus.uploaded,
+        );
+        await cubit.retryUpload(tUploaded);
+      },
+      verify: (_) {
+        verifyNever(() => mockUploadAttachment(any()));
+      },
+    );
   });
 }

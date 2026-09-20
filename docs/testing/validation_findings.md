@@ -417,6 +417,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `WorkOrderObservationsCubit.deleteObservation` does not check `getSelectedMode` or provider role permissions, delegating directly to `_useCases.deleteObservation`.
 - Source: `lib/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-045 — AttachmentFileValidator accepts zero-byte and negative-byte files as valid
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 data integrity / invalid file size validation.
+- Regression: `test/features/attachments/domain/value_objects/attachment_file_validator_test.dart`, "VAL-045: should reject zero-byte or negative-byte files as invalid size".
+- Reproduction: `flutter test --no-pub test/features/attachments/domain/value_objects/attachment_file_validator_test.dart --name "VAL-045" --reporter expanded`.
+- Expected: `AttachmentFileValidator.validate` returns `AttachmentInvalidSize` when `sizeBytes <= 0` per FILE-02 ("At-limit and one-byte-over-limit original files, unsupported/uppercase/double extensions, corrupt/zero-byte and mismatched content; use configured limits plus actual platform rules").
+- Actual: `AttachmentFileValidator.validate` only checks `sizeBytes > maxBytes`, returning `AttachmentValid()` for empty 0-byte or negative-byte corrupt files.
+- Source: `lib/features/attachments/domain/value_objects/attachment_file_validator.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-046 — AttachmentsCubit.retryUpload triggers concurrent duplicate upload when already uploading
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 race condition / redundant network request.
+- Regression: `test/features/attachments/presentation/cubits/attachments/attachments_cubit_test.dart`, "VAL-046: should not trigger upload when attachment is already actively uploading".
+- Reproduction: `flutter test --no-pub test/features/attachments/presentation/cubits/attachments/attachments_cubit_test.dart --name "VAL-046" --reporter expanded`.
+- Expected: calling `AttachmentsCubit.retryUpload` on an attachment whose ID is already in `state.uploadingIds` should no-op and avoid triggering a duplicate concurrent upload per FILE-01 / FILE-03 ("Cancel picker/upload and retry failure without ghost rows... Duplicate hash/reupload and restore of deleted attachment follow the intended deduplication scope").
+- Actual: `AttachmentsCubit.retryUpload` immediately triggers `_uploadAttachment(attachment)` without verifying if the attachment is currently actively uploading.
+- Source: `lib/features/attachments/presentation/cubits/attachments/attachments_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 
