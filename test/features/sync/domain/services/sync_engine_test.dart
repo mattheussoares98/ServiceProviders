@@ -183,5 +183,47 @@ void main() {
         verify(() => mockProcessSyncQueueUseCase.call()).called(1);
       },
     );
+
+    group('VAL-057 & VAL-058 regression tests', () {
+      test(
+        'VAL-057: retryEntity does not invoke retryDeadLetterForEntity when in provider mode',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockSessionRepository.getSelectedMode(),
+          ).thenReturn(AppMode.provider.name);
+          when(
+            () => mockSyncRepository.retryDeadLetterForEntity(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          await syncEngine.retryEntity('wo-123');
+
+          verifyNever(() => mockSyncRepository.retryDeadLetterForEntity(any()));
+        },
+      );
+
+      test(
+        'VAL-058: retryEntity does not invoke retryDeadLetterForEntity for empty/whitespace entityId',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(
+            () => mockSessionRepository.getSelectedMode(),
+          ).thenReturn(AppMode.internal.name);
+          when(
+            () => mockSyncRepository.retryDeadLetterForEntity(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockProcessSyncQueueUseCase.call(),
+          ).thenAnswer((_) async => const SuccessState(data: 0));
+          when(
+            () => mockGetPendingSyncCountUseCase.call(),
+          ).thenAnswer((_) async => const SuccessState(data: 0));
+
+          await syncEngine.retryEntity('   ');
+
+          verifyNever(() => mockSyncRepository.retryDeadLetterForEntity(any()));
+        },
+      );
+    });
   });
 }

@@ -525,8 +525,20 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `DashboardKpisCubit.changeDateRange` does not validate date ordering, constructing inverted bounds and computing metrics as success.
 - Source: `lib/features/work_orders/presentation/cubits/dashboard_kpis/dashboard_kpis_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-057 — SyncEngineImpl.retryEntity invokes retryDeadLetterForEntity when in provider mode
 
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P1 offline sync policy / provider mode boundary violation.
+- Regression: `test/features/sync/domain/services/sync_engine_test.dart`, "VAL-057: retryEntity does not invoke retryDeadLetterForEntity when in provider mode".
+- Reproduction: `flutter test --no-pub test/features/sync/domain/services/sync_engine_test.dart --name "VAL-057" --reporter expanded`.
+- Expected: in provider mode (`AppMode.provider`), `SyncEngineImpl.retryEntity` should not invoke `SyncRepository.retryDeadLetterForEntity` or queue processing per SYNC-05 ("Provider mode operates strictly online; sync queue processing and offline retry actions are prohibited").
+- Actual: `SyncEngineImpl.retryEntity` directly calls `_syncRepository.retryDeadLetterForEntity(entityId)` without checking `_sessionRepository.getSelectedMode()`.
+- Source: `lib/features/sync/domain/services/sync_engine.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-058 — SyncEngineImpl.retryEntity invokes retryDeadLetterForEntity for empty/whitespace entityId
 
-
-
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 domain validation / dead-letter queue operation with invalid input.
+- Regression: `test/features/sync/domain/services/sync_engine_test.dart`, "VAL-058: retryEntity does not invoke retryDeadLetterForEntity for empty/whitespace entityId".
+- Reproduction: `flutter test --no-pub test/features/sync/domain/services/sync_engine_test.dart --name "VAL-058" --reporter expanded`.
+- Expected: calling `SyncEngineImpl.retryEntity` with empty or whitespace-only entity ID should be rejected without invoking `SyncRepository.retryDeadLetterForEntity` per SYNC-03 ("Validate retry entity identifiers and prevent corrupted queue operations").
+- Actual: `SyncEngineImpl.retryEntity` forwards empty or whitespace entity identifiers directly to repository dead-letter handling.
+- Source: `lib/features/sync/domain/services/sync_engine.dart`. Test remains enabled and failing; no application fix applied.
