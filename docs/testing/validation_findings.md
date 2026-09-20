@@ -140,3 +140,51 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: reject the name because its trimmed length is below the form's three-character minimum.
 - Actual: saveCategory is called with " a "; MinLengthValidator counts raw characters while CategoriesCubit trims the name. Remote acceptance is unverified.
 - Evidence: `build/file-validation/category_form.log`; final file result 5 passed, 1 failed. Whitespace-only and two-character names were rejected in this form. No application fix applied.
+
+## VAL-014 — Logout does not clear selectedCompanyId from local storage
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P1 cross-session tenant leak.
+- Regression: `test/features/auth/data/repositories/session_repository_impl_test.dart`, "should clear selectedCompanyId from local storage on logout".
+- Reproduction: `flutter test --no-pub test/features/auth/data/repositories/session_repository_impl_test.dart --reporter expanded`.
+- Expected: upon calling `SessionRepository.logout()`, `SessionLocalDataSource.saveSelectedCompanyId(null)` is invoked to purge tenant selection.
+- Actual: only `saveUserData` and `clearSelectedMode` are called; `selectedCompanyId` remains in local storage. A subsequently logged-in account (e.g. from another company) inherits the prior user's `selectedCompanyId`.
+- Source: `lib/features/auth/data/repositories/session_repository_impl.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-015 — Inactive user login navigates to home without rejection
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P1 unauthorized access.
+- Regression: `test/features/auth/presentation/cubits/login/login_cubit_test.dart`, "login should reject or not navigate to HomeRoute when user is inactive".
+- Reproduction: `flutter test --no-pub test/features/auth/presentation/cubits/login/login_cubit_test.dart --reporter expanded`.
+- Expected: logging in with an inactive account (`user.isActive == false`) is denied and prevents routing to protected app pages per AUTH-03.
+- Actual: `LoginCubit.login` saves user data and replaces route with `HomeRoute()`.
+- Source: `lib/features/auth/presentation/cubits/login/login_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-016 — Company-less user without provider profile enters redirect loop
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 redirect loop / denial failure.
+- Regression: `test/features/auth/presentation/cubits/login/login_cubit_test.dart`, "login should not navigate to HomeRoute when user has neither internal company nor provider profile".
+- Reproduction: `flutter test --no-pub test/features/auth/presentation/cubits/login/login_cubit_test.dart --reporter expanded`.
+- Expected: a user lacking both company membership and provider profile must not be routed to `HomeRoute()`; per AUTH-03, company-less users must receive appropriate onboarding/denial instead of a redirect loop.
+- Actual: `LoginCubit.login` defaults unassigned users to `AppMode.internal` and routes to `HomeRoute()`, where `CompanyGuard` immediately redirects them back to `LoginRoute()`.
+- Source: `lib/features/auth/presentation/cubits/login/login_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-017 — ModeSwitcher loads invalid mode when user lacks matching profile
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid mode resolution.
+- Regression: `test/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit_test.dart`, "checkEligibilityAndLoadMode should not select provider mode when user has no provider profile".
+- Reproduction: `flutter test --no-pub test/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit_test.dart --reporter expanded`.
+- Expected: an internal-only user must not have `selectedMode: AppMode.provider` even if `savedMode` in local storage was set to 'provider' per AUTH-03.
+- Actual: `ModeSwitcherCubit.checkEligibilityAndLoadMode` blindly maps `savedMode` to `currentMode` without cross-referencing available profiles.
+- Source: `lib/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-018 — CompanyCubit.switchCompany mutates user profile to non-existent company ID
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 data integrity / invalid company switch.
+- Regression: `test/features/company/presentation/cubits/company/company_cubit_test.dart`, "switchCompany should not switch company or update user profile when target company does not exist in companies list".
+- Reproduction: `flutter test --no-pub test/features/company/presentation/cubits/company/company_cubit_test.dart --reporter expanded`.
+- Expected: calling `switchCompany` with an ID not present in `state.companies` should reject the operation without mutating the user profile or setting `selectedCompanyId` per COMP-02.
+- Actual: `CompanyCubit.switchCompany` unconditionally updates the user profile and session to the arbitrary `companyId` before checking if the company is loaded, resulting in `company = null` and a corrupted profile `companyId`.
+- Source: `lib/features/company/presentation/cubits/company/company_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+
+

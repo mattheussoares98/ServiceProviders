@@ -243,6 +243,36 @@ void main() {
 
         await sessionRepository.logout();
       });
+
+      test(
+        'should clear selectedCompanyId from local storage on logout',
+        () async {
+          registerFallbackValue(
+            UserDataModel.fromEntity(UserFactory.makeUserDataEntity()),
+          );
+          when(() => mockSupabaseAuthClient.logout()).thenAnswer((_) async {});
+          when(
+            () => mockSessionLocalDataSource.clearSelectedMode(),
+          ).thenAnswer((_) async {});
+          when(
+            () => mockSessionLocalDataSource.saveSelectedCompanyId(any()),
+          ).thenAnswer((_) async {});
+          when(
+            () => mockSessionLocalDataSource.saveUserData(any()),
+          ).thenAnswer((_) async {});
+          final mockSession = MockSession();
+          when(() => mockSession.accessToken).thenReturn('');
+          when(
+            () => mockSupabaseAuthClient.currentSession,
+          ).thenReturn(mockSession);
+
+          await sessionRepository.logout();
+
+          verify(
+            () => mockSessionLocalDataSource.saveSelectedCompanyId(null),
+          ).called(1);
+        },
+      );
     });
 
     group('currentAuthUser', () {

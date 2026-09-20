@@ -1,3 +1,5 @@
+// Blockers: docs/testing/validation_findings.md VAL-001, VAL-002, VAL-003.
+// Targeted flutter analyze passed; no business-row mutations were performed.
 @Tags(['integration'])
 library;
 

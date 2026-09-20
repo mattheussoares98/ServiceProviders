@@ -1,3 +1,5 @@
+// Finding: docs/testing/validation_findings.md VAL-008.
+// Targeted flutter analyze passed; local SQLite only; no fixes applied.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_local_data_source.dart';

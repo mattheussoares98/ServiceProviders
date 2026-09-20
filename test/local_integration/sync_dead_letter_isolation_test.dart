@@ -1,3 +1,5 @@
+// Finding: docs/testing/validation_findings.md VAL-007.
+// Targeted flutter analyze passed; local SQLite only; no fixes applied.
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';

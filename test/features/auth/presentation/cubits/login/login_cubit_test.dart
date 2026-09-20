@@ -300,6 +300,67 @@ void main() {
   );
 
   blocTest<LoginCubit, LoginState>(
+    'login should reject or not navigate to HomeRoute when user is inactive',
+    build: () {
+      final inactiveUserData = userData.copyWith(
+        user: userData.user.copyWith(isActive: false),
+      );
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: inactiveUserData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        email: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    verify: (_) {
+      verifyNever(
+        () => mockNavigationClient.replaceAllRoute(const HomeRoute()),
+      );
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
+    'login should not navigate to HomeRoute when user has neither internal company nor provider profile',
+    build: () {
+      final companylessUserData = userData.copyWith(
+        user: userData.user.copyWith(companyId: ''),
+      );
+      when(
+        () => mockLoginUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: companylessUserData));
+      when(() => mockSetSessionUseCase.call(any())).thenReturn(null);
+      when(
+        () => mockSaveUserDataUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+      when(
+        () => mockGetServiceProviderProfilesByAuthUserUseCase.call(any()),
+      ).thenAnswer((_) async => const SuccessState(data: []));
+
+      return loginCubit;
+    },
+    act: (cubit) async {
+      await cubit.login(
+        email: faker.internet.userName(),
+        password: faker.internet.password(),
+      );
+    },
+    verify: (_) {
+      verifyNever(
+        () => mockNavigationClient.replaceAllRoute(const HomeRoute()),
+      );
+    },
+  );
+
+  blocTest<LoginCubit, LoginState>(
     'login should not navigate and emit loaded state on failure',
     build: () {
       when(

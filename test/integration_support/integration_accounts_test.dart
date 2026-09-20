@@ -1,3 +1,4 @@
+// Targeted flutter analyze passed; live tests were disabled.
 import 'package:flutter_test/flutter_test.dart';
 
 import '../integration/core/integration_accounts.dart';

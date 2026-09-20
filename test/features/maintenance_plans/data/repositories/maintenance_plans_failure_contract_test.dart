@@ -1,3 +1,5 @@
+// Finding: docs/testing/validation_findings.md VAL-006.
+// Targeted flutter analyze passed; mocked clients only; no fixes applied.
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

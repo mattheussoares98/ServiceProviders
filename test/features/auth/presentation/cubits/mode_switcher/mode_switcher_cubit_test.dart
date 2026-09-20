@@ -116,6 +116,25 @@ void main() {
     );
 
     blocTest<ModeSwitcherCubit, ModeSwitcherState>(
+      'checkEligibilityAndLoadMode should not select provider mode when user has no provider profile',
+      build: () {
+        final user = UserFactory.makeUserProfileEntity().copyWith(
+          companyId: 'company_123',
+        );
+        when(() => mockGetSessionUser.call()).thenReturn(user);
+        when(
+          () => mockGetServiceProviderProfilesByAuthUser.call(user.id),
+        ).thenAnswer((_) async => const SuccessState(data: []));
+        when(() => mockGetSelectedMode.call()).thenReturn('provider');
+        return cubit;
+      },
+      act: (cubit) => cubit.checkEligibilityAndLoadMode(),
+      expect: () => [
+        const ModeSwitcherState(selectedMode: AppMode.internal),
+      ],
+    );
+
+    blocTest<ModeSwitcherCubit, ModeSwitcherState>(
       'selectMode should save mode and navigate to HomeRoute when "internal" is selected',
       build: () {
         when(() => mockSaveSelectedMode.call(any())).thenAnswer((_) async {});

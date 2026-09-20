@@ -507,6 +507,23 @@ void main() {
         ),
       ],
     );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should not switch company or update user profile when target company does not exist in companies list',
+      build: () {
+        final superAdmin = UserFactory.makeUserProfileEntity().copyWith(
+          email: 'mattheussbarosa98@gmail.com',
+        );
+        when(() => mockGetSessionUserUseCase.call()).thenReturn(superAdmin);
+        return companyCubit
+          ..emit(CompanyState(companies: companies, company: companies.first));
+      },
+      act: (cubit) => cubit.switchCompany('non_existent_company_id'),
+      verify: (_) {
+        verifyNever(() => mockUpdateUserProfileUseCase.call(any()));
+        verifyNever(() => mockSetSelectedCompanyIdUseCase.call(any()));
+      },
+    );
   });
 
   group('changeLogo', () {

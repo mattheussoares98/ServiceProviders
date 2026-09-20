@@ -1,3 +1,5 @@
+// Finding: docs/testing/validation_findings.md VAL-003.
+// Targeted flutter analyze passed; synthetic machine output only.
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';

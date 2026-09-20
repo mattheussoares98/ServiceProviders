@@ -1,3 +1,5 @@
+// Findings: docs/testing/validation_findings.md VAL-009 and VAL-010.
+// Targeted flutter analyze passed; local SQLite and fake tokens only.
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/core/clients/local/local_storage_client.dart';
 import 'package:o_jogo_da_obra/features/users/data/data_sources/users_local_data_source.dart';
