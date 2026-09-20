@@ -286,10 +286,7 @@ void main() {
         'should reject whitespace-only name without calling createSector usecase',
         build: () => cubit,
         act: (cubit) async {
-          final result = await cubit.saveSector(
-            id: null,
-            name: '   ',
-          );
+          final result = await cubit.saveSector(name: '   ');
           expect(result, isFalse);
         },
         expect: () => [
@@ -310,13 +307,10 @@ void main() {
 
       blocTest<SectorsCubit, SectorsState>(
         'should reject creating sector with duplicate name already existing in state',
-        seed: () => cubit.state.copyWith(
-          sectors: [tSector],
-        ),
+        seed: () => cubit.state.copyWith(sectors: [tSector]),
         build: () => cubit,
         act: (cubit) async {
           final result = await cubit.saveSector(
-            id: null,
             name: tSector.name.toUpperCase(),
           );
           expect(result, isFalse);

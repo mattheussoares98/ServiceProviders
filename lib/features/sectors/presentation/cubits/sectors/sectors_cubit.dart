@@ -99,6 +99,42 @@ class SectorsCubit extends BaseCubit<SectorsState> {
   }
 
   Future<bool> saveSector({String? id, required String name}) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      final message = 'Nome do setor não pode estar vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            SectorsSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    final isDuplicate = state.sectors.any(
+      (s) =>
+          s.id != id &&
+          s.name.trim().toLowerCase() == trimmedName.toLowerCase(),
+    );
+    if (isDuplicate) {
+      final message = 'Já existe um setor com este nome'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            SectorsSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(SectorsSections.save, SectionStatus.running),
@@ -119,7 +155,7 @@ class SectorsCubit extends BaseCubit<SectorsState> {
     final sector = SectorEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
-      name: name.trim(),
+      name: trimmedName,
       createdAt: existingSector?.createdAt ?? now,
       updatedAt: now,
       deletedAt: null,
