@@ -454,4 +454,73 @@ void main() {
       await cubit.close();
     });
   });
+
+  group('VAL-043 & VAL-044 regression tests', () {
+    blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+      'VAL-043: rejects empty or whitespace-only observation content without calling create use case',
+      build: () {
+        when(() => mockGetSessionUser.call())
+            .thenReturn(UserFactory.makeUserProfileEntity());
+        when(() => mockGetSelectedMode.call()).thenReturn(AppMode.internal.name);
+        when(() => createUseCase.call(any<WorkOrderObservationEntity>())).thenAnswer(
+          (inv) async => SuccessState(
+            data: inv.positionalArguments.first as WorkOrderObservationEntity,
+          ),
+        );
+        return WorkOrderObservationsCubit(
+          useCases: cubitUseCases,
+          workOrderId: tWorkOrderId,
+        );
+      },
+      act: (cubit) async {
+        await Future<void>.delayed(Duration.zero);
+        final result = await cubit.createObservation(
+          workOrder:
+              WorkOrderFactory.makeWorkOrderEntity().copyWith(id: tWorkOrderId),
+          content: '   ',
+        );
+        expect(result, isFalse);
+      },
+      skip: 1,
+      expect: () => [
+        isA<WorkOrderObservationsState>().having(
+          (s) => s.sections[WorkOrderObservationsSections.saveObservation],
+          'saveObservation section',
+          const SectionState.error(),
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => createUseCase.call(any<WorkOrderObservationEntity>()));
+      },
+    );
+
+    blocTest<WorkOrderObservationsCubit, WorkOrderObservationsState>(
+      'VAL-044: denies observation deletion in provider mode to preserve immutable history',
+      build: () {
+        when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
+        when(() => deleteUseCase.call(any<String>()))
+            .thenAnswer((_) async => const SuccessState(data: null));
+        return WorkOrderObservationsCubit(
+          useCases: cubitUseCases,
+          workOrderId: tWorkOrderId,
+        );
+      },
+      act: (cubit) async {
+        await Future<void>.delayed(Duration.zero);
+        final result = await cubit.deleteObservation('obs-123');
+        expect(result, isFalse);
+      },
+      skip: 1,
+      expect: () => [
+        isA<WorkOrderObservationsState>().having(
+          (s) => s.sections[WorkOrderObservationsSections.deleteObservation],
+          'deleteObservation section',
+          const SectionState.error(),
+        ),
+      ],
+      verify: (_) {
+        verifyNever(() => deleteUseCase.call(any<String>()));
+      },
+    );
+  });
 }

@@ -399,6 +399,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `PauseWorkflowCubit.reviewPause` directly delegates to `_useCases.reviewPause` without checking if the request in state is currently pending.
 - Source: `lib/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-043 — WorkOrderObservationsCubit.createObservation allows empty or whitespace-only content
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_test.dart`, "VAL-043: rejects empty or whitespace-only observation content without calling create use case".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_test.dart --name "VAL-043" --reporter expanded`.
+- Expected: calling `WorkOrderObservationsCubit.createObservation` with `content: '   '` rejects empty/whitespace content with `SectionStatus.error` and returns false without delegating to `CreateWorkOrderObservationUseCase` per COL-02 ("Empty/long content, concurrent observations and realtime reconnect retain each authorized event exactly once...").
+- Actual: `WorkOrderObservationsCubit.createObservation` trims the content to `""` and delegates to `CreateWorkOrderObservationUseCase` with an empty string.
+- Source: `lib/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-044 — WorkOrderObservationsCubit.deleteObservation allows deletion in provider mode
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 unauthorized history mutation / provider mode restriction violation.
+- Regression: `test/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_test.dart`, "VAL-044: denies observation deletion in provider mode to preserve immutable history".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/observations/work_order_observations_cubit_test.dart --name "VAL-044" --reporter expanded`.
+- Expected: calling `WorkOrderObservationsCubit.deleteObservation` while in provider mode rejects the operation with `SectionStatus.error` and returns false without delegating to `DeleteWorkOrderObservationUseCase` per COL-02 ("Add/edit/delete observations only for permitted actors; provider history deletion is denied").
+- Actual: `WorkOrderObservationsCubit.deleteObservation` does not check `getSelectedMode` or provider role permissions, delegating directly to `_useCases.deleteObservation`.
+- Source: `lib/features/work_orders/presentation/cubits/observations/work_order_observations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 
