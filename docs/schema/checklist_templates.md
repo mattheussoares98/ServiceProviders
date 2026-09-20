@@ -7,3 +7,6 @@ Pre-configured checklists for inspections.
 | `name` | VARCHAR(255) | NO | - | Template name |
 | `description` | VARCHAR(1000) | YES | - | Inspection details |
 | `category_id` | UUID | YES | - | FK → `categories.id` (Set Null) |
+
+### Constraints
+- `chk_checklist_templates_name_not_empty`: `CHECK (length(trim(name)) > 0)`

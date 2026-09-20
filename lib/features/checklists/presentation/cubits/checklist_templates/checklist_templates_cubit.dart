@@ -163,6 +163,19 @@ class ChecklistTemplatesCubit extends BaseCubit<ChecklistTemplatesState> {
     String? categoryId,
     DateTime? createdAt,
   }) async {
+    if (name.trim().isEmpty) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            ChecklistTemplatesSections.saveTemplate,
+            SectionStatus.error,
+            errorMessage: 'Nome do modelo não pode ser vazio'.hardcoded,
+          ),
+        ),
+      );
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(
@@ -279,6 +292,22 @@ class ChecklistTemplatesCubit extends BaseCubit<ChecklistTemplatesState> {
     int sortOrder = 0,
     DateTime? createdAt,
   }) async {
+    final isSelectionType =
+        type == ChecklistItemType.selection ||
+        type == ChecklistItemType.multiSelection;
+    if (isSelectionType && (options == null || options.isEmpty)) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            ChecklistTemplatesSections.saveItem,
+            SectionStatus.error,
+            errorMessage: 'Informe ao menos uma opção'.hardcoded,
+          ),
+        ),
+      );
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(

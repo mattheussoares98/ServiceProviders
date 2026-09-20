@@ -313,7 +313,15 @@ final class ChecklistsLocalDataSourceImpl implements ChecklistsLocalDataSource {
         return SuccessState.nil;
       }
       for (final response in responses) {
-        await saveResponse(response);
+        final result = await saveResponse(response);
+        if (result is FailureState) {
+          return FailureState(
+            message: result.message,
+            error: result.error,
+            statusCode: result.statusCode,
+            response: result.response,
+          );
+        }
       }
       return SuccessState.nil;
     });
