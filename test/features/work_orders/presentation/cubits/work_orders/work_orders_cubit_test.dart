@@ -1262,6 +1262,77 @@ void main() {
             verifyNever(() => mockDeleteAttachment.call(any()));
           },
         );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'VAL-039: should reject whitespace-only title without invoking create use case',
+          build: () {
+            when(() => mockCreateWorkOrder.call(any()))
+                .thenAnswer((_) async => const SuccessState(data: true));
+            when(() => mockGetWorkOrders.call(any()))
+                .thenAnswer((_) async => const SuccessState(data: []));
+            when(() => mockGetChangeRequests.call(any()))
+                .thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              locationId: tWorkOrder.locationId,
+              title: '   ',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.error('Título da ordem de serviço não pode ser vazio'),
+            ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockCreateWorkOrder.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'VAL-040: should reject negative financial values without invoking create use case',
+          build: () {
+            when(() => mockCreateWorkOrder.call(any()))
+                .thenAnswer((_) async => const SuccessState(data: true));
+            when(() => mockGetWorkOrders.call(any()))
+                .thenAnswer((_) async => const SuccessState(data: []));
+            when(() => mockGetChangeRequests.call(any()))
+                .thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              locationId: tWorkOrder.locationId,
+              title: 'Manutenção Preventiva',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+              laborCost: -50.0,
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.error('Valores financeiros não podem ser negativos'),
+            ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockCreateWorkOrder.call(any()));
+          },
+        );
       });
 
       group('update', () {

@@ -363,6 +363,25 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `ChecklistTemplatesCubit.saveItem` accepts `options: null` for selection types and delegates to `CreateChecklistItemUseCase`, creating an unanswerable selection item.
 - Source: `lib/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-039 — WorkOrdersCubit.saveWorkOrder does not reject whitespace-only title
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_test.dart`, "VAL-039: should reject whitespace-only title without invoking create use case".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_test.dart --name "VAL-039" --reporter expanded`.
+- Expected: calling `WorkOrdersCubit.saveWorkOrder` with `title: '   '` rejects empty/whitespace title with `SectionStatus.error` and returns false without delegating to `CreateWorkOrderUseCase` per WO-01 ("Ordinary admin creates an internal order with valid location/area/asset, assignee... persist, reload, update...").
+- Actual: `WorkOrdersCubit.saveWorkOrder` trims the title to `""` and delegates to `CreateWorkOrderUseCase` with an empty title.
+- Source: `lib/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-040 — WorkOrdersCubit.saveWorkOrder does not validate negative financial amounts
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / financial boundary validation.
+- Regression: `test/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_test.dart`, "VAL-040: should reject negative financial values without invoking create use case".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/work_orders/work_orders_cubit_test.dart --name "VAL-040" --reporter expanded`.
+- Expected: calling `WorkOrdersCubit.saveWorkOrder` with negative cost or price values (e.g. `laborCost: -50.0`) rejects negative amounts with `SectionStatus.error` and returns false without delegating to `CreateWorkOrderUseCase` per WO-05 ("Invalid/deleted/cross-company related IDs and malformed enum/date/amount values leave no partial aggregate").
+- Actual: `WorkOrdersCubit.saveWorkOrder` accepts negative financial amounts and passes them directly to `CreateWorkOrderUseCase`.
+- Source: `lib/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+
 
 
 
