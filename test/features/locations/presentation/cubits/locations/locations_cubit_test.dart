@@ -815,10 +815,72 @@ void main() {
           verifyNever(() => mockGetLocations.call(any()));
         },
       );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should reject whitespace-only name without calling createLocation usecase',
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveLocation(
+            id: null,
+            name: '   ',
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.saveLocation],
+            'sections[saveLocation]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateLocation.call(any()));
+        },
+      );
     });
 
     group('deleteLocation', () {
       final tId = faker.guid.guid();
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should reject deletion when location has linked areas in state',
+        seed: () => LocationsState(
+          locations: [tLocations.first],
+          allAreas: [
+            AssetFactory.makeAreaEntity().copyWith(locationId: tLocations.first.id),
+          ],
+          areasByLocation: {
+            tLocations.first.id: [
+              AssetFactory.makeAreaEntity().copyWith(locationId: tLocations.first.id),
+            ],
+          },
+        ),
+        build: () {
+          when(
+            () => mockDeleteLocation.call(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          return cubit;
+        },
+        act: (cubit) => cubit.deleteLocation(tLocations.first.id),
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.deleteLocation],
+            'sections[deleteLocation]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockDeleteLocation.call(any()));
+        },
+      );
 
       blocTest<LocationsCubit, LocationsState>(
         'should emit deleting, loaded, and load locations when delete succeeds',

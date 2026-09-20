@@ -209,3 +209,21 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: `UsersCubit.deletePermissionGroup` rejects deleting a group that is currently assigned to active users in `state.users` per USR-05 ("Attempt removal of an in-use group, last/required admin, or an assigned user according to the approved rules").
 - Actual: `UsersCubit.deletePermissionGroup` calls `_useCases.deletePermissionGroup` unconditionally without checking if any users are assigned to the group.
 - Source: `lib/features/users/presentation/cubits/users/users_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-022 — LocationsCubit.saveLocation does not reject whitespace-only location names
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/locations/presentation/cubits/locations/locations_cubit_test.dart`, "should reject whitespace-only name without calling createLocation usecase".
+- Reproduction: `flutter test --no-pub test/features/locations/presentation/cubits/locations/locations_cubit_test.dart --name "should reject whitespace-only name without calling createLocation" --reporter expanded`.
+- Expected: calling `LocationsCubit.saveLocation(id: null, name: '   ')` rejects the empty/whitespace name and emits `SectionStatus.error` without delegating to `CreateLocationUseCase` per LOC-02.
+- Actual: `LocationsCubit.saveLocation` trims the name to `""`, constructs an invalid `LocationEntity(name: "")`, and delegates to `CreateLocationUseCase`.
+- Source: `lib/features/locations/presentation/cubits/locations/locations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-023 — LocationsCubit.deleteLocation allows deletion of location with linked areas
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 cascade deletion / orphan areas guard failure.
+- Regression: `test/features/locations/presentation/cubits/locations/locations_cubit_test.dart`, "should reject deletion when location has linked areas in state".
+- Reproduction: `flutter test --no-pub test/features/locations/presentation/cubits/locations/locations_cubit_test.dart --name "should reject deletion when location has linked areas" --reporter expanded`.
+- Expected: `LocationsCubit.deleteLocation` rejects deletion with `SectionStatus.error` when the location has linked areas in local state (`state.areasByLocation[id]`), preserving dependent records per LOC-03.
+- Actual: `LocationsCubit.deleteLocation` directly calls `_useCases.deleteLocation` without checking for dependent areas in state.
+- Source: `lib/features/locations/presentation/cubits/locations/locations_cubit.dart`. Test remains enabled and failing; no application fix applied.
