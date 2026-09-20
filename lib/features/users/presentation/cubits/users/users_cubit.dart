@@ -496,6 +496,20 @@ class UsersCubit extends BaseCubit<UsersState> {
   }
 
   Future<void> deletePermissionGroup(String id) async {
+    final isGroupAssigned = state.users.any((u) => u.permissionGroupId == id);
+    if (isGroupAssigned) {
+      final message =
+          'Não é possível excluir um grupo de permissões atribuído a usuários'
+              .hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(UsersSections.deleteGroup, SectionStatus.error),
+        ),
+      );
+      showErrorToast(message);
+      return;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(UsersSections.deleteGroup, SectionStatus.running),

@@ -231,6 +231,7 @@ class PermissionsCubit extends BaseCubit<PermissionsState> {
       final actions = resource == ResourceType.accessLogs
           ? [PermissionAction.read]
           : [
+              PermissionAction.read,
               PermissionAction.create,
               PermissionAction.update,
               PermissionAction.delete,

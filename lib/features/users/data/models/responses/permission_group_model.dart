@@ -131,6 +131,7 @@ class PermissionGroupModel extends PermissionGroupEntity
             if (resource == ResourceType.workOrders) continue;
             grouped[resource] = {
               PermissionAction.create,
+              PermissionAction.read,
               PermissionAction.update,
               PermissionAction.delete,
             };
