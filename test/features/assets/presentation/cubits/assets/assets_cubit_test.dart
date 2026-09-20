@@ -609,6 +609,74 @@ void main() {
           verifyNever(() => mockGetAssets.call(any()));
         },
       );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'VAL-032: should reject whitespace-only name without invoking use case',
+        build: () {
+          when(() => mockCreateAsset.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetAssets.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: null,
+              areaId: tAsset.areaId,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              name: '   ',
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            const SectionState.error('Nome do ativo não pode ser vazio'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateAsset.call(any()));
+          verifyNever(() => mockUpdateAsset.call(any()));
+        },
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'VAL-033: should reject self-referencing parentAssetId without invoking use case',
+        build: () {
+          when(() => mockUpdateAsset.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetAssets.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: tAsset.id,
+              areaId: tAsset.areaId,
+              parentAssetId: tAsset.id,
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+              name: tAsset.name,
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            const SectionState.error('Ativo não pode ser pai de si mesmo'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockUpdateAsset.call(any()));
+        },
+      );
     });
 
     group('deleteAsset', () {
@@ -678,6 +746,33 @@ void main() {
         verify: (_) {
           verify(() => mockDeleteAsset.call(tId)).called(1);
           verifyNever(() => mockGetAssets.call(any()));
+        },
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'VAL-034: should reject deletion when asset has active child assets in state',
+        seed: () {
+          final parent = AssetFactory.makeAssetEntity();
+          final child = AssetFactory.makeAssetEntity().copyWith(parentAssetId: parent.id);
+          return cubit.state.copyWith(assets: [parent, child]);
+        },
+        build: () {
+          when(() => mockDeleteAsset.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetAssets.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async => expect(await cubit.deleteAsset(tAsset.id), isFalse),
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.delete],
+            'sections[delete]',
+            const SectionState.error('Não é possível excluir ativo com subativos vinculados'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockDeleteAsset.call(any()));
         },
       );
     });

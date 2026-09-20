@@ -300,3 +300,31 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `SlaPoliciesCubit.saveSlaPolicy` accepts whitespace-only names without trimming or empty validation and delegates to `CreateSlaPolicyUseCase`.
 - Source: `lib/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-032 — AssetsCubit.saveAsset does not reject whitespace-only asset names
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/assets/presentation/cubits/assets/assets_cubit_test.dart`, "VAL-032: should reject whitespace-only name without invoking use case".
+- Reproduction: `flutter test --no-pub test/features/assets/presentation/cubits/assets/assets_cubit_test.dart --name "VAL-032" --reporter expanded`.
+- Expected: calling `AssetsCubit.saveAsset` with `name: '   '` rejects empty/whitespace names with `SectionStatus.error` and returns false without delegating to `CreateAssetUseCase` per AST-02 ("Validate name/identifier uniqueness as specified, invalid/deleted parent references...").
+- Actual: `AssetsCubit.saveAsset` trims the name to `""` and delegates to `CreateAssetUseCase` with an empty name.
+- Source: `lib/features/assets/presentation/cubits/assets/assets_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-033 — AssetsCubit.saveAsset allows an asset to set itself as its own parent
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 circular reference / asset hierarchy cycle.
+- Regression: `test/features/assets/presentation/cubits/assets/assets_cubit_test.dart`, "VAL-033: should reject self-referencing parentAssetId without invoking use case".
+- Reproduction: `flutter test --no-pub test/features/assets/presentation/cubits/assets/assets_cubit_test.dart --name "VAL-033" --reporter expanded`.
+- Expected: calling `AssetsCubit.saveAsset` with `id: tAsset.id` and `parentAssetId: tAsset.id` rejects self-parenting with `SectionStatus.error` and returns false without delegating to `UpdateAssetUseCase` per AST-03 ("Exercise parent/child assets; self-parent and hierarchy cycles must not create unusable recursive trees").
+- Actual: `AssetsCubit.saveAsset` constructs `AssetEntity` with `parentAssetId == id` and delegates to `UpdateAssetUseCase`.
+- Source: `lib/features/assets/presentation/cubits/assets/assets_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-034 — AssetsCubit.deleteAsset allows deleting asset with active child assets in state
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 orphan record creation / hierarchy cascade guard failure.
+- Regression: `test/features/assets/presentation/cubits/assets/assets_cubit_test.dart`, "VAL-034: should reject deletion when asset has active child assets in state".
+- Reproduction: `flutter test --no-pub test/features/assets/presentation/cubits/assets/assets_cubit_test.dart --name "VAL-034" --reporter expanded`.
+- Expected: calling `AssetsCubit.deleteAsset` on an asset that has active child assets in `state.assets` rejects deletion with `SectionStatus.error` and returns false without delegating to `DeleteAssetUseCase` per AST-04 ("Delete an unreferenced asset; attempt deletion with active children... Ensure rejection cannot erase history or leave dangling active records").
+- Actual: `AssetsCubit.deleteAsset` calls `_useCases.deleteAsset` without verifying whether child assets exist in state.
+- Source: `lib/features/assets/presentation/cubits/assets/assets_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+
