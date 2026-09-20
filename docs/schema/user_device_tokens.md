@@ -12,6 +12,8 @@ Stores FCM device tokens registered by users for push notification delivery. Lin
 | `updated_at` | TIMESTAMP | NO | `now()` | - |
 
 **Constraints & Indexes**:
+- `chk_user_device_tokens_device_token_not_empty`: `CHECK (length(trim(device_token)) > 0)`
+- `chk_user_device_tokens_platform_not_empty`: `CHECK (length(trim(platform)) > 0)`
 - `UNIQUE (user_id, device_token)`
 - Index on `user_id`
 - Index on `device_token`

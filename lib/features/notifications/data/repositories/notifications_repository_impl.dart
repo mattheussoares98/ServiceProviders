@@ -32,38 +32,53 @@ final class NotificationsRepositoryImpl implements NotificationsRepository {
   FutureBool registerDeviceToken({
     required String deviceToken,
     required String platform,
-  }) => RepositoryHandler.fetchWithFallback<bool>(
-    isInternetConnected: _internet.isConnected,
-    remoteCallback: () {
-      final userId = _resolveUserId();
-      if (userId == null || userId.isEmpty) {
-        return Future.value(
-          FailureState(message: 'Usuário não autenticado'.hardcoded),
-        );
-      }
-      return _remoteDataSource.registerDeviceToken(
-        userId: userId,
-        deviceToken: deviceToken,
-        platform: platform,
+  }) {
+    if (deviceToken.trim().isEmpty || platform.trim().isEmpty) {
+      return Future.value(
+        FailureState(message: 'Token do dispositivo ou plataforma inválido'.hardcoded),
       );
-    },
-  );
+    }
+
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      remoteCallback: () {
+        final userId = _resolveUserId();
+        if (userId == null || userId.isEmpty) {
+          return Future.value(
+            FailureState(message: 'Usuário não autenticado'.hardcoded),
+          );
+        }
+        return _remoteDataSource.registerDeviceToken(
+          userId: userId,
+          deviceToken: deviceToken,
+          platform: platform,
+        );
+      },
+    );
+  }
 
   @override
-  FutureBool deleteDeviceToken(String deviceToken) =>
-      RepositoryHandler.fetchWithFallback<bool>(
-        isInternetConnected: _internet.isConnected,
-        remoteCallback: () {
-          final userId = _resolveUserId();
-          if (userId == null || userId.isEmpty) {
-            return Future.value(
-              FailureState(message: 'Usuário não autenticado'.hardcoded),
-            );
-          }
-          return _remoteDataSource.deleteDeviceToken(
-            userId: userId,
-            deviceToken: deviceToken,
-          );
-        },
+  FutureBool deleteDeviceToken(String deviceToken) {
+    if (deviceToken.trim().isEmpty) {
+      return Future.value(
+        FailureState(message: 'Token do dispositivo inválido'.hardcoded),
       );
+    }
+
+    return RepositoryHandler.fetchWithFallback<bool>(
+      isInternetConnected: _internet.isConnected,
+      remoteCallback: () {
+        final userId = _resolveUserId();
+        if (userId == null || userId.isEmpty) {
+          return Future.value(
+            FailureState(message: 'Usuário não autenticado'.hardcoded),
+          );
+        }
+        return _remoteDataSource.deleteDeviceToken(
+          userId: userId,
+          deviceToken: deviceToken,
+        );
+      },
+    );
+  }
 }
