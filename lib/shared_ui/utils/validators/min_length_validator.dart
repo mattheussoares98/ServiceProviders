@@ -11,6 +11,6 @@ class MinLengthValidator implements StringValidator {
 
   @override
   bool isValid(String? value) {
-    return value != null && value.length >= minLength;
+    return value != null && value.trim().length >= minLength;
   }
 }

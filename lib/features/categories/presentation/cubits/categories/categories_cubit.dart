@@ -86,6 +86,42 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     String? color,
     DateTime? createdAt,
   }) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      final message = 'Nome da categoria não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CategoriesSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    final isDuplicate = state.categories.any(
+      (c) =>
+          c.name.trim().toLowerCase() == trimmedName.toLowerCase() &&
+          c.id != id,
+    );
+    if (isDuplicate) {
+      final message = 'Já existe uma categoria com este nome'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CategoriesSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
     emit(
       state.copyWith(
         sections: withSection(CategoriesSections.save, SectionStatus.running),
@@ -99,7 +135,7 @@ class CategoriesCubit extends BaseCubit<CategoriesState> {
     final category = CategoryEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
-      name: name.trim(),
+      name: trimmedName,
       description: description?.trimToNull(),
       color: color?.trimToNull(),
       createdAt: createdAt ?? now,

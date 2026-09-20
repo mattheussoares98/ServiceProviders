@@ -10,6 +10,11 @@ Equipment categories to organize assets.
 
 **Note**: No `updated_at`.
 
+## Constraints
+
+* `chk_categories_name_not_empty`: `CHECK (length(trim(name)) > 0)` prevents empty or whitespace-only category names.
+* `categories_company_name_active_idx`: `UNIQUE (company_id, lower(name)) WHERE deleted_at IS NULL` ensures active category names are unique per company (case-insensitive).
+
 ## Deletion Rules
 
 * **Hard Deletes**: Prohibited by the general `prevent_delete()` trigger.
