@@ -539,6 +539,44 @@ void main() {
           expect(captured.reviewedById, isNull);
         },
       );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'VAL-041: should reject pause request when a pending pause request already exists',
+        seed: () {
+          final pendingPause = WorkOrderFactory.makePauseRequestEntity().copyWith(
+            eventType: PauseEventType.pause,
+            status: PauseRequestStatus.pending,
+          );
+          return cubit.state.copyWith(pauseRequests: [pendingPause]);
+        },
+        build: () {
+          when(() => mockRequestPause.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.requestPause(
+              workOrderId: 'wo-id',
+              customReason: 'Falta de peças',
+              workOrdersCubit: mockWorkOrdersCubit,
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.requestPause],
+            'sections[requestPause]',
+            const SectionState.error('Já existe uma solicitação de pausa pendente para esta ordem de serviço'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockRequestPause.call(any()));
+        },
+      );
     });
 
     group('reviewPause', () {
@@ -670,6 +708,45 @@ void main() {
               ),
             ),
           ).called(1);
+        },
+      );
+
+      blocTest<PauseWorkflowCubit, PauseWorkflowState>(
+        'VAL-042: should reject review when pause request is already resolved',
+        seed: () {
+          final alreadyApprovedPause = WorkOrderFactory.makePauseRequestEntity().copyWith(
+            id: 'pause-id',
+            status: PauseRequestStatus.approved,
+          );
+          return cubit.state.copyWith(pauseRequests: [alreadyApprovedPause]);
+        },
+        build: () {
+          when(() => mockReviewPause.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetPauseRequests.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.reviewPause(
+              id: 'pause-id',
+              status: PauseRequestStatus.approved,
+              workOrderId: 'wo-id',
+              responsibility: PauseResponsibility.provider,
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<PauseWorkflowState>().having(
+            (s) => s.sections[PauseWorkflowSections.reviewPause],
+            'sections[reviewPause]',
+            const SectionState.error('Solicitação de pausa já foi revisada'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockReviewPause.call(any()));
         },
       );
     });

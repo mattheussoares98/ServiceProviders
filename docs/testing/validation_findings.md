@@ -381,6 +381,25 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `WorkOrdersCubit.saveWorkOrder` accepts negative financial amounts and passes them directly to `CreateWorkOrderUseCase`.
 - Source: `lib/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-041 — PauseWorkflowCubit.requestPause allows requesting pause when pending pause already exists
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 duplicate workflow transition / race condition guard failure.
+- Regression: `test/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_test.dart`, "VAL-041: should reject pause request when a pending pause request already exists".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_test.dart --name "VAL-041" --reporter expanded`.
+- Expected: calling `PauseWorkflowCubit.requestPause` when `hasPendingPauses == true` rejects the request with `SectionStatus.error` and returns false without delegating to `RequestPauseUseCase` per LIFE-01 / LIFE-07 ("Retry/review races must not apply two conflicting decisions... simultaneous start/pause/resume/approve and expired permission/session cannot leave request and order status inconsistent").
+- Actual: `PauseWorkflowCubit.requestPause` checks `hasPendingCompletions` but fails to check `hasPendingPauses`, forwarding the duplicate pause request to `RequestPauseUseCase`.
+- Source: `lib/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-042 — PauseWorkflowCubit.reviewPause allows reviewing already resolved pause requests
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 duplicate decision application / state machine guard failure.
+- Regression: `test/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_test.dart`, "VAL-042: should reject review when pause request is already resolved".
+- Reproduction: `flutter test --no-pub test/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit_test.dart --name "VAL-042" --reporter expanded`.
+- Expected: calling `PauseWorkflowCubit.reviewPause` on a request that is already approved or rejected rejects the redundant review with `SectionStatus.error` and returns false without delegating to `ReviewPauseUseCase` per LIFE-01 ("Repeat resume-before-review... later review must not pause it again").
+- Actual: `PauseWorkflowCubit.reviewPause` directly delegates to `_useCases.reviewPause` without checking if the request in state is currently pending.
+- Source: `lib/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+
 
 
 
