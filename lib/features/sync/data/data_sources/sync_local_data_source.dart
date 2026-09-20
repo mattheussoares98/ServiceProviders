@@ -149,7 +149,10 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
                         t.status.equals(SyncStatus.syncing.code) |
                         t.status.equals(SyncStatus.failed.code)) &
                     (t.entityId.equals(entityId) |
-                        t.payload.like('%$entityId%')),
+                        t.payload.like('%"work_order_id":"$entityId"%') |
+                        t.payload.like('%"work_order_id": "$entityId"%') |
+                        t.payload.like('%"workOrderId":"$entityId"%') |
+                        t.payload.like('%"workOrderId": "$entityId"%')),
               ))
             .write(
               SyncAuditLogsCompanion(
@@ -169,7 +172,11 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
           ..where(
             (t) =>
                 t.status.equals(SyncStatus.deadLetter.code) &
-                (t.entityId.equals(entityId) | t.payload.like('%$entityId%')),
+                (t.entityId.equals(entityId) |
+                    t.payload.like('%"work_order_id":"$entityId"%') |
+                    t.payload.like('%"work_order_id": "$entityId"%') |
+                    t.payload.like('%"workOrderId":"$entityId"%') |
+                    t.payload.like('%"workOrderId": "$entityId"%')),
           )
           ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]);
 
@@ -205,7 +212,10 @@ final class SyncLocalDataSourceImpl implements SyncLocalDataSource {
                     (t) =>
                         t.status.equals(SyncStatus.deadLetter.code) &
                         (t.entityId.equals(entityId) |
-                            t.payload.like('%$entityId%')),
+                            t.payload.like('%"work_order_id":"$entityId"%') |
+                            t.payload.like('%"work_order_id": "$entityId"%') |
+                            t.payload.like('%"workOrderId":"$entityId"%') |
+                            t.payload.like('%"workOrderId": "$entityId"%')),
                   ))
                 .write(
                   SyncAuditLogsCompanion(

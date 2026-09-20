@@ -92,12 +92,12 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   @override
   Future<void> saveThemeMode(String themeMode) async {
-    _themeMode = themeMode;
     await _database
         .into(_database.appSettings)
         .insertOnConflictUpdate(
           AppSettingsCompanion(id: const Value(1), themeMode: Value(themeMode)),
         );
+    _themeMode = themeMode;
   }
 
   @override
@@ -105,7 +105,6 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   @override
   Future<void> savePushNotifications(bool enabled) async {
-    _pushNotificationsEnabled = enabled;
     await _database
         .into(_database.appSettings)
         .insertOnConflictUpdate(
@@ -114,6 +113,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
             pushNotificationsEnabled: Value(enabled),
           ),
         );
+    _pushNotificationsEnabled = enabled;
   }
 
   @override
@@ -121,12 +121,12 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   @override
   Future<void> saveSelectedMode(String? mode) async {
-    _selectedMode = mode;
     await _database
         .into(_database.appSettings)
         .insertOnConflictUpdate(
           AppSettingsCompanion(id: const Value(1), selectedMode: Value(mode)),
         );
+    _selectedMode = mode;
   }
 
   @override
@@ -134,7 +134,6 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   @override
   Future<void> saveSelectedCompanyId(String? companyId) async {
-    _selectedCompanyId = companyId;
     await _database
         .into(_database.appSettings)
         .insertOnConflictUpdate(
@@ -143,6 +142,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
             selectedCompanyId: Value(companyId),
           ),
         );
+    _selectedCompanyId = companyId;
   }
 
   @override
@@ -150,7 +150,6 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   @override
   Future<void> saveUserSession(UserDataEntity userSession) async {
-    _userSession = userSession;
     await _database.transaction(() async {
       await _database.delete(_database.userSessions).go();
       await _database
@@ -166,6 +165,7 @@ final class LocalStorageClientImpl implements LocalStorageClient {
             ),
           );
     });
+    _userSession = userSession;
   }
 
   @override
@@ -173,20 +173,20 @@ final class LocalStorageClientImpl implements LocalStorageClient {
 
   @override
   Future<void> clearUserSession() async {
-    _userSession = null;
     await _database.delete(_database.userSessions).go();
+    _userSession = null;
   }
 
   @override
   Future<void> clearAll() async {
-    _themeMode = 'system';
-    _pushNotificationsEnabled = false;
-    _selectedMode = null;
-    _selectedCompanyId = null;
-    _userSession = null;
     await _database.transaction(() async {
       await _database.delete(_database.appSettings).go();
       await _database.delete(_database.userSessions).go();
     });
+    _themeMode = 'system';
+    _pushNotificationsEnabled = true;
+    _selectedMode = null;
+    _selectedCompanyId = null;
+    _userSession = null;
   }
 }

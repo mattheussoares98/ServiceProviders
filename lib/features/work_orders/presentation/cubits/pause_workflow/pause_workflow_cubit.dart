@@ -225,22 +225,6 @@ class PauseWorkflowCubit extends BaseCubit<PauseWorkflowState> {
       return false;
     }
 
-    if (hasPendingPauses) {
-      final message =
-          'Já existe uma solicitação de pausa pendente para esta ordem de serviço'
-              .hardcoded;
-      emit(
-        state.copyWith(
-          sections: withSection(
-            PauseWorkflowSections.requestPause,
-            SectionStatus.error,
-            errorMessage: message,
-          ),
-        ),
-      );
-      showErrorToast(message);
-      return false;
-    }
 
     if (hasPendingCompletions) {
       final message =

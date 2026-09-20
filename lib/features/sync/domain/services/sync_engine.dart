@@ -133,7 +133,11 @@ final class SyncEngineImpl implements SyncEngine {
 
   @override
   Future<void> retryEntity(String entityId) async {
-    await _syncRepository.retryDeadLetterForEntity(entityId);
+    final trimmedId = entityId.trim();
+    if (trimmedId.isEmpty) return;
+    if (_sessionRepository.getSelectedMode() == AppMode.provider.name) return;
+
+    await _syncRepository.retryDeadLetterForEntity(trimmedId);
     await processQueue();
   }
 }

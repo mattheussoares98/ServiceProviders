@@ -541,7 +541,7 @@ void main() {
       );
 
       blocTest<PauseWorkflowCubit, PauseWorkflowState>(
-        'VAL-041: should reject pause request when a pending pause request already exists',
+        'should allow pause request even when a pending pause request exists',
         seed: () {
           final pendingPause = WorkOrderFactory.makePauseRequestEntity().copyWith(
             eventType: PauseEventType.pause,
@@ -563,18 +563,11 @@ void main() {
               customReason: 'Falta de peças',
               workOrdersCubit: mockWorkOrdersCubit,
             ),
-            isFalse,
+            isTrue,
           );
         },
-        expect: () => [
-          isA<PauseWorkflowState>().having(
-            (s) => s.sections[PauseWorkflowSections.requestPause],
-            'sections[requestPause]',
-            const SectionState.error('Já existe uma solicitação de pausa pendente para esta ordem de serviço'),
-          ),
-        ],
         verify: (_) {
-          verifyNever(() => mockRequestPause.call(any()));
+          verify(() => mockRequestPause.call(any())).called(1);
         },
       );
     });
