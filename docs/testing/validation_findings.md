@@ -227,3 +227,21 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: `LocationsCubit.deleteLocation` rejects deletion with `SectionStatus.error` when the location has linked areas in local state (`state.areasByLocation[id]`), preserving dependent records per LOC-03.
 - Actual: `LocationsCubit.deleteLocation` directly calls `_useCases.deleteLocation` without checking for dependent areas in state.
 - Source: `lib/features/locations/presentation/cubits/locations/locations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-024 — LocationsCubit.saveArea does not reject whitespace-only area names
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/locations/presentation/cubits/locations/locations_cubit_test.dart`, "should reject whitespace-only name without calling createArea usecase".
+- Reproduction: `flutter test --no-pub test/features/locations/presentation/cubits/locations/locations_cubit_test.dart --name "should reject whitespace-only name without calling createArea" --reporter expanded`.
+- Expected: calling `LocationsCubit.saveArea(id: null, locationId: tArea.locationId, name: '   ')` rejects the empty/whitespace name and emits `SectionStatus.error` without delegating to `CreateAreaUseCase` per AREA-03.
+- Actual: `LocationsCubit.saveArea` trims the name to `""`, constructs an invalid `AreaEntity(name: "")`, and delegates to `CreateAreaUseCase`.
+- Source: `lib/features/locations/presentation/cubits/locations/locations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-025 — LocationsCubit.saveArea allows creating areas with non-existent parent location
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 orphan record creation / missing parent validation.
+- Regression: `test/features/locations/presentation/cubits/locations/locations_cubit_test.dart`, "should reject saving area when parent locationId does not exist in loaded locations".
+- Reproduction: `flutter test --no-pub test/features/locations/presentation/cubits/locations/locations_cubit_test.dart --name "should reject saving area when parent locationId does not exist" --reporter expanded`.
+- Expected: calling `LocationsCubit.saveArea` with a `locationId` that does not exist in `state.locations` rejects the operation with `SectionStatus.error` without delegating to `CreateAreaUseCase` per AREA-03 ("deleted/missing parent, parent deleted during editing, and forged company/location IDs cannot produce orphan data").
+- Actual: `LocationsCubit.saveArea` immediately builds an `AreaEntity` with the unverified `locationId` and delegates to `CreateAreaUseCase`.
+- Source: `lib/features/locations/presentation/cubits/locations/locations_cubit.dart`. Test remains enabled and failing; no application fix applied.

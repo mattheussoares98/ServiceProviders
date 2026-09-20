@@ -1159,6 +1159,63 @@ void main() {
           verifyNever(() => mockGetAreas.call(any()));
         },
       );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should reject whitespace-only name without calling createArea usecase',
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveArea(
+            id: null,
+            locationId: tArea.locationId,
+            name: '   ',
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateArea.call(any()));
+        },
+      );
+
+      blocTest<LocationsCubit, LocationsState>(
+        'should reject saving area when parent locationId does not exist in loaded locations',
+        seed: () => cubit.state.copyWith(
+          locations: tLocations,
+        ),
+        build: () => cubit,
+        act: (cubit) async {
+          final result = await cubit.saveArea(
+            id: null,
+            locationId: 'non-existent-location-id',
+            name: 'Valid Area',
+          );
+          expect(result, isFalse);
+        },
+        expect: () => [
+          isA<LocationsState>().having(
+            (s) => s.sections[LocationsSections.saveArea],
+            'sections[saveArea]',
+            isA<SectionState>().having(
+              (s) => s.status,
+              'status',
+              SectionStatus.error,
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateArea.call(any()));
+        },
+      );
     });
 
     group('deleteArea', () {
