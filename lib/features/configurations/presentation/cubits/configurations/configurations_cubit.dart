@@ -46,6 +46,7 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
   }
 
   void togglePushNotifications(bool enabled) {
+    final previousValue = state.configurations.pushNotificationsEnabled;
     emit(
       state.copyWith(
         configurations: state.configurations.copyWith(
@@ -53,7 +54,23 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
         ),
       ),
     );
-    unawaited(_useCases.saveConfigurations(enabled));
+    unawaited(() async {
+      final result = await _useCases.saveConfigurations(enabled);
+      if (isClosed) return;
+      if (result is FailureState) {
+        emit(
+          state.copyWith(
+            configurations: state.configurations.copyWith(
+              pushNotificationsEnabled: previousValue,
+            ),
+            sections: withSection(
+              BaseSections.load,
+              SectionStatus.error,
+            ),
+          ),
+        );
+      }
+    }());
   }
 
   void updateThemeMode(ThemeMode mode) {
@@ -71,7 +88,21 @@ class ConfigurationsCubit extends BaseCubit<ConfigurationsState> {
         sections: withSection(BaseSections.load, SectionStatus.running),
       ),
     );
-    await _useCases.clearAppCache();
+    final result = await _useCases.clearAppCache();
+    if (isClosed) return;
+
+    if (result is FailureState) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      return;
+    }
+
     emit(
       state.copyWith(
         configurations: const ConfigurationsEntity(
