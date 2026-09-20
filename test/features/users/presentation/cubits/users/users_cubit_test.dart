@@ -1008,6 +1008,40 @@ void main() {
                 .having((s) => s.permissionGroups, 'permissionGroups', isEmpty),
           ],
         );
+
+        blocTest<UsersCubit, UsersState>(
+          'should reject deletion when group is currently assigned to users in state',
+          seed: () => UsersState(
+            users: [
+              UserFactory.makeUserProfileEntity().copyWith(permissionGroupId: tId),
+            ],
+            permissionGroups: [
+              UserFactory.makePermissionGroupEntity().copyWith(id: tId),
+            ],
+          ),
+          build: () {
+            when(
+              () => mockDeletePermissionGroup.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            return cubit;
+          },
+          act: (cubit) => cubit.deletePermissionGroup(tId),
+          expect: () => [
+            isA<UsersState>()
+                .having(
+                  (s) => s.sections[UsersSections.deleteGroup],
+                  'sections[deleteGroup]',
+                  isA<SectionState>().having(
+                    (s) => s.status,
+                    'status',
+                    SectionStatus.error,
+                  ),
+                ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockDeletePermissionGroup.call(any()));
+          },
+        );
       });
     });
 

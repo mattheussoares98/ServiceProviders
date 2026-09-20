@@ -182,9 +182,30 @@ For each new failure include the exact test file/case, expected and actual resul
 - Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 data integrity / invalid company switch.
 - Regression: `test/features/company/presentation/cubits/company/company_cubit_test.dart`, "switchCompany should not switch company or update user profile when target company does not exist in companies list".
 - Reproduction: `flutter test --no-pub test/features/company/presentation/cubits/company/company_cubit_test.dart --reporter expanded`.
-- Expected: calling `switchCompany` with an ID not present in `state.companies` should reject the operation without mutating the user profile or setting `selectedCompanyId` per COMP-02.
-- Actual: `CompanyCubit.switchCompany` unconditionally updates the user profile and session to the arbitrary `companyId` before checking if the company is loaded, resulting in `company = null` and a corrupted profile `companyId`.
-- Source: `lib/features/company/presentation/cubits/company/company_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-019 — Global wildcard * in permission group JSON omits PermissionAction.read
 
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 incomplete permission grant on wildcard groups.
+- Regression: `test/features/users/data/models/responses/permission_group_model_test.dart`, "should include PermissionAction.read when expanding global wildcard *".
+- Reproduction: `flutter test --no-pub test/features/users/data/models/responses/permission_group_model_test.dart --name "should include PermissionAction.read when expanding global wildcard *" --reporter expanded`.
+- Expected: expanding global wildcard `{'*': true}` in `PermissionGroupModel.fromJson` grants full permissions (create, read, update, delete) on all resources per USR-01.
+- Actual: `PermissionGroupModel._parsePermissions` populates only `{create, update, delete}` for each resource, leaving `read` absent. Users in wildcard groups are evaluated as having `read: false` for all standard resources.
+- Source: `lib/features/users/data/models/responses/permission_group_model.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-020 — PermissionsCubit.initUser and saveUserPermissions drop user read permission overrides
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 data loss on permission override save.
+- Regression: `test/features/users/presentation/cubits/permissions/permissions_cubit_test.dart`, "saveUserPermissions preserves existing user read permission override on standard resources".
+- Reproduction: `flutter test --no-pub test/features/users/presentation/cubits/permissions/permissions_cubit_test.dart --name "saveUserPermissions preserves existing user read permission override" --reporter expanded`.
+- Expected: when editing user permissions, existing user read overrides on standard resources are preserved per USR-01 ("per-user overrides without dropping unrelated permission keys").
+- Actual: `PermissionsCubit.initUser` only iterates over `[create, update, delete]` for standard resources, omitting any pre-existing `read` overrides from `draftUserPermissions`. When `saveUserPermissions` executes, the omitted `read` overrides are completely dropped.
+- Source: `lib/features/users/presentation/cubits/permissions/permissions_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-021 — UsersCubit.deletePermissionGroup allows deleting groups assigned to active users
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 referential integrity violation / unhandled in-use deletion.
+- Regression: `test/features/users/presentation/cubits/users/users_cubit_test.dart`, "deletePermissionGroup should reject deletion when group is currently assigned to users in state".
+- Reproduction: `flutter test --no-pub test/features/users/presentation/cubits/users/users_cubit_test.dart --name "should reject deletion when group is currently assigned" --reporter expanded`.
+- Expected: `UsersCubit.deletePermissionGroup` rejects deleting a group that is currently assigned to active users in `state.users` per USR-05 ("Attempt removal of an in-use group, last/required admin, or an assigned user according to the approved rules").
+- Actual: `UsersCubit.deletePermissionGroup` calls `_useCases.deletePermissionGroup` unconditionally without checking if any users are assigned to the group.
+- Source: `lib/features/users/presentation/cubits/users/users_cubit.dart`. Test remains enabled and failing; no application fix applied.

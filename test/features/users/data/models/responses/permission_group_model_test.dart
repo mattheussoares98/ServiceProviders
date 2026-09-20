@@ -81,6 +81,22 @@ void main() {
       expect(result.workOrders.updateScope, WorkOrderUpdateScope.all);
     });
 
+    test('should include PermissionAction.read when expanding global wildcard *', () {
+      final json = {
+        'id': '123',
+        'company_id': '456',
+        'name': 'Admin Group',
+        'permissions': {'*': true},
+      };
+
+      final result = PermissionGroupModel.fromJson(json);
+      for (final res in ResourceType.values) {
+        if (res == ResourceType.workOrders) continue;
+        final actions = result.permissions[res]!;
+        expect(actions, contains(PermissionAction.read));
+      }
+    });
+
     test(
       'should preserve wildcard * and custom resource families on round-trip via fromEntity',
       () {

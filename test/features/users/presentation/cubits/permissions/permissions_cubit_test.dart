@@ -342,6 +342,45 @@ void main() {
       },
     );
 
+    blocTest<PermissionsCubit, PermissionsState>(
+      'saveUserPermissions preserves existing user read permission override on standard resources',
+      build: () {
+        final userWithReadOverride = tUser.copyWith(
+          permissions: {
+            ResourceType.locations: {
+              PermissionAction.read: false,
+            },
+          },
+        );
+        when(
+          () => mockUsersCubit.updateUserPermissions(
+            any(),
+            any(),
+            groupId: any(named: 'groupId'),
+            workOrders: any(named: 'workOrders'),
+          ),
+        ).thenAnswer((_) async => true);
+        return cubit..initUser(userWithReadOverride);
+      },
+      act: (c) => c.saveUserPermissions(mockUsersCubit),
+      verify: (_) {
+        final captured = verify(
+          () => mockUsersCubit.updateUserPermissions(
+            tUser.id,
+            captureAny(),
+            groupId: any(named: 'groupId'),
+            workOrders: any(named: 'workOrders'),
+          ),
+        ).captured;
+        final savedPermissions =
+            captured.first as Map<ResourceType, Map<PermissionAction, bool?>>;
+        expect(
+          savedPermissions[ResourceType.locations]?[PermissionAction.read],
+          false,
+        );
+      },
+    );
+
     group('PermissionsCubit Group Work Orders Logic', () {
       blocTest<PermissionsCubit, PermissionsState>(
         'changeGroupWorkOrdersReadScope updates draftGroupWorkOrders readScope',
