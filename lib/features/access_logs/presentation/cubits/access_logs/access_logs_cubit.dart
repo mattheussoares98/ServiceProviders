@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/entities/access_log_entity.dart';
 import 'package:o_jogo_da_obra/features/access_logs/domain/entities/get_access_logs_request_entity.dart';
 import 'package:o_jogo_da_obra/features/access_logs/presentation/cubits/access_logs/access_logs_cubit_use_cases.dart';
@@ -105,9 +106,14 @@ class AccessLogsCubit extends BaseCubit<AccessLogsState> {
 
     if (logsState is SuccessState<List<AccessLogEntity>>) {
       final newLogs = logsState.data ?? [];
+      final existingIds = state.logs.map((e) => e.id).toSet();
+      final deduplicated = [
+        ...state.logs,
+        ...newLogs.where((e) => !existingIds.contains(e.id)),
+      ];
       emit(
         state.copyWith(
-          logs: [...state.logs, ...newLogs],
+          logs: deduplicated,
           page: nextPage,
           hasReachedMax: newLogs.length < _pageSize,
         ),
@@ -116,6 +122,21 @@ class AccessLogsCubit extends BaseCubit<AccessLogsState> {
   }
 
   void setDateRange({DateTime? startDate, DateTime? endDate}) {
+    if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+      emit(
+        state.copyWith(
+          startDate: startDate,
+          endDate: endDate,
+          sections: withSection(
+            BaseSections.load,
+            SectionStatus.error,
+            errorMessage: 'A data inicial não pode ser posterior à data final'.hardcoded,
+          ),
+        ),
+      );
+      return;
+    }
+
     emit(
       state.copyWith(
         startDate: startDate,
