@@ -327,4 +327,23 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `AssetsCubit.deleteAsset` calls `_useCases.deleteAsset` without verifying whether child assets exist in state.
 - Source: `lib/features/assets/presentation/cubits/assets/assets_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-035 — ServiceProvidersCubit.saveCompany does not reject whitespace-only company name
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity creation / Cubit boundary validation.
+- Regression: `test/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_test.dart`, "VAL-035: should reject whitespace-only company name without calling createCompany".
+- Reproduction: `flutter test --no-pub test/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_test.dart --name "VAL-035" --reporter expanded`.
+- Expected: calling `ServiceProvidersCubit.saveCompany` with `name: '   '` rejects whitespace/empty name with `SectionStatus.error` and returns false without delegating to `CreateServiceProviderCompanyUseCase` per SP-01.
+- Actual: `ServiceProvidersCubit.saveCompany` constructs `ServiceProviderCompanyEntity(name: '   ')` without name trimming/validation and delegates to `CreateServiceProviderCompanyUseCase`.
+- Source: `lib/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-036 — ServiceProvidersCubit.sendInvitation does not reject whitespace-only invitation email
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid invite invocation / email validation.
+- Regression: `test/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_test.dart`, "VAL-036: should reject whitespace-only invitation email without calling sendInvitation".
+- Reproduction: `flutter test --no-pub test/features/service_providers/presentation/cubits/service_providers/service_providers_cubit_test.dart --name "VAL-036" --reporter expanded`.
+- Expected: calling `ServiceProvidersCubit.sendInvitation` with `email: '   '` rejects empty/whitespace email with `SectionStatus.error` and returns false without delegating to `SendServiceProviderInvitationUseCase` per SP-02 ("With mail authorization: invite → accept with correct account → reload; test duplicate email, expired/revoked/reused token...").
+- Actual: `ServiceProvidersCubit.sendInvitation` forwards whitespace-only email to `SendServiceProviderInvitationUseCase` without validation.
+- Source: `lib/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+
 

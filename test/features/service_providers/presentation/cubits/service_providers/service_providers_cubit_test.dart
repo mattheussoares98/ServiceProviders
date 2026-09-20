@@ -927,6 +927,44 @@ void main() {
           expect(result, isTrue);
         },
       );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'VAL-035: should reject whitespace-only company name without calling createCompany',
+        build: () {
+          when(() => mockCreateCompany.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetCompanies.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetProfilesByCompanyIds.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetActiveCompanyIdUseCase.call())
+              .thenReturn(user.companyId);
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.saveCompany(
+              name: '   ',
+              contactEmail: contactEmail,
+              contactPhone: contactPhone,
+              document: document,
+              documentType: documentType,
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProvidersSections.saveCompany],
+            'sections[saveCompany]',
+            const SectionState.error('Nome da empresa prestadora não pode ser vazio'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateCompany.call(any()));
+          verifyNever(() => mockUpdateCompany.call(any()));
+        },
+      );
     });
 
     group('saveProfile', () {
@@ -1057,6 +1095,40 @@ void main() {
             const SectionState.error(),
           ),
         ],
+      );
+
+      blocTest<ServiceProvidersCubit, ServiceProvidersState>(
+        'VAL-036: should reject whitespace-only invitation email without calling sendInvitation',
+        build: () {
+          when(() => mockSendInvitation.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetActiveCompanyIdUseCase.call())
+              .thenReturn('active-comp-1');
+          when(() => mockGetCompanies.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          when(() => mockGetInvitations.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.sendInvitation(
+              serviceProviderCompanyId: 'comp-1',
+              email: '   ',
+            ),
+            isFalse,
+          );
+        },
+        expect: () => [
+          isA<ServiceProvidersState>().having(
+            (s) => s.sections[ServiceProvidersSections.sendInvitation],
+            'sections[sendInvitation]',
+            const SectionState.error('E-mail do convite não pode ser vazio'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockSendInvitation.call(any()));
+        },
       );
     });
 
