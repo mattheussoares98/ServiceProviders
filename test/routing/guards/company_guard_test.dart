@@ -130,5 +130,30 @@ void main() {
         ).called(1);
       },
     );
+
+    test(
+      'VAL-060: CompanyGuard redirects to LoginRoute when companyId is whitespace-only',
+      () {
+        final userProfile = UserFactory.makeUserProfileEntity().copyWith(
+          companyId: '   ',
+        );
+        final userData = UserFactory.makeUserDataEntity().copyWith(
+          user: userProfile,
+        );
+
+        when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+        when(
+          () => mockLocalStorageClient.getSelectedMode(),
+        ).thenReturn(AppMode.internal.name);
+        when(() => mockSessionRepository.userData).thenReturn(userData);
+
+        companyGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+
+        verifyNever(() => mockNavigationResolver.next(any()));
+        verify(
+          () => mockStackRouter.replaceAll([const LoginRoute()]),
+        ).called(1);
+      },
+    );
   });
 }

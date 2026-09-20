@@ -542,3 +542,22 @@ For each new failure include the exact test file/case, expected and actual resul
 - Expected: calling `SyncEngineImpl.retryEntity` with empty or whitespace-only entity ID should be rejected without invoking `SyncRepository.retryDeadLetterForEntity` per SYNC-03 ("Validate retry entity identifiers and prevent corrupted queue operations").
 - Actual: `SyncEngineImpl.retryEntity` forwards empty or whitespace entity identifiers directly to repository dead-letter handling.
 - Source: `lib/features/sync/domain/services/sync_engine.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-059 — SuperAdminGuard redirects unauthenticated user to CompanyRoute instead of LoginRoute
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 routing / unauthenticated redirection policy.
+- Regression: `test/routing/guards/super_admin_guard_test.dart`, "VAL-059: SuperAdminGuard redirects unauthenticated user to LoginRoute instead of CompanyRoute".
+- Reproduction: `flutter test --no-pub test/routing/guards/super_admin_guard_test.dart --name "VAL-059" --reporter expanded`.
+- Expected: navigating to a SuperAdmin-guarded route without an active authenticated session (`isLoggedIn == false`) must redirect the user to `LoginRoute` per Step 24 Journey E ("signed-out clients try fixture IDs through routes...").
+- Actual: `SuperAdminGuard.onNavigation` redirects to `CompanyRoute` unconditionally whenever `isLoggedIn && isSuperAdmin` is false, even when the user is unauthenticated.
+- Source: `lib/routing/guards/super_admin_guard.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-060 — CompanyGuard redirects to LoginRoute when companyId is whitespace-only
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 multi-tenant boundary / company identifier validation.
+- Regression: `test/routing/guards/company_guard_test.dart`, "VAL-060: CompanyGuard redirects to LoginRoute when companyId is whitespace-only".
+- Reproduction: `flutter test --no-pub test/routing/guards/company_guard_test.dart --name "VAL-060" --reporter expanded`.
+- Expected: `CompanyGuard` must reject whitespace-only `companyId` (e.g. `'   '`) and redirect to `LoginRoute` per Step 24 Journey A, D, and E ("Isolation and tenant boundary: confirm valid company state and prevent corrupted tenant context").
+- Actual: `CompanyGuard.onNavigation` checks `session.userData.user.companyId.isNotEmpty`, which evaluates to `true` for whitespace strings and allows navigation to proceed.
+- Source: `lib/routing/guards/company_guard.dart`. Test remains enabled and failing; no application fix applied.
+

@@ -87,5 +87,19 @@ void main() {
       verify(() => mockNavigationResolver.next()).called(1);
       verifyNever(() => mockStackRouter.replaceAll(any()));
     });
+
+    test(
+      'VAL-059: SuperAdminGuard redirects unauthenticated user to LoginRoute instead of CompanyRoute',
+      () {
+        when(() => mockSessionRepository.isLoggedIn).thenReturn(false);
+
+        superAdminGuard.onNavigation(mockNavigationResolver, mockStackRouter);
+
+        verify(
+          () => mockStackRouter.replaceAll(const [LoginRoute()]),
+        ).called(1);
+        verifyNever(() => mockNavigationResolver.next(any()));
+      },
+    );
   });
 }
