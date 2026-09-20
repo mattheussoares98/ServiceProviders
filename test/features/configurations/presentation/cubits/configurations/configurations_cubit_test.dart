@@ -200,5 +200,65 @@ void main() {
         ).called(1);
       },
     );
+
+    group('VAL-053 & VAL-054 regression tests', () {
+      blocTest<ConfigurationsCubit, ConfigurationsState>(
+        'VAL-053: clearAppCache emits error and does not navigate when clearAppCache usecase fails',
+        build: () {
+          when(
+            () => mockClearAppCache.call(),
+          ).thenAnswer((_) async => FailureState(message: 'Cache clear failed'));
+          return ConfigurationsCubit(useCases: useCases);
+        },
+        act: (cubit) => cubit.clearAppCache(),
+        expect: () => [
+          isA<ConfigurationsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.running(),
+          ),
+          isA<ConfigurationsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.error(),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockNavigationClient.replaceAllRoute(any()));
+        },
+      );
+
+      blocTest<ConfigurationsCubit, ConfigurationsState>(
+        'VAL-054: togglePushNotifications emits error and rolls back preference when save fails',
+        build: () {
+          when(
+            () => mockSaveConfigurations.call(any()),
+          ).thenAnswer((_) async => FailureState(message: 'Save failed'));
+          return ConfigurationsCubit(useCases: useCases);
+        },
+        act: (cubit) async {
+          cubit.togglePushNotifications(false);
+          await Future<void>.delayed(Duration.zero);
+        },
+        expect: () => [
+          isA<ConfigurationsState>().having(
+            (s) => s.configurations.pushNotificationsEnabled,
+            'pushNotificationsEnabled updated',
+            false,
+          ),
+          isA<ConfigurationsState>()
+              .having(
+                (s) => s.configurations.pushNotificationsEnabled,
+                'pushNotificationsEnabled rolled back',
+                true,
+              )
+              .having(
+                (s) => s.sections[BaseSections.load],
+                'sections[load]',
+                const SectionState.error(),
+              ),
+        ],
+      );
+    });
   });
 }

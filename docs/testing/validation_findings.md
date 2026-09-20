@@ -489,6 +489,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `AccessLogsCubit.loadMore` uses `[...state.logs, ...newLogs]`, appending duplicate log entities if IDs overlap.
 - Source: `lib/features/access_logs/presentation/cubits/access_logs/access_logs_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-053 — ConfigurationsCubit.clearAppCache suppresses cache clear failures and navigates anyway
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 unhandled failure / false positive cache clear navigation.
+- Regression: `test/features/configurations/presentation/cubits/configurations/configurations_cubit_test.dart`, "VAL-053: clearAppCache emits error and does not navigate when clearAppCache usecase fails".
+- Reproduction: `flutter test --no-pub test/features/configurations/presentation/cubits/configurations/configurations_cubit_test.dart --name "VAL-053" --reporter expanded`.
+- Expected: calling `ConfigurationsCubit.clearAppCache` when `_useCases.clearAppCache()` fails emits `SectionStatus.error` and avoids navigating to `LoginRoute()` per CFG-03 ("Clear cache with no pending changes, restart, and refetch from server... block, warn or preserve as specified; never silently delete acknowledged unsynced work").
+- Actual: `ConfigurationsCubit.clearAppCache` ignores the result of `_useCases.clearAppCache()`, unconditionally emits `SectionStatus.success`, and calls `replaceAllRoute(LoginRoute())`.
+- Source: `lib/features/configurations/presentation/cubits/configurations/configurations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-054 — ConfigurationsCubit.togglePushNotifications does not handle save failure or roll back state
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 optimistic update inconsistency / unhandled failure.
+- Regression: `test/features/configurations/presentation/cubits/configurations/configurations_cubit_test.dart`, "VAL-054: togglePushNotifications emits error and rolls back preference when save fails".
+- Reproduction: `flutter test --no-pub test/features/configurations/presentation/cubits/configurations/configurations_cubit_test.dart --name "VAL-054" --reporter expanded`.
+- Expected: when `_useCases.saveConfigurations(enabled)` fails, `ConfigurationsCubit` emits an error and restores the previous notification preference per CFG-01 ("Test failed remote save and reconnect... Another user's settings must not be overwritten").
+- Actual: `ConfigurationsCubit.togglePushNotifications` uses `unawaited(_useCases.saveConfigurations(enabled))` without inspecting errors or reverting the optimistic change.
+- Source: `lib/features/configurations/presentation/cubits/configurations/configurations_cubit.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 
