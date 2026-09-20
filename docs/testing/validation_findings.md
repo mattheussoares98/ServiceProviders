@@ -453,6 +453,24 @@ For each new failure include the exact test file/case, expected and actual resul
 - Actual: `MaintenancePlansCubit.saveMaintenancePlan` performs no validation on recurrence intervals or lead time days, delegating directly to `CreateMaintenancePlanUseCase`.
 - Source: `lib/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart`. Test remains enabled and failing; no application fix applied.
 
+## VAL-049 — NotificationsRepositoryImpl.registerDeviceToken does not validate empty token or platform
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity registration / device token validation.
+- Regression: `test/features/notifications/data/repositories/notifications_repository_test.dart`, "VAL-049: should reject whitespace-only deviceToken or platform without invoking remote data source".
+- Reproduction: `flutter test --no-pub test/features/notifications/data/repositories/notifications_repository_test.dart --name "VAL-049" --reporter expanded`.
+- Expected: calling `NotificationsRepositoryImpl.registerDeviceToken` with whitespace-only `deviceToken` or `platform` returns `FailureState` without delegating to `NotificationsRemoteDataSource` per NOTIF-01 ("Register/update device token, restart, rotate token and log out. Duplicate registration does not multiply recipients...").
+- Actual: `NotificationsRepositoryImpl.registerDeviceToken` accepts empty or whitespace-only device token strings and platforms, forwarding them to the remote data source.
+- Source: `lib/features/notifications/data/repositories/notifications_repository_impl.dart`. Test remains enabled and failing; no application fix applied.
+
+## VAL-050 — NotificationsRepositoryImpl.deleteDeviceToken does not validate empty token
+
+- Status: confirmed application defect; not fixed. Date: 2026-09-19. Severity: P2 invalid entity deletion / device token validation.
+- Regression: `test/features/notifications/data/repositories/notifications_repository_test.dart`, "VAL-050: should reject whitespace-only deviceToken without invoking remote data source on delete".
+- Reproduction: `flutter test --no-pub test/features/notifications/data/repositories/notifications_repository_test.dart --name "VAL-050" --reporter expanded`.
+- Expected: calling `NotificationsRepositoryImpl.deleteDeviceToken` with a whitespace-only `deviceToken` returns `FailureState` without delegating to `NotificationsRemoteDataSource` per NOTIF-01 / NOTIF-05 ("Reject forged device ownership, unauthorized send-function calls and arbitrary foreign recipient IDs").
+- Actual: `NotificationsRepositoryImpl.deleteDeviceToken` forwards empty or whitespace-only device token strings directly to the remote data source.
+- Source: `lib/features/notifications/data/repositories/notifications_repository_impl.dart`. Test remains enabled and failing; no application fix applied.
+
 
 
 

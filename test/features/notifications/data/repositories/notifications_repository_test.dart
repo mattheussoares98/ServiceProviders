@@ -179,5 +179,60 @@ void main() {
         },
       );
     });
+
+    group('VAL-049 & VAL-050 regression tests', () {
+      test(
+        'VAL-049: should reject whitespace-only deviceToken or platform without invoking remote data source',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(() => mockSessionRepository.userData).thenReturn(tUser);
+          when(
+            () => mockRemoteDataSource.registerDeviceToken(
+              userId: any(named: 'userId'),
+              deviceToken: any(named: 'deviceToken'),
+              platform: any(named: 'platform'),
+            ),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.registerDeviceToken(
+            deviceToken: '   ',
+            platform: '   ',
+          );
+
+          expect(result, isA<FailureState<bool>>());
+          verifyNever(
+            () => mockRemoteDataSource.registerDeviceToken(
+              userId: any(named: 'userId'),
+              deviceToken: any(named: 'deviceToken'),
+              platform: any(named: 'platform'),
+            ),
+          );
+        },
+      );
+
+      test(
+        'VAL-050: should reject whitespace-only deviceToken without invoking remote data source on delete',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          when(() => mockSessionRepository.userData).thenReturn(tUser);
+          when(
+            () => mockRemoteDataSource.deleteDeviceToken(
+              userId: any(named: 'userId'),
+              deviceToken: any(named: 'deviceToken'),
+            ),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await repository.deleteDeviceToken('   ');
+
+          expect(result, isA<FailureState<bool>>());
+          verifyNever(
+            () => mockRemoteDataSource.deleteDeviceToken(
+              userId: any(named: 'userId'),
+              deviceToken: any(named: 'deviceToken'),
+            ),
+          );
+        },
+      );
+    });
   });
 }
