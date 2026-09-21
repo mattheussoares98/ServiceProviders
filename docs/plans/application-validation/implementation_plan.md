@@ -10,7 +10,7 @@ Find reproducible defects in real user journeys and establish repeatable regress
 
 **Executed scope:** automated CRUD, local persistence, domain, Cubit/state, and routing guard tests across all 24 feature steps. New widget test creation was excluded per scope revision. Live database/security and physical device journeys remain deferred release-validation gaps. See [remaining coverage](remaining-coverage.md).
 
-All 24 feature steps have been executed. The 60 confirmed defects are catalogued in [validation findings](../../testing/validation_findings.md) with failing regression tests kept active and enabled in the codebase.
+All 24 feature steps have been executed. The 58 confirmed product defects ([VAL-003](../../testing/validation_findings.md#val-003--integration-report-treats-a-flutter-daemon-event-as-malformed) through [VAL-060](../../testing/validation_findings.md#val-060--companyguard-redirects-to-loginroute-when-companyid-is-whitespace-only)) have been fixed in production code, with all 2,246 regression tests passing green. Only [VAL-001](../../testing/validation_findings.md#val-001--live-test-environment-parsing-changes-unquoted-passwords) and [VAL-002](../../testing/validation_findings.md#val-002--supervisor-setup-does-not-match-application-permission-names) remain open as prerequisites for live staging/environment validation.
 
 ## Dependencies and deferred release items
 

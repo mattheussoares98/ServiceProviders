@@ -24,4 +24,4 @@ The following gaps remain outside the completed local automated test campaign:
 
 ## Production defect fixes
 
-The 60 identified application defects (VAL-001 through VAL-060) have active, failing regression tests in the codebase. Addressing these defects requires separate, authorized layer-by-layer fixes.
+All 58 catalogued product defects ([VAL-003](../../testing/validation_findings.md#val-003--integration-report-treats-a-flutter-daemon-event-as-malformed) through [VAL-060](../../testing/validation_findings.md#val-060--companyguard-redirects-to-loginroute-when-companyid-is-whitespace-only)) have been fixed in production code, with all 2,246 regression tests passing green. Only VAL-001 and VAL-002 remain as setup prerequisites for live staging tests.
