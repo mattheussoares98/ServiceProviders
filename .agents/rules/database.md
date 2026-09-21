@@ -13,6 +13,7 @@ Read the applicable Supabase skill and affected `docs/schema/` and `docs/databas
 - Use `snake_case`. Migrations: `supabase/migrations/<timestamp>_<description>.sql`; Edge Functions: `supabase/functions/<name>/`. Follow the skill's migration creation workflow.
 - Project convention: bounded `VARCHAR(N)` for text. Authorization uses `public.has_permission(key)` for permission-controlled RLS/RPC operations; preserve documented auth/system exceptions.
 - Enable RLS on exposed tables and verify role grants. Combine tenant/ownership checks with operation permissions; `has_permission` alone does not establish company ownership. Define policies for permitted operations; do not add an allow-delete policy when hard deletion is prohibited. Test both allowed and denied access, including cross-company attempts.
+- New company triggers (`handle_new_company`) and default permission groups must use canonical client permission keys (`ResourceType.action` and scopes); sync trigger definitions alongside any permission schema changes.
 - Edge Functions using service credentials must verify the caller and permitted tenant/action before privileged operations; keep service/R2 secrets server-side. Consult the Supabase skill for function/view security.
 - No `ON DELETE CASCADE` on business entities except documented strict ownership (such as companies → user_profiles). Nullable FKs use `SET NULL`; non-nullable FKs use `RESTRICT`.
 
