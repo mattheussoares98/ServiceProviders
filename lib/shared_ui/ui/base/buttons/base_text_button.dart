@@ -55,7 +55,9 @@ class BaseTextButton extends HookWidget {
     final appliedTextType = textType ?? TextType.bodyLarge;
     final appliedFontWeight = textFontWeight ?? FontWeight.w400;
     final baseColor = textColor ?? color ?? AppColors.hightLight;
-    final finalColor = isLoading ? baseColor.withValues(alpha: 0.5) : baseColor;
+    final finalColor = isLoading || onPressed == null
+        ? baseColor.withValues(alpha: 0.5)
+        : baseColor;
 
     void appliedOnTap() {
       FocusManager.instance.primaryFocus?.unfocus();
@@ -96,7 +98,7 @@ class BaseTextButton extends HookWidget {
 
         if (context.isCupertino) {
           return CupertinoButton(
-            onPressed: isLoading ? null : appliedOnTap,
+            onPressed: isLoading || onPressed == null ? null : appliedOnTap,
             padding: padding ?? EdgeInsets.zero,
             minimumSize: Size.zero,
             child: childWidget,
@@ -104,7 +106,7 @@ class BaseTextButton extends HookWidget {
         }
 
         return TextButton(
-          onPressed: isLoading ? null : appliedOnTap,
+          onPressed: isLoading || onPressed == null ? null : appliedOnTap,
           style: TextButton.styleFrom(
             foregroundColor: color,
             padding: padding,
