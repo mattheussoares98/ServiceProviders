@@ -12,8 +12,8 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
@@ -118,7 +118,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                               sendInvitation(),
                                         ),
                                         gapH32,
-                                        BaseTextButton(
+                                        BaseButton.text(
                                           onPressed: sendInvitation,
                                           text: 'Convidar'.hardcoded,
                                         ),
@@ -231,7 +231,7 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                         return Row(
                           mainAxisAlignment: .end,
                           children: [
-                            BaseTextButton(
+                            BaseButton.text(
                               isLoading: isLoading,
                               permission: const ActionPermission.resource(
                                 resourceType: ResourceType.serviceProviders,

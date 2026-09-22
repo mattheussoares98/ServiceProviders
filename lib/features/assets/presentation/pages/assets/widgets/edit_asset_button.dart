@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class EditAssetButton extends StatelessWidget {
@@ -14,7 +14,7 @@ class EditAssetButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseTextButton(
+    return BaseButton.text(
       permission: const ActionPermission.resource(
         resourceType: ResourceType.locations,
         permissionAction: PermissionAction.update,

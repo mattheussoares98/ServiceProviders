@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_e
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_indication_icon.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -142,7 +142,7 @@ class WorkOrderItem extends StatelessWidget {
             ),
             Align(
               alignment: .centerRight,
-              child: BaseTextButton(
+              child: BaseButton.text(
                 text: 'Detalhes'.hardcoded,
                 onPressed: () => context
                     .read<WorkOrdersCubit>()

@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class DeleteUserButton extends StatelessWidget {
@@ -14,7 +14,7 @@ class DeleteUserButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BaseTextButton(
+    return BaseButton.text(
       onPressed: () async {
         final delete = await showAlertDialog(
           context: context,

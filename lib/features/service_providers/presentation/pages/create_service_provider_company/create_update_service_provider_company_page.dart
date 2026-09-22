@@ -13,7 +13,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_checkbox.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
@@ -211,7 +210,7 @@ class CreateUpdateServiceProviderCompanyPage extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Flexible(
-                    child: BaseTextButton(
+                    child: BaseButton.text(
                       text: 'Cancelar'.hardcoded,
                       onPressed: () => Navigator.of(context).pop(),
                     ),

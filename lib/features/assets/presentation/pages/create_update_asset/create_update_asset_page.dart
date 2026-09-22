@@ -22,7 +22,6 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
@@ -49,26 +48,17 @@ class CreateUpdateAssetPage extends HookWidget {
     final (loadingLocations, locationsError) = context
         .select<LocationsCubit, (bool, String?)>((cubit) {
           final section = cubit.state.section(BaseSections.load);
-          return (
-            section.isRunning,
-            section.errorMessage,
-          );
+          return (section.isRunning, section.errorMessage);
         });
     final (loadingCategories, categoriesError) = context
         .select<CategoriesCubit, (bool, String?)>((cubit) {
           final section = cubit.state.section(BaseSections.load);
-          return (
-            section.isRunning,
-            section.errorMessage,
-          );
+          return (section.isRunning, section.errorMessage);
         });
     final (loadingAssets, assetsError) = context
         .select<AssetsCubit, (bool, String?)>((cubit) {
           final section = cubit.state.section(BaseSections.load);
-          return (
-            section.isRunning,
-            section.errorMessage,
-          );
+          return (section.isRunning, section.errorMessage);
         });
 
     if (loadingCategories || loadingLocations || loadingAssets) {
@@ -301,7 +291,7 @@ class CreateUpdateAssetPage extends HookWidget {
                     mainAxisAlignment: .spaceBetween,
                     children: [
                       Flexible(
-                        child: BaseTextButton(
+                        child: BaseButton.text(
                           onPressed: () => Navigator.of(context).pop(),
                           text: 'Cancelar'.hardcoded,
                           color: Colors.red,

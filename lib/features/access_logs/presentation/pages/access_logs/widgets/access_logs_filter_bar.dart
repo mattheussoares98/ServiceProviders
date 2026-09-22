@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/access_logs/presentation/cubits/access_logs/access_logs_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/user_profile_entity.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -76,7 +76,7 @@ class AccessLogsFilterBar extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: SecondaryButton(
+                child: BaseButton.secondary(
                   onTap: pickDateRange,
                   text: (startDate != null || endDate != null)
                       ? '${startDate?.formatDate() ?? ''} - ${endDate?.formatDate() ?? ''}'

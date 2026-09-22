@@ -9,7 +9,6 @@ import 'package:o_jogo_da_obra/features/locations/presentation/pages/create_upda
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
@@ -88,8 +87,7 @@ class CreateUpdateLocationPage extends HookWidget {
           if (address.city.isNotEmpty && cityController.text.trim().isEmpty) {
             cityController.text = address.city;
           }
-          if (address.state.isNotEmpty &&
-              stateController.text.trim().isEmpty) {
+          if (address.state.isNotEmpty && stateController.text.trim().isEmpty) {
             stateController.text = address.state;
           }
           numberFocusNode.requestFocus();
@@ -240,7 +238,7 @@ class CreateUpdateLocationPage extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
-                    child: BaseTextButton(
+                    child: BaseButton.text(
                       onPressed: () => Navigator.of(context).pop(),
                       text: 'Cancelar'.hardcoded,
                       color: Colors.red,

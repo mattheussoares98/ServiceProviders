@@ -26,7 +26,6 @@ import 'package:o_jogo_da_obra/shared_ui/cubits/keyboard_visibility/keyboard_vis
 import 'package:o_jogo_da_obra/shared_ui/cubits/screen_observer/screen_observer_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -195,7 +194,7 @@ void main() {
       BaseButton,
     ).which<BaseButton>((b) => b.onTap != null);
     expect(enabledButton, findsOneWidget);
-    expect($(BaseTextButton), findsNWidgets(2));
+    expect($(BaseButton.text), findsNWidgets(2));
     expect($('Precisa de ajuda? Contate o suporte'), findsOneWidget);
     expect($(PlatformIcon), findsOneWidget);
 

@@ -12,7 +12,6 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
@@ -176,7 +175,7 @@ class _AttachmentsAndAddRow extends StatelessWidget {
         Flexible(child: BaseText.titleMedium('Anexos'.hardcoded)),
         if (isWorkOrderActive)
           Flexible(
-            child: BaseTextButton(
+            child: BaseButton.text(
               permission: _createAttachment,
               onPressed: () async {
                 final source = await AttachmentSourceSheet.show(context);

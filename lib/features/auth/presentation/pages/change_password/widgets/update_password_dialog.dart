@@ -7,7 +7,6 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/change_password
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/change_password/widgets/change_password.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -73,7 +72,7 @@ class UpdatePasswordDialog extends HookWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Flexible(
-                            child: SecondaryButton(
+                            child: BaseButton.secondary(
                               text: 'Cancelar'.hardcoded,
                               isLoading: isSaving,
                               onTap: () => Navigator.of(context).pop(false),

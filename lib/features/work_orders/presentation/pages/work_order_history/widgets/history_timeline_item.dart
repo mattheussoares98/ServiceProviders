@@ -10,7 +10,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/audit_logs/a
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/audit_change_ui_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -162,7 +162,7 @@ class HistoryTimelineItem extends StatelessWidget {
                         gapH4,
                       ] else
                         FittedBox(
-                          child: BaseTextButton(
+                          child: BaseButton.text(
                             text: (fileName != null && fileName.isNotEmpty)
                                 ? 'Abrir anexo ($fileName)'.hardcoded
                                 : 'Abrir anexo'.hardcoded,

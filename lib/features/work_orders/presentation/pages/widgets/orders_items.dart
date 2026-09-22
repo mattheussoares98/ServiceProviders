@@ -12,7 +12,7 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_ord
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/widgets/work_order_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/chip/base_removable_chip.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';

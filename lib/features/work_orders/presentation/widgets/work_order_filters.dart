@@ -12,7 +12,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_or
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/extensions/work_order_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/chip/base_choice_chip.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -259,7 +258,7 @@ class WorkOrderFilters extends HookWidget {
               child: Row(
                 children: [
                   Expanded(
-                    child: SecondaryButton(
+                    child: BaseButton.secondary(
                       onTap: () => Navigator.of(context).pop(),
                       text: 'Cancelar'.hardcoded,
                     ),

@@ -16,7 +16,7 @@ class _ProviderScheduledDate extends StatelessWidget {
     return Row(
       children: [
         Expanded(child: BaseText('Data programada'.hardcoded)),
-        BaseTextButton(
+        BaseButton.text(
           onPressed: () async {
             final newDate = await GetNewDate.get(
               minimumDate: now,

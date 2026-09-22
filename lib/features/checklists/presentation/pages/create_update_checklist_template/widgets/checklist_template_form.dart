@@ -6,7 +6,6 @@ import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_tem
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/pages/create_update_checklist_template/widgets/checklist_template_category_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
@@ -80,7 +79,7 @@ class ChecklistTemplateForm extends HookWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                child: BaseTextButton(
+                child: BaseButton.text(
                   onPressed: () => Navigator.of(context).pop(),
                   text: 'Cancelar'.hardcoded,
                   color: Colors.red,

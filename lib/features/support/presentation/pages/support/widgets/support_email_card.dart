@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/support/presentation/cubits/support/support_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
@@ -73,7 +73,7 @@ class SupportEmailCard extends StatelessWidget {
                 ),
                 if (isAvailable && email.isNotEmpty) ...[
                   gapH12,
-                  SecondaryButton(
+                  BaseButton.secondary(
                     expandWidth: true,
                     isLoading: isCopying,
                     platformIcon: const PlatformIcon(

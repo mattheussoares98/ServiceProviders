@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class QuickActionButton extends StatelessWidget {
@@ -16,7 +16,7 @@ class QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SecondaryButton(
+    return BaseButton.secondary(
       onTap: onTap,
       text: label,
       expandWidth: true,

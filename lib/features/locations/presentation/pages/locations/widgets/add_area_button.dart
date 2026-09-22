@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entit
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 class AddAreaButton extends StatelessWidget {
@@ -21,7 +21,7 @@ class AddAreaButton extends StatelessWidget {
           cubit.state.section(LocationsSections.deleteLocation).isRunning,
     );
 
-    return BaseTextButton(
+    return BaseButton.text(
       permission: const ActionPermission.resource(
         resourceType: ResourceType.locations,
         permissionAction: PermissionAction.create,

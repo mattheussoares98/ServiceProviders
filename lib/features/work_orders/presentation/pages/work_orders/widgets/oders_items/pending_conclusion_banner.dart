@@ -40,9 +40,7 @@ class _PendingConclusionBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.warning.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(Sizes.p8),
-        border: Border.all(
-          color: AppColors.warning.withValues(alpha: 0.4),
-        ),
+        border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -63,7 +61,7 @@ class _PendingConclusionBanner extends StatelessWidget {
           ),
           if (!isAlreadyFiltered) ...[
             gapW8,
-            BaseTextButton(
+            BaseButton.text(
               text: 'Ver todas'.hardcoded,
               onPressed: () =>
                   context.read<WorkOrdersCubit>().filterByPendingConclusion(),

@@ -10,8 +10,6 @@ import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cu
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 
 import '../../../../../testing/mocks/factories/user_factory.dart';
@@ -76,8 +74,8 @@ void main() {
       finder: find.text('Test Button'),
     ),
     ButtonTestCase(
-      name: 'SecondaryButton',
-      builder: (permission) => SecondaryButton(
+      name: 'BaseButton.secondary',
+      builder: (permission) => BaseButton.secondary(
         onTap: () {},
         text: 'Test Button',
         permission: permission,
@@ -85,8 +83,26 @@ void main() {
       finder: find.text('Test Button'),
     ),
     ButtonTestCase(
-      name: 'BaseTextButton',
-      builder: (permission) => BaseTextButton(
+      name: 'BaseButton.text',
+      builder: (permission) => BaseButton.text(
+        onPressed: () {},
+        text: 'Test Button',
+        permission: permission,
+      ),
+      finder: find.text('Test Button'),
+    ),
+    ButtonTestCase(
+      name: 'BaseButton.secondary',
+      builder: (permission) => BaseButton.secondary(
+        onTap: () {},
+        text: 'Test Button',
+        permission: permission,
+      ),
+      finder: find.text('Test Button'),
+    ),
+    ButtonTestCase(
+      name: 'BaseButton.text',
+      builder: (permission) => BaseButton.text(
         onPressed: () {},
         text: 'Test Button',
         permission: permission,

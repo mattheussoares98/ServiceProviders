@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_order_history/work_order_history_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
@@ -42,7 +42,7 @@ class HistoryDateFilterBar extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: SecondaryButton(
+          child: BaseButton.secondary(
             onTap: pickDateRange,
             text: hasFilter
                 ? '${startDate?.formatDate() ?? ''} - ${endDate?.formatDate() ?? ''}'

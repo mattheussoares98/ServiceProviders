@@ -8,7 +8,6 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/pause_workflow/pause_workflow_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/title_and_subtitle.dart';
@@ -116,7 +115,7 @@ class ReviewCompletionDialog extends HookWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
-                              child: SecondaryButton(
+                              child: BaseButton.secondary(
                                 text: 'Rejeitar'.hardcoded,
                                 isLoading: isSaving,
                                 onTap: () => reviewCompletion(false),

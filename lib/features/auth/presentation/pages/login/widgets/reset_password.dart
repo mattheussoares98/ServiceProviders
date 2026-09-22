@@ -5,7 +5,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -59,7 +59,7 @@ class ResetPassword extends HookWidget {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final resetPasswordController = useTextEditingController();
 
-    return BaseTextButton(
+    return BaseButton.text(
       onPressed:
           context.select(
                 (LoginCubit cubit) =>
@@ -128,14 +128,14 @@ class _ResetPasswordDialog extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: BaseTextButton(
+                    child: BaseButton.text(
                       isLoading: isLoading,
                       onPressed: () => Navigator.of(context).pop(),
                       text: 'Cancelar'.hardcoded,
                     ),
                   ),
                   Expanded(
-                    child: BaseTextButton(
+                    child: BaseButton.text(
                       isLoading: isLoading,
                       onPressed: onSubmit,
                       text: 'Enviar'.hardcoded,

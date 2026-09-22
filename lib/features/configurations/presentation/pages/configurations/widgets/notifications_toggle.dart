@@ -6,7 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/platform_util.dart';
 import 'package:o_jogo_da_obra/features/configurations/presentation/cubits/configurations/configurations_cubit.dart';
 import 'package:o_jogo_da_obra/features/configurations/presentation/pages/configurations/widgets/configuration_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_switch.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -49,7 +49,7 @@ class NotificationsToggle extends StatelessWidget {
               ),
               if (!systemEnabled && isMobile) ...[
                 gapH8,
-                BaseTextButton(
+                BaseButton.text(
                   onPressed: openAppSettings,
                   text:
                       'As notificações estão desativadas no sistema. Clique aqui para abrir as configurações do dispositivo.'

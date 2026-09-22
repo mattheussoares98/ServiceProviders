@@ -7,7 +7,7 @@ import 'package:o_jogo_da_obra/features/service_providers/domain/entities/servic
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/extensions/service_provider_extensions.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_rich_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -44,7 +44,7 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
               ),
               gapW8,
               if (company.invitationStatus == null)
-                BaseTextButton(
+                BaseButton.text(
                   text: 'Convidar'.hardcoded,
                   platformIcon: const PlatformIcon(
                     materialIcon: Icons.mail,

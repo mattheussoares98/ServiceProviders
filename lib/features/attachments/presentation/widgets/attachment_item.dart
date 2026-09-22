@@ -11,7 +11,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permiss
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_image_widget.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_text_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -157,7 +157,7 @@ class AttachmentItem extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: Sizes.p4),
                       child: Center(
                         child: FittedBox(
-                          child: BaseTextButton(
+                          child: BaseButton.text(
                             text: 'Remover anexo'.hardcoded,
                             textColor: Colors.redAccent,
                             platformIcon: const PlatformIcon(

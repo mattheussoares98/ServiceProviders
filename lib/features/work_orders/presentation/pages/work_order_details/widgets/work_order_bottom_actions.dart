@@ -13,7 +13,6 @@ import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/r
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/show_modal_page.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -89,7 +88,7 @@ class WorkOrderBottomActions extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: SecondaryButton(
+              child: BaseButton.secondary(
                 text: 'Pausar'.hardcoded,
                 onTap: () async {
                   await showModalPage<void>(

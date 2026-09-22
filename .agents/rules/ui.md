@@ -38,7 +38,7 @@ Under `lib/shared_ui/ui/base/`; inspect the component's API before use. These re
 | Text | `BaseText` (named text styles) |
 | Scaffold / AppBar | `BaseScaffold` / `BaseAppBar` |
 | ElevatedButton / MaterialButton | `BaseButton` |
-| OutlinedButton / TextButton / IconButton | `SecondaryButton` / `BaseTextButton` / `BaseIconButton` |
+| OutlinedButton / TextButton / IconButton | `BaseButton.secondary` / `BaseButton.text` / `BaseIconButton` |
 | Icon | `PlatformIcon(materialIcon:, cupertinoIcon:, color:)` |
 | TextField / TextFormField | `BaseTextFormField` |
 | DropdownButton* | `BaseDropDown` |
