@@ -20,4 +20,8 @@ class ProviderHomeCubit extends BaseCubit<ProviderHomeState> {
     unawaited(_useCases.clearLocalAttachments.call());
     await replaceAllRoute(const SplashRoute());
   }
+
+  Future<void> navigateToSupport() async {
+    await pushRoute(const SupportRoute());
+  }
 }

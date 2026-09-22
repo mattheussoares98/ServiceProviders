@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/provider_home_page/widgets/provider_change_password_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/provider_home_page/widgets/provider_logout_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/provider_home_page/widgets/provider_support_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/widgets/mode_switcher_drawer_item.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
@@ -18,6 +19,7 @@ class ProviderHomeDrawer extends StatelessWidget {
         children: [
           ModeSwitcherDrawerItem(),
           ProviderChangePasswordDrawerItem(),
+          ProviderSupportDrawerItem(),
           Spacer(),
           Divider(height: 1),
           ProviderLogoutDrawerItem(),

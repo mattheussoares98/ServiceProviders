@@ -67,5 +67,17 @@ void main() {
         ).called(1);
       },
     );
+
+    blocTest<ProviderHomeCubit, ProviderHomeState>(
+      'navigateToSupport should push SupportRoute',
+      build: () => providerHomeCubit,
+      act: (cubit) => cubit.navigateToSupport(),
+      expect: () => <ProviderHomeState>[],
+      verify: (cubit) {
+        verify(
+          () => mockNavigationClient.pushRoute(const SupportRoute()),
+        ).called(1);
+      },
+    );
   });
 }

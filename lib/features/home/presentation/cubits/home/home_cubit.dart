@@ -151,4 +151,8 @@ class HomeCubit extends BaseCubit<HomeState> {
       );
     }
   }
+
+  Future<void> navigateToSupport() async {
+    await pushRoute(const SupportRoute());
+  }
 }

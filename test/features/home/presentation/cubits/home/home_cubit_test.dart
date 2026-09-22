@@ -160,6 +160,18 @@ void main() {
       },
     );
 
+    blocTest<HomeCubit, HomeState>(
+      'navigateToSupport should push SupportRoute',
+      build: () => homeCubit,
+      act: (cubit) => cubit.navigateToSupport(),
+      expect: () => <HomeState>[],
+      verify: (cubit) {
+        verify(
+          () => mockNavigationClient.pushRoute(const SupportRoute()),
+        ).called(1);
+      },
+    );
+
     final tUser = UserFactory.makeUserProfileEntity();
     final tAttachment = MaintenancePlanFactory.makeAttachmentEntity().copyWith(
       localPath: 'path/to/file.jpg',

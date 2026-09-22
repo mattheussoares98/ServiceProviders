@@ -22,6 +22,7 @@ import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/permissions_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/settings_drawer_item.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/support_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/user_drawer_item.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/home_drawer_header.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -405,6 +406,7 @@ void main() {
       expect($(UserDrawerItem), findsOne);
       expect($(PermissionsDrawerItem), findsOne);
       expect($(SettingsDrawerItem), findsOne);
+      expect($(SupportDrawerItem), findsOne);
       expect($(LogoutDrawerItem), findsOne);
 
       // Tap Logout button inside Drawer
