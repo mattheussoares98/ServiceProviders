@@ -38,13 +38,14 @@ class BaseTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.autofocus = false,
     this.autofillHints,
+    this.showCounter = false,
   }) : assert(
-          focusNode != null ||
-              (keyboardType != TextInputType.number &&
-                  keyboardType !=
-                      const TextInputType.numberWithOptions(decimal: true)),
-          'Numeric keyboard requires a focusNode for iOS keyboard toolbar support.',
-        );
+         focusNode != null ||
+             (keyboardType != TextInputType.number &&
+                 keyboardType !=
+                     const TextInputType.numberWithOptions(decimal: true)),
+         'Numeric keyboard requires a focusNode for iOS keyboard toolbar support.',
+       );
   final bool? enabled;
   final TextEditingController? controller;
   final void Function(String)? onFieldSubmitted;
@@ -68,6 +69,7 @@ class BaseTextFormField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final VoidCallback? onEditingComplete;
   final Iterable<String>? autofillHints;
+  final bool showCounter;
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +99,28 @@ class BaseTextFormField extends StatelessWidget {
         onTap: onTap,
         autofocus: autofocus ?? false,
         autofillHints: autofillHints,
-        buildCounter:
-            (
-              context, {
-              required currentLength,
-              required isFocused,
-              required maxLength,
-            }) => null,
+        buildCounter: showCounter && maxLength != null
+            ? (
+                context, {
+                required currentLength,
+                required isFocused,
+                required maxLength,
+              }) {
+                final isOverLimit = currentLength > (maxLength ?? 0);
+                return BaseText(
+                  '$currentLength / $maxLength',
+                  textType: TextType.caption,
+                  color: isOverLimit
+                      ? context.theme.colorScheme.error
+                      : context.theme.hintColor,
+                );
+              }
+            : (
+                context, {
+                required currentLength,
+                required isFocused,
+                required maxLength,
+              }) => null,
         decoration: AppDecorations.input(
           enabled: enabled ?? true,
           context: context,

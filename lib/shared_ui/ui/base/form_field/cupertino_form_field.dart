@@ -80,15 +80,16 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = context.theme.colorScheme;
-    final dtf = widget.baseTextFormField;
-    final isEnabled = dtf.enabled ?? true;
+    final btf = widget.baseTextFormField;
+    final isEnabled = btf.enabled ?? true;
+    final isMultiLine = (btf.maxLines ?? 1) > 1;
 
     return FormField<String>(
-      key: dtf.key,
-      validator: dtf.validator,
+      key: btf.key,
+      validator: btf.validator,
       enabled: isEnabled,
-      initialValue: dtf.controller?.text,
-      autovalidateMode: dtf.autovalidateMode,
+      initialValue: btf.controller?.text,
+      autovalidateMode: btf.autovalidateMode,
       builder: (state) {
         _formFieldState = state;
 
@@ -105,9 +106,9 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (dtf.labelText != null) ...[
+            if (btf.labelText != null) ...[
               BaseText(
-                dtf.labelText!,
+                btf.labelText!,
                 color: isEnabled
                     ? colorScheme.onSurface.withAlpha(200)
                     : colorScheme.onSurface.withAlpha(100),
@@ -120,16 +121,22 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
               constraints: const BoxConstraints(minHeight: Sizes.p48),
               child: CupertinoTextField(
                 scrollPadding: const EdgeInsets.only(bottom: Sizes.p80),
-                onTap: dtf.onTap,
-                onEditingComplete: dtf.onEditingComplete,
-                inputFormatters: dtf.inputFormatters,
-                controller: dtf.controller,
-                textInputAction: dtf.textInputAction,
+                onTap: btf.onTap,
+                onEditingComplete: btf.onEditingComplete,
+                inputFormatters: btf.inputFormatters,
+                controller: btf.controller,
+                textInputAction: btf.textInputAction,
                 minLines: 1,
-                maxLines: dtf.maxLines ?? 1,
-                placeholder: dtf.hintText,
-                autofocus: dtf.autofocus ?? false,
-                autofillHints: dtf.autofillHints,
+                maxLines: btf.maxLines ?? 1,
+                placeholder: btf.hintText,
+                autofocus: btf.autofocus ?? false,
+                autofillHints: btf.autofillHints,
+                padding: EdgeInsets.only(
+                  top: isMultiLine ? Sizes.p12 : Sizes.p8,
+                  bottom: isMultiLine ? Sizes.p12 : Sizes.p8,
+                  left: Sizes.p8,
+                  right: Sizes.p8,
+                ),
                 style: TextStyle(
                   color: isEnabled
                       ? null
@@ -141,14 +148,16 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
                       : colorScheme.onSurface.withAlpha(100),
                   fontSize: 12,
                 ),
-                textAlignVertical: TextAlignVertical.center,
-                obscureText: dtf.obscureText,
-                onSubmitted: dtf.onFieldSubmitted,
+                textAlignVertical: isMultiLine
+                    ? TextAlignVertical.top
+                    : TextAlignVertical.center,
+                obscureText: btf.obscureText,
+                onSubmitted: btf.onFieldSubmitted,
                 enabled: isEnabled,
-                focusNode: dtf.focusNode,
-                maxLength: dtf.maxLength,
+                focusNode: btf.focusNode,
+                maxLength: btf.maxLength,
                 onChanged: (value) {
-                  dtf.onChanged?.call(value);
+                  btf.onChanged?.call(value);
                   state.didChange(value);
                 },
                 decoration: BoxDecoration(
@@ -156,39 +165,67 @@ class _CupertinoFormFieldState extends State<CupertinoFormField> {
                   borderRadius: BorderRadius.circular(Sizes.p8),
                   border: border,
                 ),
-                keyboardType: dtf.keyboardType,
-                prefix: dtf.prefixIcon == null
+                keyboardType: btf.keyboardType,
+                prefix: btf.prefixIcon == null
                     ? null
-                    : _BuildIcon(widget: dtf.prefixIcon!),
-                suffix: dtf.suffixIcon != null || dtf.suffixText != null
+                    : _BuildIcon(widget: btf.prefixIcon!),
+                suffix: btf.suffixIcon != null || btf.suffixText != null
                     ? Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (dtf.suffixText != null)
+                          if (btf.suffixText != null)
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: Sizes.p12,
                               ),
                               child: BaseText.bodySmall(
-                                dtf.suffixText!,
+                                btf.suffixText!,
                                 color: isEnabled
                                     ? colorScheme.onSurface.withAlpha(150)
                                     : colorScheme.onSurface.withAlpha(100),
                               ),
                             ),
-                          if (dtf.suffixIcon != null)
-                            _BuildIcon(widget: dtf.suffixIcon!),
+                          if (btf.suffixIcon != null)
+                            _BuildIcon(widget: btf.suffixIcon!),
                         ],
                       )
                     : null,
               ),
             ),
-            if (state.hasError)
+            if (state.hasError || (btf.showCounter && btf.maxLength != null))
               Padding(
-                padding: const EdgeInsets.only(left: Sizes.p8, top: Sizes.p4),
-                child: BaseText.caption(
-                  state.errorText!,
-                  color: CupertinoColors.destructiveRed,
+                padding: const EdgeInsets.only(
+                  left: Sizes.p8,
+                  right: Sizes.p8,
+                  top: Sizes.p4,
+                ),
+                child: Row(
+                  children: [
+                    if (state.hasError)
+                      Expanded(
+                        child: BaseText.caption(
+                          state.errorText!,
+                          color: CupertinoColors.destructiveRed,
+                        ),
+                      )
+                    else
+                      const Spacer(),
+                    if (btf.showCounter && btf.maxLength != null)
+                      () {
+                        final currentLength =
+                            state.value?.length ??
+                            btf.controller?.text.length ??
+                            0;
+                        final isOverLimit = currentLength > btf.maxLength!;
+                        return BaseText(
+                          '$currentLength / ${btf.maxLength}',
+                          textType: TextType.caption,
+                          color: isOverLimit
+                              ? context.theme.colorScheme.error
+                              : context.theme.hintColor,
+                        );
+                      }(),
+                  ],
                 ),
               ),
           ],
