@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/secondary_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class SupportEmailCard extends StatelessWidget {
   const SupportEmailCard({super.key});
@@ -17,7 +18,8 @@ class SupportEmailCard extends StatelessWidget {
       buildWhen: (prev, current) =>
           prev.supportEmail != current.supportEmail ||
           prev.isEmailAvailable != current.isEmailAvailable ||
-          prev.sections[SupportSection.copy] != current.sections[SupportSection.copy],
+          prev.sections[SupportSection.copy] !=
+              current.sections[SupportSection.copy],
       builder: (context, state) {
         final email = state.supportEmail;
         final isAvailable = state.isEmailAvailable;
@@ -29,7 +31,7 @@ class SupportEmailCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(Sizes.p12),
             side: BorderSide(
-              color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+              color: context.theme.dividerColor.withValues(alpha: 0.2),
             ),
           ),
           child: Padding(
@@ -56,12 +58,13 @@ class SupportEmailCard extends StatelessWidget {
                           SelectableText(
                             isAvailable
                                 ? email
-                                : 'Canal temporariamente indisponível'.hardcoded,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: isAvailable
-                                      ? Theme.of(context).colorScheme.primary
-                                      : Theme.of(context).colorScheme.error,
-                                ),
+                                : 'Canal temporariamente indisponível'
+                                      .hardcoded,
+                            style: context.theme.textTheme.bodySmall?.copyWith(
+                              color: isAvailable
+                                  ? context.theme.colorScheme.primary
+                                  : context.theme.colorScheme.error,
+                            ),
                           ),
                         ],
                       ),

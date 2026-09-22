@@ -5,6 +5,7 @@ import 'package:o_jogo_da_obra/features/support/presentation/cubits/support/supp
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class SupportDescriptionField extends StatelessWidget {
   const SupportDescriptionField({
@@ -28,20 +29,16 @@ class SupportDescriptionField extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BaseText(
-              'Como podemos ajudar?'.hardcoded,
-              fontWeight: FontWeight.w600,
-            ),
+            BaseText('Como podemos ajudar?'.hardcoded, fontWeight: .bold),
             gapH8,
             BaseTextFormField(
               controller: controller,
               focusNode: focusNode,
               maxLines: 6,
               maxLength: maxLength,
-              hintText:
-                  'Descreva detalhadamente o problema ou sua dúvida...'.hardcoded,
-              onChanged: (text) =>
-                  context.read<SupportCubit>().updateDescription(text),
+              hintText: 'Descreva detalhadamente o problema ou sua dúvida...'
+                  .hardcoded,
+              onChanged: context.read<SupportCubit>().updateDescription,
             ),
             gapH4,
             Align(
@@ -50,8 +47,8 @@ class SupportDescriptionField extends StatelessWidget {
                 '$currentLength / $maxLength'.hardcoded,
                 textType: TextType.caption,
                 color: currentLength > maxLength
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).hintColor,
+                    ? context.theme.colorScheme.error
+                    : context.theme.hintColor,
               ),
             ),
           ],

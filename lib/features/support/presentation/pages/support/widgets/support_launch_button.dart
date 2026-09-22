@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class SupportLaunchButton extends StatelessWidget {
   const SupportLaunchButton({super.key});
@@ -33,7 +34,7 @@ class SupportLaunchButton extends StatelessWidget {
                 materialIcon: Icons.send_rounded,
                 cupertinoIcon: CupertinoIcons.paperplane,
               ),
-              text: 'Abrir no aplicativo de e-mail'.hardcoded,
+              text: 'Enviar e-mail'.hardcoded,
               onTap: canSubmit && !isLaunching
                   ? () => context.read<SupportCubit>().launchEmail()
                   : null,
@@ -44,7 +45,7 @@ class SupportLaunchButton extends StatelessWidget {
                   .hardcoded,
               textType: TextType.caption,
               textAlign: TextAlign.center,
-              color: Theme.of(context).hintColor,
+              color: context.theme.hintColor,
             ),
           ],
         );

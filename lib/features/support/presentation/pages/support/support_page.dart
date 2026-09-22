@@ -10,9 +10,9 @@ import 'package:o_jogo_da_obra/features/support/presentation/pages/support/widge
 import 'package:o_jogo_da_obra/features/support/presentation/pages/support/widgets/support_launch_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
 @RoutePage()
 class SupportPage extends HookWidget {
@@ -37,31 +37,15 @@ class SupportPage extends HookWidget {
           listener: (context, state) {
             final copy = state.section(SupportSection.copy);
             if (copy.isSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: BaseText(
-                    'Copiado para a área de transferência!'.hardcoded,
-                  ),
-                ),
-              );
+              ToastUtil.showSuccess('Email copiado'.hardcoded);
             } else if (copy.isError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: BaseText(
-                    'Não foi possível copiar o texto.'.hardcoded,
-                  ),
-                ),
-              );
+              ToastUtil.showError('Não foi possível copiar o texto.'.hardcoded);
             }
             final launch = state.section(SupportSection.launch);
             if (launch.isError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: BaseText(
-                    'Não foi possível abrir o aplicativo de e-mail. Você pode copiar o endereço acima.'
-                        .hardcoded,
-                  ),
-                ),
+              ToastUtil.showError(
+                'Não foi possível abrir o aplicativo de e-mail. Você pode copiar o endereço acima.'
+                    .hardcoded,
               );
             }
           },
