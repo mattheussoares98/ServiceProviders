@@ -15,6 +15,7 @@ sealed class AppConfig {
     required this.apiBaseUrl,
     required this.flavor,
     required this.webBaseUrl,
+    this.supportEmail = defaultSupportEmail,
   });
   final String appTitle;
   final String apiBaseUrl;
@@ -23,6 +24,11 @@ sealed class AppConfig {
   /// The base URL for the deployed web app (e.g. https://example.web.app).
   /// Specific paths (e.g. /email-confirmation) are appended at the call site.
   final String webBaseUrl;
+
+  /// The contact email address for user support.
+  final String supportEmail;
+
+  static const String defaultSupportEmail = 'contact@soarescodes.com.br';
 }
 
 @LazySingleton(as: AppConfig, env: [Flavor.production])
@@ -33,6 +39,10 @@ final class AppConfigProd extends AppConfig {
         apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.production,
         webBaseUrl: dotenv.get('SUPABASE_BASE_URL'),
+        supportEmail: dotenv.get(
+          'SUPPORT_EMAIL',
+          fallback: AppConfig.defaultSupportEmail,
+        ),
       );
 }
 
@@ -44,6 +54,10 @@ final class AppConfigStg extends AppConfig {
         apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.staging,
         webBaseUrl: dotenv.get('SUPABASE_BASE_URL'),
+        supportEmail: dotenv.get(
+          'SUPPORT_EMAIL',
+          fallback: AppConfig.defaultSupportEmail,
+        ),
       );
 }
 
@@ -55,6 +69,10 @@ final class AppConfigDev extends AppConfig {
         apiBaseUrl: dotenv.get('SUPABASE_URL'),
         flavor: Flavor.development,
         webBaseUrl: dotenv.get('SUPABASE_BASE_URL'),
+        supportEmail: dotenv.get(
+          'SUPPORT_EMAIL',
+          fallback: AppConfig.defaultSupportEmail,
+        ),
       );
 }
 
@@ -71,6 +89,7 @@ final class TestAppConfig extends AppConfig {
     super.apiBaseUrl = 'https://test-api.com',
     super.flavor = 'test',
     super.webBaseUrl = defaultWebBaseUrl,
+    super.supportEmail = AppConfig.defaultSupportEmail,
   });
 
   /// The default base URL used in tests — exposed so tests can build expected URLs.
