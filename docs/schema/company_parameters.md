@@ -19,5 +19,11 @@ Configuration limits governing client offline allowances, file upload thresholds
 | `delayed_notification_interval_minutes` | INT | NO | 60 | Overdue notification repetition interval |
 | `escalation_group_ids` | JSONB | NO | '[]' | Cascading escalation hierarchy group IDs |
 | `allow_provider_create_work_order` | BOOLEAN | NO | false | Whether service providers may create work orders directly for this company |
+| `max_daily_work_orders` | INT | NO | 0 | Max WOs per day. 0 = unlimited |
+| `max_attachments_per_work_order` | INT | NO | 0 | Max attachments per WO. 0 = unlimited |
+| `max_maintenance_plans` | INT | NO | 0 | Max maintenance plans. 0 = unlimited for paid, disabled when free |
+| `max_service_providers` | INT | NO | 0 | Max service providers. 0 = unlimited for paid, disabled when free |
+| `max_observations_per_work_order` | INT | NO | 0 | Max observations per WO. 0 = unlimited |
 
 **Note**: `company_id` has a UNIQUE constraint (one row per company).
+

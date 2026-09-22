@@ -8,5 +8,8 @@ Root multi-tenant table.
 | `cnpj` | VARCHAR(14) | YES | - | Brazilian CNPJ |
 | `logo_url` | VARCHAR(2048) | YES | - | URL to company logo |
 | `is_active` | BOOLEAN | NO | true | System status toggle |
+| `plan_type` | VARCHAR(20) | NO | 'free' | Subscription tier: 'free' or 'paid' |
+| `work_type` | VARCHAR(30) | NO | 'internal_only' | Operating mode: 'internal_only', 'service_provider_only', 'hybrid' |
 
 **Note**: No `company_id` FK — this IS the root tenant table.
+
