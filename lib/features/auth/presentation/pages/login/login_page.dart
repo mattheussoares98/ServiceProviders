@@ -38,41 +38,43 @@ class LoginPage extends HookWidget {
     return BlocProvider.value(
       value: loginCubit,
       child: Scaffold(
-        body: SizedBox(
-          width: ScreenType.tablet.maxWidth,
-          child: Padding(
-            padding: const .all(Sizes.p12),
-            child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: .end,
-                  mainAxisAlignment: .center,
-                  children: [
-                    gapH24,
-                    const WelcomeLogo(),
-                    gapH12,
-                    Form(
-                      key: formKey,
-                      child: AutofillGroup(
-                        child: LoginForm(
-                          formKey: formKey,
-                          emailController: emailController,
-                          passwordController: passwordController,
-                          passwordFocusNode: passwordFocusNode,
+        body: Center(
+          child: SizedBox(
+            width: ScreenType.tablet.maxWidth,
+            child: Padding(
+              padding: const .all(Sizes.p12),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: .end,
+                    mainAxisAlignment: .center,
+                    children: [
+                      gapH24,
+                      const WelcomeLogo(),
+                      gapH12,
+                      Form(
+                        key: formKey,
+                        child: AutofillGroup(
+                          child: LoginForm(
+                            formKey: formKey,
+                            emailController: emailController,
+                            passwordController: passwordController,
+                            passwordFocusNode: passwordFocusNode,
+                          ),
                         ),
                       ),
-                    ),
-                    gapH32,
-                    LoginButton(
-                      formKey: formKey,
-                      emailController: emailController,
-                      passwordController: passwordController,
-                    ),
-                    gapH32,
-                    ResetPassword(emailController: emailController),
-                    gapH16,
-                    const SupportButton(),
-                  ],
+                      gapH32,
+                      LoginButton(
+                        formKey: formKey,
+                        emailController: emailController,
+                        passwordController: passwordController,
+                      ),
+                      gapH32,
+                      ResetPassword(emailController: emailController),
+                      gapH16,
+                      const SupportButton(),
+                    ],
+                  ),
                 ),
               ),
             ),
