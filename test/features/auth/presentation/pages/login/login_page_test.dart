@@ -195,7 +195,8 @@ void main() {
       BaseButton,
     ).which<BaseButton>((b) => b.onTap != null);
     expect(enabledButton, findsOneWidget);
-    expect($(BaseTextButton), findsNWidgets(1));
+    expect($(BaseTextButton), findsNWidgets(2));
+    expect($('Precisa de ajuda? Contate o suporte'), findsOneWidget);
     expect($(PlatformIcon), findsOneWidget);
 
     // Enter email and password using standard Flutter test approach

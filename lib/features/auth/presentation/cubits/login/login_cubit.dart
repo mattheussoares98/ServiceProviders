@@ -177,4 +177,8 @@ class LoginCubit extends BaseCubit<LoginState> {
   Future<void> navigateToSignUp() async {
     await pushRoute(const SignUpRoute());
   }
+
+  Future<void> navigateToSupport() async {
+    await pushRoute(const SupportRoute());
+  }
 }

@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cub
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/login_form.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/reset_password.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/support_button.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/widgets/welcome_logo.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -69,29 +70,8 @@ class LoginPage extends HookWidget {
                     ),
                     gapH32,
                     ResetPassword(emailController: emailController),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     BlocSelector<LoginCubit, LoginState, bool>(
-                    //       selector: (state) => state.status == DataStatus.loading,
-                    //       builder: (context, isLoading) {
-                    //         return Flexible(
-                    //           child: BaseTextButton(
-                    //             onPressed: isLoading
-                    //                 ? null
-                    //                 : loginCubit.navigateToSignUp,
-                    //             text: 'Criar conta'.hardcoded,
-                    //             color: context.theme.primaryColorLight,
-                    //           ),
-                    //         );
-                    //       },
-                    //     ),
-                    //     gapH8,
-                    //     Flexible(
-                    //       child: ResetPassword(emailController: emailController),
-                    //     ),
-                    //   ],
-                    // ),
+                    gapH16,
+                    const SupportButton(),
                   ],
                 ),
               ),

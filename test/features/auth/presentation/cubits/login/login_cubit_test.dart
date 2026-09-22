@@ -521,5 +521,17 @@ void main() {
         verifyNever(() => mockLogOutUseCase.call());
       },
     );
+
+    blocTest<LoginCubit, LoginState>(
+      'navigateToSupport should push SupportRoute',
+      build: () => loginCubit,
+      act: (cubit) => cubit.navigateToSupport(),
+      expect: () => <LoginState>[],
+      verify: (_) {
+        verify(
+          () => mockNavigationClient.pushRoute(const SupportRoute()),
+        ).called(1);
+      },
+    );
   });
 }
