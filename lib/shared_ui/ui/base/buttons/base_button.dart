@@ -57,11 +57,13 @@ class BaseButton extends StatelessWidget {
     final effectiveForegroundColor = foregroundColor ?? AppColors.white;
     Widget childWidget = isLoading
         ? LoadingCircle.small(effectiveForegroundColor)
-        : BaseText(
-            text,
-            color: foregroundColor,
-            textType: textType ?? TextType.bodyLarge,
-            fontWeight: textFontWeight ?? FontWeight.w500,
+        : Flexible(
+            child: BaseText(
+              text,
+              color: foregroundColor,
+              textType: textType ?? TextType.bodyLarge,
+              fontWeight: textFontWeight ?? FontWeight.w500,
+            ),
           );
 
     if (platformIcon != null && !isLoading) {
