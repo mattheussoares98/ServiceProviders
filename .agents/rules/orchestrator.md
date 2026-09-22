@@ -24,10 +24,10 @@ Inspect relevant `.agents/skills/` entries when applicable; do not load every sk
 
 ## Workflow
 
-1. Identify the authorized layer and relevant rules; honor the user's plan-only gate and layer boundaries. Tests, supporting docs, and plan progress accompany that layer.
+1. Identify the authorized layer and relevant rules; honor the user's plan-only gate and layer boundaries. Split plans into concise per-layer files with phases. Tests, supporting docs, and plan progress accompany that layer.
 2. Inspect current interfaces, callers, and relevant tests before editing. Preserve architecture review → implementation → QA within the authorized scope. Examples and existing violations do not override rules; flag material conflicts rather than inventing APIs.
 3. Implement the authorized scope and run relevant checks. For behavior changes, update meaningful tests in the same turn; docs-only changes need no app tests. Report blocked validation accurately.
-4. Review the final diff for requirements, regression risks, and unintended changes; preserve unrelated user edits. Follow the user's plan storage and completion rules; update phase checkboxes only after successful validation. Stop at any unapproved layer boundary.
+4. Review the final diff for requirements, regression risks, and unintended changes; preserve unrelated user edits. Follow the user's plan storage and completion rules; update phase checkboxes only after successful validation. Delete completed phases from plan files after finishing them; delete the plan file once all its phases are complete. Stop at any unapproved layer boundary.
 
 ## Quality and efficiency
 
