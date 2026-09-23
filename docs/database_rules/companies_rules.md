@@ -16,3 +16,12 @@ CREATE POLICY "Users update own company"
   TO authenticated
   USING (id = public.get_user_company_id() OR public.is_admin());
 ```
+
+## Business Rules & Triggers
+
+- `tr_enforce_company_work_type_transition` (`BEFORE UPDATE`):
+  Enforces upgrade-only transitions for `work_type`. Allowed:
+  - `internal_only` -> `hybrid`
+  - `service_provider_only` -> `hybrid`
+  Any other change (such as downgrading from `hybrid` or transitioning between single modes) raises a pt-BR exception.
+
