@@ -30,6 +30,16 @@ class CompanyParameters extends Table {
       text().withDefault(const Constant('[]'))();
   BoolColumn get allowProviderCreateWorkOrder =>
       boolean().withDefault(const Constant(false))();
+  IntColumn get maxDailyWorkOrders =>
+      integer().withDefault(const Constant(3))();
+  IntColumn get maxAttachmentsPerWorkOrder =>
+      integer().withDefault(const Constant(2))();
+  IntColumn get maxMaintenancePlans =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get maxServiceProviders =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get maxObservationsPerWorkOrder =>
+      integer().withDefault(const Constant(2))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();
@@ -42,3 +52,4 @@ class CompanyParameters extends Table {
     {companyId},
   ];
 }
+

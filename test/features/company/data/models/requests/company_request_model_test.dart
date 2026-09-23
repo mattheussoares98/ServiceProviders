@@ -40,6 +40,8 @@ void main() {
       expect(result['cnpj'], model.cnpj);
       expect(result['logo_url'], model.logoUrl);
       expect(result['is_active'], model.isActive);
+      expect(result['plan_type'], model.planType.code);
+      expect(result['work_type'], model.workType.code);
     });
 
     test('should convert to a CompanyEntity correctly on toEntity', () {

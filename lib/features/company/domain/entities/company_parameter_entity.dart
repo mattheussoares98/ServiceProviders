@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/plan_type.dart';
 
 class CompanyParameterEntity extends Equatable {
   const CompanyParameterEntity({
@@ -19,6 +20,11 @@ class CompanyParameterEntity extends Equatable {
     this.delayedNotificationIntervalMinutes = 60,
     this.escalationGroupIds = const [],
     this.allowProviderCreateWorkOrder = false,
+    this.maxDailyWorkOrders = 3,
+    this.maxAttachmentsPerWorkOrder = 2,
+    this.maxMaintenancePlans = 0,
+    this.maxServiceProviders = 0,
+    this.maxObservationsPerWorkOrder = 2,
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -41,6 +47,11 @@ class CompanyParameterEntity extends Equatable {
   final int delayedNotificationIntervalMinutes;
   final List<String> escalationGroupIds;
   final bool allowProviderCreateWorkOrder;
+  final int maxDailyWorkOrders;
+  final int maxAttachmentsPerWorkOrder;
+  final int maxMaintenancePlans;
+  final int maxServiceProviders;
+  final int maxObservationsPerWorkOrder;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -50,6 +61,27 @@ class CompanyParameterEntity extends Equatable {
   int get maxPdfSizeBytes => maxPdfSizeMb * 1024 * 1024;
   int get maxDocumentSizeBytes => maxDocumentSizeMb * 1024 * 1024;
   int get sandboxQuotaBytes => sandboxQuotaMb * 1024 * 1024;
+
+  bool get hasUnlimitedDailyWorkOrders => maxDailyWorkOrders == 0;
+  bool canCreateWorkOrder(int todayCount) =>
+      hasUnlimitedDailyWorkOrders || todayCount < maxDailyWorkOrders;
+
+  bool canAddAttachment(int currentCount) =>
+      maxAttachmentsPerWorkOrder == 0 ||
+      currentCount < maxAttachmentsPerWorkOrder;
+
+  bool canAddObservation(int currentCount) =>
+      maxObservationsPerWorkOrder == 0 ||
+      currentCount < maxObservationsPerWorkOrder;
+
+  /// For maintenance plans and service providers, `0` means "disabled" when
+  /// the company is on the free plan, and "unlimited" when paid.
+  /// The caller must pass `planType` to disambiguate.
+  bool maintenancePlansEnabled(PlanType planType) =>
+      planType.isPaid || maxMaintenancePlans > 0;
+
+  bool serviceProvidersEnabled(PlanType planType) =>
+      planType.isPaid || maxServiceProviders > 0;
 
   CompanyParameterEntity copyWith({
     String? id,
@@ -69,6 +101,11 @@ class CompanyParameterEntity extends Equatable {
     int? delayedNotificationIntervalMinutes,
     List<String>? escalationGroupIds,
     bool? allowProviderCreateWorkOrder,
+    int? maxDailyWorkOrders,
+    int? maxAttachmentsPerWorkOrder,
+    int? maxMaintenancePlans,
+    int? maxServiceProviders,
+    int? maxObservationsPerWorkOrder,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -100,6 +137,13 @@ class CompanyParameterEntity extends Equatable {
       escalationGroupIds: escalationGroupIds ?? this.escalationGroupIds,
       allowProviderCreateWorkOrder:
           allowProviderCreateWorkOrder ?? this.allowProviderCreateWorkOrder,
+      maxDailyWorkOrders: maxDailyWorkOrders ?? this.maxDailyWorkOrders,
+      maxAttachmentsPerWorkOrder:
+          maxAttachmentsPerWorkOrder ?? this.maxAttachmentsPerWorkOrder,
+      maxMaintenancePlans: maxMaintenancePlans ?? this.maxMaintenancePlans,
+      maxServiceProviders: maxServiceProviders ?? this.maxServiceProviders,
+      maxObservationsPerWorkOrder:
+          maxObservationsPerWorkOrder ?? this.maxObservationsPerWorkOrder,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : (deletedAt ?? this.deletedAt),
@@ -125,6 +169,11 @@ class CompanyParameterEntity extends Equatable {
     delayedNotificationIntervalMinutes,
     escalationGroupIds,
     allowProviderCreateWorkOrder,
+    maxDailyWorkOrders,
+    maxAttachmentsPerWorkOrder,
+    maxMaintenancePlans,
+    maxServiceProviders,
+    maxObservationsPerWorkOrder,
     createdAt,
     updatedAt,
     deletedAt,

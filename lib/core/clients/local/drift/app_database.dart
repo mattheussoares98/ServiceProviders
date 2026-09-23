@@ -73,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 36;
+  int get schemaVersion => 37;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -302,6 +302,31 @@ class AppDatabase extends _$AppDatabase {
           maintenancePlans.lastError,
         );
       }
+      if (from < 37) {
+        await addColumnIfNotExists(companies, companies.planType);
+        await addColumnIfNotExists(companies, companies.workType);
+        await addColumnIfNotExists(
+          companyParameters,
+          companyParameters.maxDailyWorkOrders,
+        );
+        await addColumnIfNotExists(
+          companyParameters,
+          companyParameters.maxAttachmentsPerWorkOrder,
+        );
+        await addColumnIfNotExists(
+          companyParameters,
+          companyParameters.maxMaintenancePlans,
+        );
+        await addColumnIfNotExists(
+          companyParameters,
+          companyParameters.maxServiceProviders,
+        );
+        await addColumnIfNotExists(
+          companyParameters,
+          companyParameters.maxObservationsPerWorkOrder,
+        );
+      }
     },
   );
 }
+

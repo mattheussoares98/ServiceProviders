@@ -34,6 +34,17 @@ void main() {
         resultEntity.allowProviderCreateWorkOrder,
         tEntity.allowProviderCreateWorkOrder,
       );
+      expect(resultEntity.maxDailyWorkOrders, tEntity.maxDailyWorkOrders);
+      expect(
+        resultEntity.maxAttachmentsPerWorkOrder,
+        tEntity.maxAttachmentsPerWorkOrder,
+      );
+      expect(resultEntity.maxMaintenancePlans, tEntity.maxMaintenancePlans);
+      expect(resultEntity.maxServiceProviders, tEntity.maxServiceProviders);
+      expect(
+        resultEntity.maxObservationsPerWorkOrder,
+        tEntity.maxObservationsPerWorkOrder,
+      );
     });
   });
 }

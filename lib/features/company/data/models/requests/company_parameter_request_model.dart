@@ -23,6 +23,11 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     super.delayedNotificationIntervalMinutes = 60,
     super.escalationGroupIds = const [],
     super.allowProviderCreateWorkOrder = false,
+    super.maxDailyWorkOrders = 3,
+    super.maxAttachmentsPerWorkOrder = 2,
+    super.maxMaintenancePlans = 0,
+    super.maxServiceProviders = 0,
+    super.maxObservationsPerWorkOrder = 2,
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
@@ -49,6 +54,11 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
         entity.delayedNotificationIntervalMinutes,
     escalationGroupIds: entity.escalationGroupIds,
     allowProviderCreateWorkOrder: entity.allowProviderCreateWorkOrder,
+    maxDailyWorkOrders: entity.maxDailyWorkOrders,
+    maxAttachmentsPerWorkOrder: entity.maxAttachmentsPerWorkOrder,
+    maxMaintenancePlans: entity.maxMaintenancePlans,
+    maxServiceProviders: entity.maxServiceProviders,
+    maxObservationsPerWorkOrder: entity.maxObservationsPerWorkOrder,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
     deletedAt: entity.deletedAt,
@@ -86,6 +96,13 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
             const [],
         allowProviderCreateWorkOrder:
             json['allow_provider_create_work_order'] as bool? ?? false,
+        maxDailyWorkOrders: json['max_daily_work_orders'] as int? ?? 3,
+        maxAttachmentsPerWorkOrder:
+            json['max_attachments_per_work_order'] as int? ?? 2,
+        maxMaintenancePlans: json['max_maintenance_plans'] as int? ?? 0,
+        maxServiceProviders: json['max_service_providers'] as int? ?? 0,
+        maxObservationsPerWorkOrder:
+            json['max_observations_per_work_order'] as int? ?? 2,
         createdAt:
             (json['created_at'] as String?).toUtcDateTime() ??
             DateTime.now().toUtc(),
@@ -113,6 +130,11 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     'delayed_notification_interval_minutes': delayedNotificationIntervalMinutes,
     'escalation_group_ids': escalationGroupIds,
     'allow_provider_create_work_order': allowProviderCreateWorkOrder,
+    'max_daily_work_orders': maxDailyWorkOrders,
+    'max_attachments_per_work_order': maxAttachmentsPerWorkOrder,
+    'max_maintenance_plans': maxMaintenancePlans,
+    'max_service_providers': maxServiceProviders,
+    'max_observations_per_work_order': maxObservationsPerWorkOrder,
     'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
@@ -135,8 +157,14 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     delayedNotificationIntervalMinutes: delayedNotificationIntervalMinutes,
     escalationGroupIds: escalationGroupIds,
     allowProviderCreateWorkOrder: allowProviderCreateWorkOrder,
+    maxDailyWorkOrders: maxDailyWorkOrders,
+    maxAttachmentsPerWorkOrder: maxAttachmentsPerWorkOrder,
+    maxMaintenancePlans: maxMaintenancePlans,
+    maxServiceProviders: maxServiceProviders,
+    maxObservationsPerWorkOrder: maxObservationsPerWorkOrder,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,
   );
 }
+
