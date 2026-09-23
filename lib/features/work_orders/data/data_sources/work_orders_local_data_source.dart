@@ -36,6 +36,7 @@ abstract interface class WorkOrdersLocalDataSource {
   FutureBool deleteWorkOrder(String id);
   FutureBool restoreWorkOrder(String id);
   FutureBool hardDeleteWorkOrder(String id);
+  FutureData<int> countTodayWorkOrders(String companyId);
 
   // Tasks
   FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
@@ -254,13 +255,12 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
   @override
   FutureData<WorkOrderModel> getWorkOrderById(String id) {
     return ErrorHandler.execute(() async {
-      final query =
-          _database.select(_database.workOrders).join([
-            leftOuterJoin(
-              _database.locations,
-              _database.locations.id.equalsExp(_database.workOrders.locationId),
-            ),
-          ])..where(_database.workOrders.id.equals(id));
+      final query = _database.select(_database.workOrders).join([
+        leftOuterJoin(
+          _database.locations,
+          _database.locations.id.equalsExp(_database.workOrders.locationId),
+        ),
+      ])..where(_database.workOrders.id.equals(id));
       final row = await query.getSingleOrNull();
 
       if (row == null) {
@@ -482,6 +482,29 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
         ..where((t) => t.id.equals(id));
       await query.go();
       return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureData<int> countTodayWorkOrders(String companyId) {
+    return ErrorHandler.execute(() async {
+      final now = DateTime.now().toUtc();
+      final startOfDay = DateTime.utc(now.year, now.month, now.day);
+      final endOfDay = startOfDay.add(const Duration(days: 1));
+
+      final countExpression = _database.workOrders.id.count();
+      final query = _database.selectOnly(_database.workOrders)
+        ..addColumns([countExpression])
+        ..where(
+          _database.workOrders.companyId.equals(companyId) &
+              _database.workOrders.deletedAt.isNull() &
+              _database.workOrders.createdAt.isBiggerOrEqualValue(startOfDay) &
+              _database.workOrders.createdAt.isSmallerThanValue(endOfDay),
+        );
+
+      final row = await query.getSingle();
+      final count = row.read(countExpression) ?? 0;
+      return SuccessState(data: count);
     });
   }
 

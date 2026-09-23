@@ -44,6 +44,7 @@ abstract interface class WorkOrdersRemoteDataSource {
   FutureBool updateWorkOrder(WorkOrderModel request);
   FutureBool deleteWorkOrder(String id);
   FutureBool restoreWorkOrder(String id);
+  FutureData<int> countTodayWorkOrders(String companyId);
 
   FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
   FutureBool createTask(TaskRequestModel request);
@@ -291,6 +292,26 @@ final class WorkOrdersRemoteDataSourceImpl
     );
     return true;
   });
+
+  @override
+  FutureData<int> countTodayWorkOrders(String companyId) =>
+      SupabaseHandler.call(() async {
+        final now = DateTime.now().toUtc();
+        final startOfDay = DateTime.utc(now.year, now.month, now.day);
+        final endOfDay = startOfDay.add(const Duration(days: 1));
+
+        final response = await _database.selectList(
+          table: 'work_orders',
+          columns: 'id',
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+            SupabaseFilter.gte('created_at', startOfDay.toIsoUtcString()),
+            SupabaseFilter.lt('created_at', endOfDay.toIsoUtcString()),
+          ],
+        );
+        return response.length;
+      });
 
   @override
   FutureList<TaskModel> getTasksByWorkOrder(String workOrderId) =>

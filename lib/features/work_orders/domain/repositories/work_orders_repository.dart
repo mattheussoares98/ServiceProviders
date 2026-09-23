@@ -31,6 +31,7 @@ abstract interface class WorkOrdersRepository {
   FutureBool restoreWorkOrder(String id);
   FutureBool hardDeleteWorkOrder(String id);
   FutureBool syncWorkOrders(String companyId);
+  FutureData<int> countTodayWorkOrders(String companyId);
 
   // Tasks (subtasks of a work order)
   FutureList<TaskEntity> getTasksByWorkOrder(String workOrderId);

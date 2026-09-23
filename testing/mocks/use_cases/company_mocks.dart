@@ -1,5 +1,9 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_attachment_quota_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_feature_enabled_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_observation_quota_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_work_order_quota_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
@@ -25,3 +29,15 @@ class MockCanProviderCreateWorkOrderUseCase extends Mock
 
 class MockSaveCompanyParametersUseCase extends Mock
     implements SaveCompanyParametersUseCase {}
+
+class MockCheckWorkOrderQuotaUseCase extends Mock
+    implements CheckWorkOrderQuotaUseCase {}
+
+class MockCheckAttachmentQuotaUseCase extends Mock
+    implements CheckAttachmentQuotaUseCase {}
+
+class MockCheckObservationQuotaUseCase extends Mock
+    implements CheckObservationQuotaUseCase {}
+
+class MockCheckFeatureEnabledUseCase extends Mock
+    implements CheckFeatureEnabledUseCase {}

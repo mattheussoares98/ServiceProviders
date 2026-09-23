@@ -4,7 +4,12 @@ import 'package:o_jogo_da_obra/core/clients/remote/storage/storage_client.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/plan_type.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_attachment_quota_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_feature_enabled_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_observation_quota_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/check_work_order_quota_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_companies_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
@@ -14,10 +19,13 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_us
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 
 import '../../../../../testing/mocks/client_mocks.dart';
+import '../../../../../testing/mocks/factories/maintenance_plan_factory.dart';
 import '../../../../../testing/mocks/factories/service_provider_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/factories/work_order_factory.dart';
 import '../../../../../testing/mocks/repository_mocks.dart';
 import '../../../../../testing/mocks/services.dart';
+import '../../../../../testing/mocks/use_case_mocks.dart';
 
 void main() {
   late MockCompanyRepository mockRepository;
@@ -621,6 +629,500 @@ void main() {
           expect(result.data, isFalse);
         },
       );
+    });
+
+    group('CheckWorkOrderQuotaUseCase', () {
+      late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+      late MockGetCompanyParametersUseCase mockGetCompanyParametersUseCase;
+      late MockWorkOrdersRepository mockWorkOrdersRepository;
+      late CheckWorkOrderQuotaUseCase checkWorkOrderQuotaUseCase;
+
+      setUp(() {
+        mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+        mockGetCompanyParametersUseCase = MockGetCompanyParametersUseCase();
+        mockWorkOrdersRepository = MockWorkOrdersRepository();
+
+        checkWorkOrderQuotaUseCase = CheckWorkOrderQuotaUseCase(
+          getActiveCompanyIdUseCase: mockGetActiveCompanyIdUseCase,
+          getCompanyParametersUseCase: mockGetCompanyParametersUseCase,
+          workOrdersRepository: mockWorkOrdersRepository,
+        );
+
+        when(() => mockGetActiveCompanyIdUseCase()).thenReturn(tCompanyId);
+      });
+
+      test('returns true when maxDailyWorkOrders is 0 (unlimited)', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxDailyWorkOrders: 0,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkWorkOrderQuotaUseCase();
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verifyZeroInteractions(mockWorkOrdersRepository);
+      });
+
+      test('returns true when today count is strictly below limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxDailyWorkOrders: 3,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockWorkOrdersRepository.countTodayWorkOrders(tCompanyId))
+            .thenAnswer((_) async => const SuccessState(data: 2));
+
+        final result = await checkWorkOrderQuotaUseCase();
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockWorkOrdersRepository.countTodayWorkOrders(tCompanyId))
+            .called(1);
+      });
+
+      test('returns false when today count is exactly at limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxDailyWorkOrders: 3,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockWorkOrdersRepository.countTodayWorkOrders(tCompanyId))
+            .thenAnswer((_) async => const SuccessState(data: 3));
+
+        final result = await checkWorkOrderQuotaUseCase();
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+
+      test('returns false when today count exceeds limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxDailyWorkOrders: 3,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockWorkOrdersRepository.countTodayWorkOrders(tCompanyId))
+            .thenAnswer((_) async => const SuccessState(data: 4));
+
+        final result = await checkWorkOrderQuotaUseCase();
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+
+      test('returns FailureState when getCompanyParameters fails', () async {
+        when(() => mockGetCompanyParametersUseCase(tCompanyId)).thenAnswer(
+          (_) async => FailureState(message: 'Parameters fetch error'),
+        );
+
+        final result = await checkWorkOrderQuotaUseCase();
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Parameters fetch error');
+        verifyZeroInteractions(mockWorkOrdersRepository);
+      });
+
+      test('returns FailureState when countTodayWorkOrders fails', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxDailyWorkOrders: 3,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockWorkOrdersRepository.countTodayWorkOrders(tCompanyId))
+            .thenAnswer((_) async => FailureState(message: 'Count error'));
+
+        final result = await checkWorkOrderQuotaUseCase();
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Count error');
+      });
+    });
+
+    group('CheckAttachmentQuotaUseCase', () {
+      late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+      late MockGetCompanyParametersUseCase mockGetCompanyParametersUseCase;
+      late MockAttachmentsRepository mockAttachmentsRepository;
+      late CheckAttachmentQuotaUseCase checkAttachmentQuotaUseCase;
+      const tWorkOrderId = 'wo-123';
+
+      setUp(() {
+        mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+        mockGetCompanyParametersUseCase = MockGetCompanyParametersUseCase();
+        mockAttachmentsRepository = MockAttachmentsRepository();
+
+        checkAttachmentQuotaUseCase = CheckAttachmentQuotaUseCase(
+          getActiveCompanyIdUseCase: mockGetActiveCompanyIdUseCase,
+          getCompanyParametersUseCase: mockGetCompanyParametersUseCase,
+          attachmentsRepository: mockAttachmentsRepository,
+        );
+
+        when(() => mockGetActiveCompanyIdUseCase()).thenReturn(tCompanyId);
+      });
+
+      test('returns true when maxAttachmentsPerWorkOrder is 0 (unlimited)', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxAttachmentsPerWorkOrder: 0,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkAttachmentQuotaUseCase(
+          const CheckAttachmentQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verifyZeroInteractions(mockAttachmentsRepository);
+      });
+
+      test('uses currentCount when provided: returns true when below limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxAttachmentsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkAttachmentQuotaUseCase(
+          const CheckAttachmentQuotaParams(
+            workOrderId: tWorkOrderId,
+            currentCount: 1,
+          ),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verifyZeroInteractions(mockAttachmentsRepository);
+      });
+
+      test('uses currentCount when provided: returns false when at limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxAttachmentsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkAttachmentQuotaUseCase(
+          const CheckAttachmentQuotaParams(
+            workOrderId: tWorkOrderId,
+            currentCount: 2,
+          ),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+        verifyZeroInteractions(mockAttachmentsRepository);
+      });
+
+      test('fetches from repository when currentCount is null', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxAttachmentsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockAttachmentsRepository.getAttachmentsByWorkOrder(tWorkOrderId))
+            .thenAnswer((_) async => SuccessState(
+                  data: [MaintenancePlanFactory.makeAttachmentEntity()],
+                ));
+
+        final result = await checkAttachmentQuotaUseCase(
+          const CheckAttachmentQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockAttachmentsRepository.getAttachmentsByWorkOrder(tWorkOrderId))
+            .called(1);
+      });
+
+      test('returns FailureState when repository fails and currentCount is null', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxAttachmentsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockAttachmentsRepository.getAttachmentsByWorkOrder(tWorkOrderId))
+            .thenAnswer((_) async => FailureState(message: 'Attachment fetch failed'));
+
+        final result = await checkAttachmentQuotaUseCase(
+          const CheckAttachmentQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Attachment fetch failed');
+      });
+
+      test('returns FailureState when getCompanyParameters fails', () async {
+        when(() => mockGetCompanyParametersUseCase(tCompanyId)).thenAnswer(
+          (_) async => FailureState(message: 'Parameters failed'),
+        );
+
+        final result = await checkAttachmentQuotaUseCase(
+          const CheckAttachmentQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Parameters failed');
+      });
+    });
+
+    group('CheckObservationQuotaUseCase', () {
+      late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+      late MockGetCompanyParametersUseCase mockGetCompanyParametersUseCase;
+      late MockWorkOrderObservationsRepository mockObservationsRepository;
+      late CheckObservationQuotaUseCase checkObservationQuotaUseCase;
+      const tWorkOrderId = 'wo-123';
+
+      setUp(() {
+        mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+        mockGetCompanyParametersUseCase = MockGetCompanyParametersUseCase();
+        mockObservationsRepository = MockWorkOrderObservationsRepository();
+
+        checkObservationQuotaUseCase = CheckObservationQuotaUseCase(
+          getActiveCompanyIdUseCase: mockGetActiveCompanyIdUseCase,
+          getCompanyParametersUseCase: mockGetCompanyParametersUseCase,
+          observationsRepository: mockObservationsRepository,
+        );
+
+        when(() => mockGetActiveCompanyIdUseCase()).thenReturn(tCompanyId);
+      });
+
+      test('returns true when maxObservationsPerWorkOrder is 0 (unlimited)', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxObservationsPerWorkOrder: 0,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkObservationQuotaUseCase(
+          const CheckObservationQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verifyZeroInteractions(mockObservationsRepository);
+      });
+
+      test('uses currentCount when provided: returns true when below limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxObservationsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkObservationQuotaUseCase(
+          const CheckObservationQuotaParams(
+            workOrderId: tWorkOrderId,
+            currentCount: 1,
+          ),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verifyZeroInteractions(mockObservationsRepository);
+      });
+
+      test('uses currentCount when provided: returns false when at limit', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxObservationsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+
+        final result = await checkObservationQuotaUseCase(
+          const CheckObservationQuotaParams(
+            workOrderId: tWorkOrderId,
+            currentCount: 2,
+          ),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+        verifyZeroInteractions(mockObservationsRepository);
+      });
+
+      test('fetches from repository when currentCount is null', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxObservationsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockObservationsRepository.getObservations(tWorkOrderId))
+            .thenAnswer((_) async => SuccessState(
+                  data: [WorkOrderFactory.makeWorkOrderObservationEntity()],
+                ));
+
+        final result = await checkObservationQuotaUseCase(
+          const CheckObservationQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockObservationsRepository.getObservations(tWorkOrderId))
+            .called(1);
+      });
+
+      test('returns FailureState when repository fails and currentCount is null', () async {
+        final params = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxObservationsPerWorkOrder: 2,
+        );
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: params));
+        when(() => mockObservationsRepository.getObservations(tWorkOrderId))
+            .thenAnswer((_) async => FailureState(message: 'Observation fetch failed'));
+
+        final result = await checkObservationQuotaUseCase(
+          const CheckObservationQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Observation fetch failed');
+      });
+
+      test('returns FailureState when getCompanyParameters fails', () async {
+        when(() => mockGetCompanyParametersUseCase(tCompanyId)).thenAnswer(
+          (_) async => FailureState(message: 'Parameters failed'),
+        );
+
+        final result = await checkObservationQuotaUseCase(
+          const CheckObservationQuotaParams(workOrderId: tWorkOrderId),
+        );
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Parameters failed');
+      });
+    });
+
+    group('CheckFeatureEnabledUseCase', () {
+      late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
+      late MockGetCompanyUseCase mockGetCompanyUseCase;
+      late MockGetCompanyParametersUseCase mockGetCompanyParametersUseCase;
+      late CheckFeatureEnabledUseCase checkFeatureEnabledUseCase;
+
+      setUp(() {
+        mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
+        mockGetCompanyUseCase = MockGetCompanyUseCase();
+        mockGetCompanyParametersUseCase = MockGetCompanyParametersUseCase();
+
+        checkFeatureEnabledUseCase = CheckFeatureEnabledUseCase(
+          getActiveCompanyIdUseCase: mockGetActiveCompanyIdUseCase,
+          getCompanyUseCase: mockGetCompanyUseCase,
+          getCompanyParametersUseCase: mockGetCompanyParametersUseCase,
+        );
+
+        when(() => mockGetActiveCompanyIdUseCase()).thenReturn(tCompanyId);
+      });
+
+      test('checks maintenancePlans: returns false for free company with default quota 0', () async {
+        final freeCompany = tCompanyEntity.copyWith(planType: PlanType.free);
+        final defaultParams = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxMaintenancePlans: 0,
+        );
+
+        when(() => mockGetCompanyUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: freeCompany));
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: defaultParams));
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.maintenancePlans);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+
+      test('checks maintenancePlans: returns true for paid company even if maxMaintenancePlans is 0 (unlimited)', () async {
+        final paidCompany = tCompanyEntity.copyWith(planType: PlanType.paid);
+        final defaultParams = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxMaintenancePlans: 0,
+        );
+
+        when(() => mockGetCompanyUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: paidCompany));
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: defaultParams));
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.maintenancePlans);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      });
+
+      test('checks maintenancePlans: returns true for free company if custom limit > 0', () async {
+        final freeCompany = tCompanyEntity.copyWith(planType: PlanType.free);
+        final customParams = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxMaintenancePlans: 5,
+        );
+
+        when(() => mockGetCompanyUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: freeCompany));
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: customParams));
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.maintenancePlans);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      });
+
+      test('checks serviceProviders: returns false for free company with default quota 0', () async {
+        final freeCompany = tCompanyEntity.copyWith(planType: PlanType.free);
+        final defaultParams = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxServiceProviders: 0,
+        );
+
+        when(() => mockGetCompanyUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: freeCompany));
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: defaultParams));
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.serviceProviders);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+
+      test('checks serviceProviders: returns true for paid company', () async {
+        final paidCompany = tCompanyEntity.copyWith(planType: PlanType.paid);
+        final defaultParams = UserFactory.makeCompanyParameterEntity().copyWith(
+          maxServiceProviders: 0,
+        );
+
+        when(() => mockGetCompanyUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: paidCompany));
+        when(() => mockGetCompanyParametersUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: defaultParams));
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.serviceProviders);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      });
+
+      test('returns FailureState when getCompanyUseCase fails', () async {
+        when(() => mockGetCompanyUseCase(tCompanyId)).thenAnswer(
+          (_) async => FailureState(message: 'Company fetch error'),
+        );
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.maintenancePlans);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Company fetch error');
+        verifyNever(() => mockGetCompanyParametersUseCase(any()));
+      });
+
+      test('returns FailureState when getCompanyParametersUseCase fails', () async {
+        when(() => mockGetCompanyUseCase(tCompanyId))
+            .thenAnswer((_) async => SuccessState(data: tCompanyEntity));
+        when(() => mockGetCompanyParametersUseCase(tCompanyId)).thenAnswer(
+          (_) async => FailureState(message: 'Params fetch error'),
+        );
+
+        final result = await checkFeatureEnabledUseCase(CompanyFeature.maintenancePlans);
+
+        expect(result, isA<FailureState<bool>>());
+        expect(result.message, 'Params fetch error');
+      });
     });
   });
 }
