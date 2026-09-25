@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/login/login_cubit.dart';
+import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/create_account_button.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/login_button.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/login_form.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/pages/login/widgets/reset_password.dart';
@@ -69,6 +70,8 @@ class LoginPage extends HookWidget {
                         emailController: emailController,
                         passwordController: passwordController,
                       ),
+                      gapH16,
+                      const CreateAccountButton(),
                       gapH32,
                       ResetPassword(emailController: emailController),
                       gapH16,

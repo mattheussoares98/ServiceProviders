@@ -28,6 +28,8 @@ class SplashPage extends StatelessWidget {
               context.router.replace(const ProviderHomeRoute());
             case SplashRouteTarget.home:
               context.router.replace(const HomeRoute());
+            case SplashRouteTarget.onboarding:
+              context.router.replace(const OnboardingWizardRoute());
             case SplashRouteTarget.login:
               context.router.replace(const LoginRoute());
             case SplashRouteTarget.initial:

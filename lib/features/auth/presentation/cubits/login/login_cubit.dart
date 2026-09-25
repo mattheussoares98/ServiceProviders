@@ -89,7 +89,9 @@ class LoginCubit extends BaseCubit<LoginState> {
 
       final isUserActive = dataState.data!.user.isActive;
       if (!isUserActive) {
-        showErrorToast('Usuário inativo. Entre em contato com o suporte.'.hardcoded);
+        showErrorToast(
+          'Usuário inativo. Entre em contato com o suporte.'.hardcoded,
+        );
         emit(
           state.copyWith(
             sections: withSection(BaseSections.load, SectionStatus.error),
@@ -98,16 +100,18 @@ class LoginCubit extends BaseCubit<LoginState> {
         return;
       }
 
-      final hasInternalProfile = dataState.data!.user.companyId.trim().isNotEmpty;
+      final hasInternalProfile = dataState.data!.user.companyId
+          .trim()
+          .isNotEmpty;
       final hasProviderProfile =
           providerProfilesState is SuccessState &&
           providerProfilesState.data!.isNotEmpty;
 
       if (!hasInternalProfile && !hasProviderProfile) {
-        showErrorToast('Nenhum perfil ativo encontrado.'.hardcoded);
+        await replaceAllRoute(const OnboardingWizardRoute());
         emit(
           state.copyWith(
-            sections: withSection(BaseSections.load, SectionStatus.error),
+            sections: withSection(BaseSections.load, SectionStatus.success),
           ),
         );
         return;

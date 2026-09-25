@@ -187,14 +187,12 @@ void main() {
     // Wait for all animations and async operations to complete
     await $.pumpAndSettle();
 
-    // Expect the login button to be enabled initially
+    // Expect the login button and create account button
     expect($('Login'), findsOne);
     expect($('Senha'), findsOne);
-    final enabledButton = $(
-      BaseButton,
-    ).which<BaseButton>((b) => b.onTap != null);
-    expect(enabledButton, findsOneWidget);
-    expect($(BaseButton.text), findsNWidgets(2));
+    expect($('LOGIN'), findsOneWidget);
+    expect($('CRIAR CONTA'), findsOneWidget);
+    expect($('Esqueceu a senha?'), findsOneWidget);
     expect($('Precisa de ajuda? Contate o suporte'), findsOneWidget);
     expect($(PlatformIcon), findsOneWidget);
 
@@ -206,7 +204,7 @@ void main() {
 
     // Use the login cubit's login method in the login_button widget.
     // Tap the login button using standard Flutter test
-    await $.tester.tap(find.byType(BaseButton));
+    await $.tester.tap(find.widgetWithText(BaseButton, 'LOGIN'));
     await $.pumpAndSettle();
 
     verifyNever(() => mockNavigationClient.replaceAllRoute(any()));

@@ -49,8 +49,10 @@ class SplashCubit extends BaseCubit<SplashState> {
       }
 
       final mode = _useCases.getSelectedMode.call();
-      if (mode == AppMode.provider.name || user.companyId.isEmpty) {
+      if (mode == AppMode.provider.name) {
         emit(state.copyWith(target: SplashRouteTarget.providerHome));
+      } else if (user.companyId.trim().isEmpty) {
+        emit(state.copyWith(target: SplashRouteTarget.onboarding));
       } else {
         emit(state.copyWith(target: SplashRouteTarget.home));
       }

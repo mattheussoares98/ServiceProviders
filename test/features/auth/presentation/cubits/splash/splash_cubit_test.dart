@@ -113,6 +113,24 @@ void main() {
     );
 
     blocTest<SplashCubit, SplashState>(
+      'checkInitialRoute emits onboarding when user is logged in without company and not in provider mode',
+      build: () {
+        when(() => mockAuthClient.currentSession).thenReturn(null);
+        when(() => mockSessionRepository.isLoggedIn).thenReturn(true);
+        when(
+          () => mockGetSelectedMode.call(),
+        ).thenReturn(AppMode.internal.name);
+        when(() => mockGetSessionUser.call()).thenReturn(
+          UserFactory.makeUserProfileEntity().copyWith(companyId: ''),
+        );
+        when(() => mockGetActiveCompanyId.call()).thenReturn('');
+        return cubit;
+      },
+      act: (cubit) => cubit.checkInitialRoute(),
+      expect: () => [const SplashState(target: SplashRouteTarget.onboarding)],
+    );
+
+    blocTest<SplashCubit, SplashState>(
       'checkInitialRoute emits home and logs appAccess when user is logged in and has companyId',
       build: () {
         final tCompanyId = faker.guid.guid();

@@ -1,6 +1,13 @@
 part of 'splash_cubit.dart';
 
-enum SplashRouteTarget { initial, acceptInvite, providerHome, home, login }
+enum SplashRouteTarget {
+  initial,
+  acceptInvite,
+  providerHome,
+  home,
+  login,
+  onboarding,
+}
 
 final class SplashState extends BaseState {
   const SplashState({this.target = SplashRouteTarget.initial, super.sections});

@@ -329,7 +329,7 @@ void main() {
   );
 
   blocTest<LoginCubit, LoginState>(
-    'login should not navigate to HomeRoute when user has neither internal company nor provider profile',
+    'login should navigate to OnboardingWizardRoute when user has neither internal company nor provider profile',
     build: () {
       final companylessUserData = userData.copyWith(
         user: userData.user.copyWith(companyId: ''),
@@ -354,9 +354,9 @@ void main() {
       );
     },
     verify: (_) {
-      verifyNever(
-        () => mockNavigationClient.replaceAllRoute(const HomeRoute()),
-      );
+      verify(
+        () => mockNavigationClient.replaceAllRoute(const OnboardingWizardRoute()),
+      ).called(1);
     },
   );
 
