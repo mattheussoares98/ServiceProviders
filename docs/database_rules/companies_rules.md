@@ -6,10 +6,10 @@ CREATE POLICY "Users read own company"
   TO authenticated
   USING (id = public.get_user_company_id() OR public.is_admin());
 
-CREATE POLICY "Admins can insert companies"
+CREATE POLICY "Authenticated users without company can insert"
   ON public.companies FOR INSERT
   TO authenticated
-  WITH CHECK (public.is_admin());
+  WITH CHECK (public.is_super_admin() OR public.get_user_company_id() IS NULL);
 
 CREATE POLICY "Users update own company"
   ON public.companies FOR UPDATE
