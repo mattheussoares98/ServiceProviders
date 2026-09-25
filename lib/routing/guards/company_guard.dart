@@ -26,6 +26,6 @@ final class CompanyGuard extends AutoRouteGuard {
       return resolver.next();
     }
 
-    router.replaceAll([const LoginRoute()]);
+    router.replaceAll([const OnboardingWizardRoute()]);
   }
 }

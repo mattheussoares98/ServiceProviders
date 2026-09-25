@@ -104,7 +104,7 @@ void main() {
     );
 
     test(
-      'should redirect to LoginRoute when app is in internal mode and user has no company ID',
+      'should redirect to OnboardingWizardRoute when app is in internal mode and user has no company ID',
       () {
         // Arrange
         final userProfile = UserFactory.makeUserProfileEntity().copyWith(
@@ -126,13 +126,13 @@ void main() {
         // Assert
         verifyNever(() => mockNavigationResolver.next(any()));
         verify(
-          () => mockStackRouter.replaceAll([const LoginRoute()]),
+          () => mockStackRouter.replaceAll([const OnboardingWizardRoute()]),
         ).called(1);
       },
     );
 
     test(
-      'VAL-060: CompanyGuard redirects to LoginRoute when companyId is whitespace-only',
+      'VAL-060: CompanyGuard redirects to OnboardingWizardRoute when companyId is whitespace-only',
       () {
         final userProfile = UserFactory.makeUserProfileEntity().copyWith(
           companyId: '   ',
@@ -151,7 +151,7 @@ void main() {
 
         verifyNever(() => mockNavigationResolver.next(any()));
         verify(
-          () => mockStackRouter.replaceAll([const LoginRoute()]),
+          () => mockStackRouter.replaceAll([const OnboardingWizardRoute()]),
         ).called(1);
       },
     );

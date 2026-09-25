@@ -15,6 +15,9 @@ const String kChangePasswordPath = '/change-password';
 const String kModeSwitcherRoute = 'ModeSwitcherRoute';
 const String kModeSwitcherPath = '/mode-switcher';
 
+const String kOnboardingWizardRoute = 'OnboardingWizardRoute';
+const String kOnboardingWizardPath = '/onboarding';
+
 const String kProviderHomeRoute = 'ProviderHomeRoute';
 const String kProviderHomePath = '/provider-home';
 const String kProviderWorkOrdersRoute = 'ProviderWorkOrdersRoute';
