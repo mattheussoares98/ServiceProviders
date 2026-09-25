@@ -97,6 +97,34 @@ void main() {
     );
 
     test(
+      'should return SuccessState with fallback UserProfileModel when user profile does not exist in either table',
+      () async {
+        // Arrange
+        when(
+          () => mockSupabaseAuthClient.signInWithPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => fakeAuthResponse);
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => null);
+
+        // Act
+        final result = await dataSource.login(tAuthenticationRequest);
+
+        // Assert
+        expect(result, isA<SuccessState<UserDataModel>>());
+        expect(result.data?.user.id, fakeAuthResponse.user!.id);
+        expect(result.data?.user.companyId, '');
+      },
+    );
+
+    test(
       'should return FailureState when Supabase throws AuthException',
       () async {
         // Arrange

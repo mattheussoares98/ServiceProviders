@@ -42,7 +42,10 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: request.password,
       );
 
-      final profile = await _getUserProfile(response.user?.id);
+      final profile = await _getUserProfile(
+        response.user?.id,
+        authUser: response.user,
+      );
       return UserDataModel.fromSupabaseProfile(
         response: response,
         profile: profile,
@@ -105,7 +108,10 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     });
   }
 
-  Future<UserProfileModel> _getUserProfile(String? userId) async {
+  Future<UserProfileModel> _getUserProfile(
+    String? userId, {
+    User? authUser,
+  }) async {
     if (userId == null || userId.isEmpty) {
       throw AuthException('Usuário autenticado inválido'.hardcoded);
     }
@@ -123,10 +129,14 @@ final class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       filters: [SupabaseFilter.eq('auth_user_id', userId)],
     );
 
-    if (providerJson == null) {
-      throw AuthException('Perfil de usuário não encontrado'.hardcoded);
+    if (providerJson != null) {
+      return UserProfileModel.fromServiceProviderJson(providerJson, userId);
     }
 
-    return UserProfileModel.fromServiceProviderJson(providerJson, userId);
+    if (authUser != null) {
+      return UserProfileModel.fromSupabaseUser(authUser);
+    }
+
+    throw AuthException('Perfil de usuário não encontrado'.hardcoded);
   }
 }
