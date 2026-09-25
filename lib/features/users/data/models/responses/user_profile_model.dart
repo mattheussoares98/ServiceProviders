@@ -69,17 +69,21 @@ class UserProfileModel extends UserProfileEntity
   }
 
   factory UserProfileModel.fromSupabase(AuthResponse response) {
+    return UserProfileModel.fromSupabaseUser(response.user!);
+  }
+
+  factory UserProfileModel.fromSupabaseUser(User user) {
     final now = DateTime.now().toUtc();
 
     return UserProfileModel(
-      id: response.user!.id,
+      id: user.id,
       companyId: '',
-      name: response.user!.userMetadata?['name'] as String? ?? '',
-      email: response.user!.email ?? '',
-      isAdmin: response.user!.userMetadata?['is_admin'] as bool? ?? false,
+      name: user.userMetadata?['name'] as String? ?? '',
+      email: user.email ?? '',
+      isAdmin: user.userMetadata?['is_admin'] as bool? ?? false,
       isActive: true,
-      createdAt: (response.user?.createdAt).toUtcDateTime() ?? now,
-      updatedAt: (response.user?.updatedAt).toUtcDateTime() ?? now,
+      createdAt: user.createdAt.toUtcDateTime(),
+      updatedAt: user.updatedAt.toUtcDateTime() ?? now,
     );
   }
 
