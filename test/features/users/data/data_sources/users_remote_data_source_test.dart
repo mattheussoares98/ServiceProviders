@@ -139,10 +139,9 @@ void main() {
     group('updateUserProfile', () {
       test('should return SuccessState<UserProfileModel> on success', () async {
         when(
-          () => mockDatabase.update(
+          () => mockDatabase.upsert(
             table: any(named: 'table'),
             values: any(named: 'values'),
-            filters: any(named: 'filters'),
           ),
         ).thenAnswer((_) async => [tUserProfileModel.toJson()]);
 
@@ -151,10 +150,9 @@ void main() {
         expect(result, isA<SuccessState<UserProfileModel>>());
         expect(result.data!.id, tUserProfileModel.id);
         verify(
-          () => mockDatabase.update(
+          () => mockDatabase.upsert(
             table: 'user_profiles',
             values: tUserProfileModel.toJson(),
-            filters: [SupabaseFilter.eq('id', tUserProfileModel.id)],
           ),
         ).called(1);
       });

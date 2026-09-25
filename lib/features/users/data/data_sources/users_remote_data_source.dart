@@ -93,10 +93,9 @@ final class UsersRemoteDataSourceImpl implements UsersRemoteDataSource {
   @override
   FutureData<UserProfileModel> updateUserProfile(UserProfileModel request) =>
       SupabaseHandler.call(() async {
-        final response = await _database.update(
+        final response = await _database.upsert(
           table: 'user_profiles',
           values: request.toJson(),
-          filters: [SupabaseFilter.eq('id', request.id)],
         );
         return UserProfileModel.fromJson(response.first);
       });
