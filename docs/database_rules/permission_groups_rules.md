@@ -4,7 +4,11 @@
 CREATE POLICY "Users read own company permission groups"
   ON public.permission_groups FOR SELECT
   TO authenticated
-  USING (company_id = public.get_user_company_id());
+  USING (
+    company_id = public.get_user_company_id()
+    OR public.is_super_admin()
+    OR public.get_user_company_id() IS NULL
+  );
   //TODO respect the permission group from the user
 
 CREATE POLICY "Users insert own company permission groups"
