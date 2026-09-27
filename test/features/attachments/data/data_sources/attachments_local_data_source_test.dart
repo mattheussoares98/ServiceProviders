@@ -86,7 +86,7 @@ void main() {
           AssetsCompanion.insert(
             id: assetId,
             companyId: companyId,
-            areaId: areaId,
+            areaId: Value(areaId),
             name: faker.company.name(),
           ),
         );
@@ -99,7 +99,7 @@ void main() {
             id: workOrderId,
             companyId: companyId,
             assetId: Value(assetId),
-            locationId: locationId,
+            locationId: Value(locationId),
             createdById: Value(userId),
             title: faker.company.name(),
             priority: const Value('medium'),

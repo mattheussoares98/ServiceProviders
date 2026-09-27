@@ -88,7 +88,7 @@ void main() {
           AssetsCompanion.insert(
             id: assetId,
             companyId: companyId,
-            areaId: areaId,
+            areaId: Value(areaId),
             name: faker.company.name(),
           ),
         );
@@ -100,7 +100,7 @@ void main() {
           WorkOrdersCompanion.insert(
             id: workOrderId,
             companyId: companyId,
-            locationId: locationId,
+            locationId: Value(locationId),
             createdById: Value(userId),
             title: faker.job.title(),
             description: Value(faker.lorem.sentence()),

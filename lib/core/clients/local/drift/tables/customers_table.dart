@@ -14,11 +14,16 @@ class Customers extends Table {
       text().references(Companies, #id, onDelete: KeyAction.cascade)();
   TextColumn get name => text()();
   TextColumn get document => text().nullable()();
-  TextColumn get documentType => text().nullable()();
   TextColumn get contactName => text().nullable()();
   TextColumn get contactEmail => text().nullable()();
   TextColumn get contactPhone => text().nullable()();
   TextColumn get address => text().nullable()();
+  TextColumn get number => text().nullable()();
+  TextColumn get complement => text().nullable()();
+  TextColumn get neighborhood => text().nullable()();
+  TextColumn get city => text().nullable()();
+  TextColumn get state => text().nullable()();
+  TextColumn get postalCode => text().nullable()();
   TextColumn get notes => text().nullable()();
   BoolColumn get isActive => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

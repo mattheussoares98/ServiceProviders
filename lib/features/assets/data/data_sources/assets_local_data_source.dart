@@ -50,7 +50,7 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
         return AssetModel(
           id: asset.id,
           companyId: asset.companyId,
-          areaId: asset.areaId,
+          areaId: asset.areaId ?? '',
           categoryId: asset.categoryId,
           parentAssetId: asset.parentAssetId,
           name: asset.name,
@@ -103,7 +103,7 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
       final model = AssetModel(
         id: asset.id,
         companyId: asset.companyId,
-        areaId: asset.areaId,
+        areaId: asset.areaId ?? '',
         categoryId: asset.categoryId,
         parentAssetId: asset.parentAssetId,
         name: asset.name,

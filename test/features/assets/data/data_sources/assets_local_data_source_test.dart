@@ -26,7 +26,7 @@ void main() {
   Future<void> insertDependencies({
     required String companyId,
     required String locationId,
-    required String areaId,
+    required String? areaId,
     required String categoryId,
   }) async {
     // 1. Company
@@ -53,16 +53,18 @@ void main() {
         );
 
     // 3. Area
-    await database
-        .into(database.areas)
-        .insert(
-          AreasCompanion.insert(
-            id: areaId,
-            locationId: locationId,
-            companyId: companyId,
-            name: faker.company.name(),
-          ),
-        );
+    if (areaId != null) {
+      await database
+          .into(database.areas)
+          .insert(
+            AreasCompanion.insert(
+              id: areaId,
+              locationId: locationId,
+              companyId: companyId,
+              name: faker.company.name(),
+            ),
+          );
+    }
 
     // 4. Category
     await database

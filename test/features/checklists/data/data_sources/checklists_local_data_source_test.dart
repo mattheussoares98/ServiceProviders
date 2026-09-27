@@ -71,7 +71,7 @@ void main() {
             WorkOrdersCompanion.insert(
               id: workOrderId,
               companyId: companyId,
-              locationId: locId,
+              locationId: Value(locId),
               title: faker.job.title(),
             ),
           );

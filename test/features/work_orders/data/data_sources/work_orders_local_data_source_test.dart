@@ -93,7 +93,7 @@ void main() {
           AssetsCompanion.insert(
             id: assetId,
             companyId: companyId,
-            areaId: areaId,
+            areaId: Value(areaId),
             name: faker.company.name(),
           ),
         );
