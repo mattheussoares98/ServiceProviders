@@ -33,6 +33,38 @@ void main() {
       expect(WorkType.internalOnly.supportsCustomers, isFalse);
     });
 
+    test('requiresCustomer is true only for serviceProviderOnly', () {
+      expect(WorkType.serviceProviderOnly.requiresCustomer, isTrue);
+      expect(WorkType.internalOnly.requiresCustomer, isFalse);
+      expect(WorkType.hybrid.requiresCustomer, isFalse);
+    });
+
+    test('requiresLocation is true only for internalOnly', () {
+      expect(WorkType.internalOnly.requiresLocation, isTrue);
+      expect(WorkType.serviceProviderOnly.requiresLocation, isFalse);
+      expect(WorkType.hybrid.requiresLocation, isFalse);
+    });
+
+    test('canHireServiceProviders is true for internalOnly and hybrid', () {
+      expect(WorkType.internalOnly.canHireServiceProviders, isTrue);
+      expect(WorkType.hybrid.canHireServiceProviders, isTrue);
+      expect(WorkType.serviceProviderOnly.canHireServiceProviders, isFalse);
+    });
+
+    test('isInternalOnly, isServiceProviderOnly, isHybrid work correctly', () {
+      expect(WorkType.internalOnly.isInternalOnly, isTrue);
+      expect(WorkType.internalOnly.isServiceProviderOnly, isFalse);
+      expect(WorkType.internalOnly.isHybrid, isFalse);
+
+      expect(WorkType.serviceProviderOnly.isInternalOnly, isFalse);
+      expect(WorkType.serviceProviderOnly.isServiceProviderOnly, isTrue);
+      expect(WorkType.serviceProviderOnly.isHybrid, isFalse);
+
+      expect(WorkType.hybrid.isInternalOnly, isFalse);
+      expect(WorkType.hybrid.isServiceProviderOnly, isFalse);
+      expect(WorkType.hybrid.isHybrid, isTrue);
+    });
+
     test('canUpgradeTo allows upgrade from single to hybrid only', () {
       expect(WorkType.internalOnly.canUpgradeTo(WorkType.hybrid), isTrue);
       expect(

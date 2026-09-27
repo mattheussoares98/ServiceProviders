@@ -27,6 +27,15 @@ class CompanyEntity extends Equatable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  bool get requiresCustomer => workType.requiresCustomer;
+  bool get requiresLocation => workType.requiresLocation;
+  bool get supportsOwnLocations => workType.supportsOwnLocations;
+  bool get supportsCustomers => workType.supportsCustomers;
+  bool get canHireServiceProviders => workType.canHireServiceProviders;
+  bool get isInternalOnly => workType.isInternalOnly;
+  bool get isServiceProviderOnly => workType.isServiceProviderOnly;
+  bool get isHybrid => workType.isHybrid;
+
   @override
   List<Object?> get props => [
     id,
