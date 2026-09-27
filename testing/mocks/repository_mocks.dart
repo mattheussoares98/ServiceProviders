@@ -6,6 +6,7 @@ export 'repositories/categories_mocks.dart';
 export 'repositories/checklists_mocks.dart';
 export 'repositories/company_mocks.dart';
 export 'repositories/configurations_mocks.dart';
+export 'repositories/customers_mocks.dart';
 export 'repositories/locations_mocks.dart';
 export 'repositories/maintenance_plans_mocks.dart';
 export 'repositories/notifications_mocks.dart';
