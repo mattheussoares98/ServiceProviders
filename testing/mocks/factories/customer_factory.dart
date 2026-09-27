@@ -8,8 +8,10 @@ abstract final class CustomerFactory {
     return CustomerEntity(
       id: FactoryHelpers.makeId(),
       companyId: FactoryHelpers.makeId(),
-      name: FactoryHelpers.makeCompanyName(),
-      document: '12345678901', // 11 digits = CPF
+      name:
+          '${FactoryHelpers.makeCompanyName()} ${FactoryHelpers.makeId().substring(0, 5)}',
+      document: faker.randomGenerator.numbers(9, 11).join(),
+
       contactName: FactoryHelpers.makePersonName(),
       contactEmail: FactoryHelpers.makeEmail(),
       contactPhone: faker.phoneNumber.us(),

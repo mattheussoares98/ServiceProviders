@@ -6,6 +6,7 @@ export 'data_sources/categories_mocks.dart';
 export 'data_sources/checklists_mocks.dart';
 export 'data_sources/company_mocks.dart';
 export 'data_sources/configurations_mocks.dart';
+export 'data_sources/customers_mocks.dart';
 export 'data_sources/locations_mocks.dart';
 export 'data_sources/maintenance_plans_mocks.dart';
 export 'data_sources/notifications_mocks.dart';
