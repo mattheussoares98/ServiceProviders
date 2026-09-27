@@ -163,6 +163,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 - **pause_reasons** (`tr_prevent_delete_pause_reasons`)
 - **sectors** (`tr_prevent_delete_sectors`)
 - **maintenance_plans** (`tr_prevent_delete_maintenance_plans`)
+- **customers** (`tr_prevent_delete_customers`)
 
 ---
 
@@ -197,6 +198,7 @@ Table‑specific policies are maintained in individual files within this directo
 - [checklist_answers_rules.md](checklist_answers_rules.md)
 - [checklist_templates_rules.md](checklist_templates_rules.md)
 - [maintenance_plans_rules.md](maintenance_plans_rules.md)
+- [customers_rules.md](customers_rules.md)
 
 ---
 

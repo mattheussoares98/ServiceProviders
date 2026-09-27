@@ -10,7 +10,8 @@ Instances of preventive, corrective, or inspection tasks.
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
 | `asset_id` | UUID | YES | - | FK → `assets.id` (Set Null) |
-| `location_id` | UUID | NO | - | FK → `locations.id` (Cascade) |
+| `customer_id` | UUID | YES | - | FK → `customers.id` (Set Null) |
+| `location_id` | UUID | YES | - | FK → `locations.id` (Cascade). Required for internalOnly companies, optional for hybrid, omitted for serviceProviderOnly |
 | `area_id` | UUID | YES | - | FK → `areas.id` (Set Null) — must match `assets.area_id` when both are set |
 | `assigned_to_id` | UUID | YES | - | FK → `user_profiles.id` (Set Null) |
 | `created_by_id` | UUID | YES | - | FK → `user_profiles.id` (Cascade). Null when opened from provider mode |

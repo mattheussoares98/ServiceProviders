@@ -43,6 +43,10 @@ erDiagram
     Companies ||--o{ Sectors : has
     Companies ||--o{ ServiceProviderCompanies : owns
     Companies ||--o{ WorkOrderObservations : has
+    Companies ||--o{ Customers : has
+
+    Customers ||--o{ WorkOrders : has
+    Customers ||--o{ Assets : owns
 
     PermissionGroups ||--o{ UserProfiles : governs
     Locations ||--o{ Areas : contains
@@ -121,6 +125,7 @@ erDiagram
 | 29 | sync_errors | [sync_errors.md](sync_errors.md) |
 | 30 | access_logs | [access_logs.md](access_logs.md) |
 | 31 | checklist_answers | [checklist_answers.md](checklist_answers.md) |
+| 32 | customers | [customers.md](customers.md) |
 
 ---
 

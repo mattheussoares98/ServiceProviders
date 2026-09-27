@@ -14,6 +14,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_items_t
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_templates_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/company_parameters_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/customers_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/pause_reasons_table.dart';
@@ -65,6 +66,7 @@ part 'app_database.g.dart';
     WorkOrderPauseRequests,
     Sectors,
     WorkOrderObservations,
+    Customers,
   ],
 )
 @LazySingleton()
@@ -73,7 +75,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 37;
+  int get schemaVersion => 38;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -325,6 +327,12 @@ class AppDatabase extends _$AppDatabase {
           companyParameters,
           companyParameters.maxObservationsPerWorkOrder,
         );
+      }
+      if (from < 38) {
+        await m.createTable(customers);
+        await addColumnIfNotExists(workOrders, workOrders.customerId);
+        await addColumnIfNotExists(assets, assets.locationId);
+        await addColumnIfNotExists(assets, assets.customerId);
       }
     },
   );

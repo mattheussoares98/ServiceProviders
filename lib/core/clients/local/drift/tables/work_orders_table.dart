@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/areas_table.dart'
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_templates_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/customers_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/maintenance_plans_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/sectors_table.dart';
@@ -21,14 +22,23 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_tab
   name: 'idx_work_orders_scheduled',
   columns: {#companyId, #scheduledDate},
 )
+@TableIndex(name: 'idx_work_orders_customer', columns: {#customerId})
 class WorkOrders extends Table {
   TextColumn get id => text()();
   TextColumn get companyId =>
       text().references(Companies, #id, onDelete: KeyAction.cascade)();
   TextColumn get assetId =>
       text().nullable().references(Assets, #id, onDelete: KeyAction.setNull)();
-  TextColumn get locationId =>
-      text().references(Locations, #id, onDelete: KeyAction.cascade)();
+  TextColumn get customerId => text().nullable().references(
+    Customers,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  TextColumn get locationId => text().nullable().references(
+    Locations,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
   TextColumn get areaId =>
       text().nullable().references(Areas, #id, onDelete: KeyAction.setNull)();
   TextColumn get assignedToId => text().nullable().references(

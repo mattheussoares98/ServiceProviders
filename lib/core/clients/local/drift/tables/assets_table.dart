@@ -2,9 +2,13 @@ import 'package:drift/drift.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/areas_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/categories_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/customers_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 
 @TableIndex(name: 'idx_assets_company', columns: {#companyId})
+@TableIndex(name: 'idx_assets_location', columns: {#locationId})
 @TableIndex(name: 'idx_assets_area', columns: {#areaId})
+@TableIndex(name: 'idx_assets_customer', columns: {#customerId})
 @TableIndex(
   name: 'idx_assets_revision',
   columns: {#companyId, #revisionForecast},
@@ -19,8 +23,18 @@ class Assets extends Table {
   TextColumn get id => text()();
   TextColumn get companyId =>
       text().references(Companies, #id, onDelete: KeyAction.cascade)();
+  TextColumn get locationId => text().nullable().references(
+    Locations,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get areaId =>
-      text().references(Areas, #id, onDelete: KeyAction.cascade)();
+      text().nullable().references(Areas, #id, onDelete: KeyAction.setNull)();
+  TextColumn get customerId => text().nullable().references(
+    Customers,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get categoryId => text().nullable().references(
     Categories,
     #id,
