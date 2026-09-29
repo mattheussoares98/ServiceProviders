@@ -4,18 +4,46 @@ class _AssetsDropdown extends StatelessWidget {
   const _AssetsDropdown({
     required this.selectedAssetId,
     required this.selectedLocationId,
+    this.selectedCustomerId,
     required this.selectedAreaId,
     required this.onChanged,
     required this.applyAssociatedAreaId,
+    this.isServiceProviderOnly = false,
   });
   final String? selectedAssetId;
   final String? selectedLocationId;
+  final String? selectedCustomerId;
   final String? selectedAreaId;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String?> applyAssociatedAreaId;
+  final bool isServiceProviderOnly;
 
   @override
   Widget build(BuildContext context) {
+    if (isServiceProviderOnly) {
+      final filteredAssets = context.select<AssetsCubit, List<AssetEntity>>((
+        cubit,
+      ) {
+        return cubit.state.assets;
+      });
+
+      final assetDropdownItems = filteredAssets.map((a) {
+        return DropdownMenuItem<String>(value: a.id, child: BaseText(a.name));
+      }).toList();
+
+      return BaseDropDown<String>(
+        key: const ValueKey('Asset'),
+        showLabelAtTopLeft: true,
+        label: 'Equipamento (opcional)'.hardcoded,
+        selectedItem: selectedAssetId,
+        hint: filteredAssets.isEmpty
+            ? BaseText('Sem equipamentos cadastrados'.hardcoded)
+            : null,
+        items: assetDropdownItems,
+        onChanged: onChanged == null ? null : (value) => onChanged!.call(value),
+      );
+    }
+
     final areasIds = context
         .select<LocationsCubit, List<AreaEntity>?>((cubit) {
           final areas = cubit.state.areasByLocation[selectedLocationId];

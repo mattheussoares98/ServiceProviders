@@ -18,6 +18,9 @@ import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachm
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -59,6 +62,7 @@ import 'package:uuid/uuid.dart';
 part './widgets/area_dropdown.dart';
 part './widgets/assets_dropdown.dart';
 part './widgets/checklist_template_dropdown.dart';
+part './widgets/customer_dropdown.dart';
 part './widgets/description_field.dart';
 part './widgets/duration_field.dart';
 part './widgets/location_dropdown.dart';
@@ -146,6 +150,12 @@ class _CreateUpdatePage extends HookWidget {
     final selectedModeName = GetIt.I<GetSelectedModeUseCase>().call();
     final isProviderMode =
         AppMode.fromName(selectedModeName) == AppMode.provider;
+    final workType = isProviderMode
+        ? WorkType.internalOnly
+        : context.select(
+            (CompanyCubit cubit) =>
+                cubit.state.company?.workType ?? WorkType.internalOnly,
+          );
     final isEditing = workOrder != null;
 
     final (assetsError, assetsLoading) = context.select((AssetsCubit cubit) {
@@ -191,6 +201,7 @@ class _CreateUpdatePage extends HookWidget {
               : currentPrice.toString())
         : '';
     final initialLocationId = workOrder?.locationId;
+    final initialCustomerId = workOrder?.customerId;
     final initialAreaId = workOrder?.areaId;
     final initialAssetId = workOrder?.assetId;
     final initialAssignedToId = workOrder?.assignedToId;
@@ -206,6 +217,11 @@ class _CreateUpdatePage extends HookWidget {
     final canManageFinancials = context.hasPermission(
       const ActionPermission.workOrderSubAction(
         WorkOrderSubAction.manageFinancials,
+      ),
+    );
+    final canManagePendingRequests = context.hasPermission(
+      const ActionPermission.workOrderSubAction(
+        WorkOrderSubAction.managePendingRequests,
       ),
     );
 
@@ -225,6 +241,7 @@ class _CreateUpdatePage extends HookWidget {
     final descFocusNode = useFocusNode();
     final priceFocusNode = useFocusNode();
     final selectedLocationId = useState<String?>(initialLocationId);
+    final selectedCustomerId = useState<String?>(initialCustomerId);
     final selectedAreaId = useState<String?>(initialAreaId);
     final selectedAssetId = useState<String?>(initialAssetId);
     final selectedAssignedToId = useState<String?>(initialAssignedToId);
@@ -254,6 +271,7 @@ class _CreateUpdatePage extends HookWidget {
                 : updated.price!.toString())
           : '';
       selectedLocationId.value = updated.locationId;
+      selectedCustomerId.value = updated.customerId;
       selectedAreaId.value = updated.areaId;
       selectedAssetId.value = updated.assetId;
       selectedAssignedToId.value = updated.assignedToId;
@@ -308,6 +326,7 @@ class _CreateUpdatePage extends HookWidget {
           (canManageFinancials &&
               priceController.text.trim() != initialPrice) ||
           selectedLocationId.value != initialLocationId ||
+          selectedCustomerId.value != initialCustomerId ||
           selectedAreaId.value != initialAreaId ||
           (selectedAssetId.value == '' ? null : selectedAssetId.value) !=
               initialAssetId ||
@@ -334,12 +353,6 @@ class _CreateUpdatePage extends HookWidget {
         Navigator.of(context).pop();
         return;
       }
-
-      final canManagePendingRequests = context.hasPermission(
-        const ActionPermission.workOrderSubAction(
-          WorkOrderSubAction.managePendingRequests,
-        ),
-      );
 
       final isClosedOrder = workOrder?.status.isClosed ?? false;
       if (isClosedOrder && !canManagePendingRequests) {
@@ -377,7 +390,9 @@ class _CreateUpdatePage extends HookWidget {
       final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
         id: workOrderId,
         isEditing: workOrder != null,
-        locationId: selectedLocationId.value!,
+        locationId: selectedLocationId.value,
+        customerId: selectedCustomerId.value,
+        workType: workType,
         areaId: selectedAreaId.value,
         assetId: selectedAssetId.value == '' ? null : selectedAssetId.value,
         assignedToId: selectedAssignedToId.value == ''
@@ -503,38 +518,57 @@ class _CreateUpdatePage extends HookWidget {
           ),
         ),
       ],
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _LocationDropdown(
-          selectedId: selectedLocationId.value,
-          onChanged: canEditCoreFields
-              ? (val) {
-                  selectedLocationId.value = val;
-                  selectedAreaId.value = null;
-                  selectedAssetId.value = null;
-                }
-              : null,
+      if (workType.supportsCustomers)
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _CustomerDropdown(
+            selectedId: selectedCustomerId.value,
+            isRequired: workType.requiresCustomer,
+            onChanged: canEditCoreFields
+                ? (val) {
+                    selectedCustomerId.value = val;
+                    selectedAssetId.value = null;
+                  }
+                : null,
+          ),
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _AreaDropdown(
-          selectedAreaId: selectedAreaId.value,
-          selectedLocationId: selectedLocationId.value,
-          onChanged: canEditCoreFields
-              ? (val) {
-                  selectedAreaId.value = val;
-                  selectedAssetId.value = null;
-                }
-              : null,
+      if (workType.supportsOwnLocations) ...[
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _LocationDropdown(
+            selectedId: selectedLocationId.value,
+            isRequired: workType.requiresLocation,
+            onChanged: canEditCoreFields
+                ? (val) {
+                    selectedLocationId.value = val;
+                    selectedAreaId.value = null;
+                    selectedAssetId.value = null;
+                  }
+                : null,
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _AreaDropdown(
+            selectedAreaId: selectedAreaId.value,
+            selectedLocationId: selectedLocationId.value,
+            onChanged: canEditCoreFields
+                ? (val) {
+                    selectedAreaId.value = val;
+                    selectedAssetId.value = null;
+                  }
+                : null,
+          ),
+        ),
+      ],
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
         child: _AssetsDropdown(
           selectedAssetId: selectedAssetId.value,
           selectedLocationId: selectedLocationId.value,
+          selectedCustomerId: selectedCustomerId.value,
           selectedAreaId: selectedAreaId.value,
+          isServiceProviderOnly: workType.isServiceProviderOnly,
           applyAssociatedAreaId: (val) {
             if (canEditCoreFields) {
               selectedAreaId.value = val;

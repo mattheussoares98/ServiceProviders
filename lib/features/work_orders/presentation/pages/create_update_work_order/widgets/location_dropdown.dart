@@ -1,9 +1,14 @@
 part of '../create_update_work_order_page.dart';
 
 class _LocationDropdown extends StatelessWidget {
-  const _LocationDropdown({required this.selectedId, required this.onChanged});
+  const _LocationDropdown({
+    required this.selectedId,
+    required this.onChanged,
+    this.isRequired = true,
+  });
   final String? selectedId;
   final ValueChanged<String?>? onChanged;
+  final bool isRequired;
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +21,11 @@ class _LocationDropdown extends StatelessWidget {
     return BaseDropDown<String>(
       key: const ValueKey('Location'),
       showLabelAtTopLeft: true,
-      label: 'Local *'.hardcoded,
+      label: isRequired ? 'Local *'.hardcoded : 'Local'.hardcoded,
       selectedItem: selectedId,
-      validator: (val) => val == null ? 'Selecione um local'.hardcoded : null,
+      validator: isRequired
+          ? (val) => val == null ? 'Selecione um local'.hardcoded : null
+          : null,
       items: items.toList(),
       onChanged: onChanged,
     );
