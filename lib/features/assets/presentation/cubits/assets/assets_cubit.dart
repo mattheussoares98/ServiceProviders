@@ -119,7 +119,9 @@ class AssetsCubit extends BaseCubit<AssetsState> {
 
   Future<bool> saveAsset({
     required String? id,
-    required String areaId,
+    String? locationId,
+    String? areaId,
+    String? customerId,
     String? categoryId,
     String? parentAssetId,
     required String name,
@@ -180,7 +182,9 @@ class AssetsCubit extends BaseCubit<AssetsState> {
     final asset = AssetEntity(
       id: id ?? const Uuid().v4(),
       companyId: companyId,
-      areaId: areaId,
+      locationId: locationId?.trimToNull(),
+      areaId: areaId?.trimToNull(),
+      customerId: customerId?.trimToNull(),
       categoryId: categoryId?.trimToNull(),
       parentAssetId: trimmedParent,
       name: trimmedName,

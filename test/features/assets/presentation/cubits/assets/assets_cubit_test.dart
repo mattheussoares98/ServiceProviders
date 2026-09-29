@@ -677,6 +677,109 @@ void main() {
           verifyNever(() => mockUpdateAsset.call(any()));
         },
       );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'should save asset with locationId only (no areaId)',
+        build: () {
+          when(() => mockCreateAsset.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetAssets.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: null,
+              locationId: 'loc-1',
+              name: 'Location Only Asset',
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+            ),
+            isTrue,
+          );
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            const SectionState.running(),
+          ),
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            const SectionState.success(),
+          ),
+          isA<AssetsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockCreateAsset.call(
+              any(
+                that: isA<AssetEntity>()
+                    .having((a) => a.locationId, 'locationId', 'loc-1')
+                    .having((a) => a.areaId, 'areaId', isNull),
+              ),
+            ),
+          ).called(1);
+        },
+      );
+
+      blocTest<AssetsCubit, AssetsState>(
+        'should save asset with customerId only',
+        build: () {
+          when(() => mockCreateAsset.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: true));
+          when(() => mockGetAssets.call(any()))
+              .thenAnswer((_) async => const SuccessState(data: []));
+          return cubit;
+        },
+        act: (cubit) async {
+          expect(
+            await cubit.saveAsset(
+              id: null,
+              customerId: 'cust-1',
+              name: 'Customer Asset',
+              status: tAsset.status,
+              criticality: tAsset.criticality,
+            ),
+            isTrue,
+          );
+        },
+        expect: () => [
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            const SectionState.running(),
+          ),
+          isA<AssetsState>().having(
+            (s) => s.sections[AssetsSections.save],
+            'sections[save]',
+            const SectionState.success(),
+          ),
+          isA<AssetsState>().having(
+            (s) => s.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
+          ),
+        ],
+        verify: (_) {
+          verify(
+            () => mockCreateAsset.call(
+              any(
+                that: isA<AssetEntity>()
+                    .having((a) => a.customerId, 'customerId', 'cust-1')
+                    .having((a) => a.locationId, 'locationId', isNull)
+                    .having((a) => a.areaId, 'areaId', isNull),
+              ),
+            ),
+          ).called(1);
+        },
+      );
     });
 
     group('deleteAsset', () {
