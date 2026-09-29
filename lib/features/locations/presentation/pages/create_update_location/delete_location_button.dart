@@ -31,8 +31,13 @@ class DeleteLocationButton extends StatelessWidget {
         showAlertDialog(
           context: context,
           title: 'Excluir local?'.hardcoded,
-          onOkPressed: () =>
-              context.read<LocationsCubit>().deleteLocation(locationId!),
+          onOkPressed: () async {
+            final cubit = context.read<LocationsCubit>();
+            final succeeds = await cubit.deleteLocation(locationId!);
+            if (succeeds && context.mounted) {
+              cubit.popRoute();
+            }
+          },
           contentText: 'Tem certeza que deseja excluir o local?'.hardcoded,
           defaultActionText: 'Sim'.hardcoded,
           cancelActionText: 'Cancelar'.hardcoded,

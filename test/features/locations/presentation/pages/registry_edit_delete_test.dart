@@ -84,7 +84,7 @@ void main() {
       submissions.add(i.namedArguments);
       return true;
     });
-    when(() => cubit.deleteLocation(any())).thenAnswer((_) async {});
+    when(() => cubit.deleteLocation(any())).thenAnswer((_) async => false);
     when(() => cubit.deleteArea(any(), any())).thenAnswer((_) async => false);
   });
 
@@ -202,6 +202,8 @@ void main() {
           expect(find.text(area.name), findsOneWidget);
         } else {
           verify(() => cubit.deleteLocation(location.id)).called(1);
+          verifyNever(() => cubit.popRoute());
+          expect(find.text(location.name), findsOneWidget);
         }
         expect(find.byKey(kDialogDefaultKey), findsNothing);
       },
@@ -216,6 +218,20 @@ void main() {
       () => cubit.deleteArea(area.id, location.id),
     ).thenAnswer((_) async => true);
     await open(tester, isArea: true);
+    await tester.tap(find.byIcon(Icons.delete));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sim'));
+    await tester.pumpAndSettle();
+    verify(() => cubit.popRoute()).called(1);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.android));
+
+  testWidgets('successful location deletion requests leaving the editor', (
+    tester,
+  ) async {
+    when(
+      () => cubit.deleteLocation(location.id),
+    ).thenAnswer((_) async => true);
+    await open(tester, isArea: false);
     await tester.tap(find.byIcon(Icons.delete));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Sim'));

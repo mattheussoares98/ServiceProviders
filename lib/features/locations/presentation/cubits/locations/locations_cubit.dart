@@ -310,7 +310,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
     }
   }
 
-  Future<void> deleteLocation(String id) async {
+  Future<bool> deleteLocation(String id) async {
     final hasLinkedAreas =
         (state.areasByLocation[id]?.isNotEmpty ?? false) ||
         state.allAreas.any((a) => a.locationId == id);
@@ -327,7 +327,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
         ),
       );
       showErrorToast(message);
-      return;
+      return false;
     }
 
     emit(
@@ -339,7 +339,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       ),
     );
     final dataState = await _useCases.deleteLocation(id);
-    if (isClosed) return;
+    if (isClosed) return false;
 
     if (dataState is SuccessState<bool> && dataState.data == true) {
       final updatedLocations = state.locations
@@ -355,6 +355,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
         ),
       );
       await loadLocationsAndAreas(showLoading: false);
+      return true;
     } else {
       emit(
         state.copyWith(
@@ -365,8 +366,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
         ),
       );
       showDataStateToast(dataState);
+      return false;
     }
-    if (isClosed) return;
   }
 
   Future<bool> saveArea({
