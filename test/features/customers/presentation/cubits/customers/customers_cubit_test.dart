@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entit
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/routing/helper/navigation_client.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 
 import '../../../../../../testing/mocks/client_mocks.dart';
@@ -32,6 +33,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(CustomerFactory.makeCustomerEntity());
+    registerFallbackValue(CreateUpdateCustomerRoute());
   });
 
   setUp(() {
@@ -501,6 +503,31 @@ void main() {
         cubit.popRoute();
         verify(() => mockNavigationClient.maybePop()).called(1);
       });
+    });
+
+    group('navigateToCreateUpdateCustomer', () {
+      test(
+        'should push CreateUpdateCustomerRoute and reload customers',
+        () async {
+          when(
+            () => mockNavigationClient.pushRoute<CreateUpdateCustomerRouteArgs>(
+              any(),
+            ),
+          ).thenAnswer((_) async => null);
+          when(
+            () => mockGetCustomers.call(any()),
+          ).thenAnswer((_) async => SuccessState(data: [tCustomer]));
+
+          await cubit.navigateToCreateUpdateCustomer(customer: tCustomer);
+
+          verify(
+            () => mockNavigationClient.pushRoute<CreateUpdateCustomerRouteArgs>(
+              any(),
+            ),
+          ).called(1);
+          verify(() => mockGetCustomers.call(tCompanyId)).called(1);
+        },
+      );
     });
   });
 }

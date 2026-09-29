@@ -159,7 +159,13 @@ const String kCreateUpdateSlaPolicyPath = 'create-update-sla-policy';
 const String kAccessLogsRoute = 'AccessLogsRoute';
 const String kAccessLogsPath = 'access-logs';
 
+// Customers
+const String kCustomersRoute = 'CustomersRoute';
+const String kCustomersPath = 'customers';
+
+const String kCreateUpdateCustomerRoute = 'CreateUpdateCustomerRoute';
+const String kCreateUpdateCustomerPath = 'create-update-customer';
+
 // Support
 const String kSupportRoute = 'SupportRoute';
 const String kSupportPath = '/support';
-

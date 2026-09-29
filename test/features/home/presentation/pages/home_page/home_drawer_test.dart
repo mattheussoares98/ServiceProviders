@@ -150,13 +150,64 @@ void main() {
         );
         await $.pumpAndSettle();
 
-        $.tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
-        await $.pumpAndSettle();
-
         expect($('Prestadores de Serviço'), findsNothing);
       } finally {
         debugDefaultTargetPlatformOverride = null;
       }
     },
   );
+
+  patrolWidgetTest(
+    'shows CustomersDrawerItem when workType is serviceProviderOnly',
+    ($) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        await $.pumpWidget(
+          buildTestWidget(workType: WorkType.serviceProviderOnly),
+        );
+        await $.pumpAndSettle();
+
+        $.tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
+        await $.pumpAndSettle();
+
+        expect($('Clientes'), findsOneWidget);
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
+
+  patrolWidgetTest('shows CustomersDrawerItem when workType is hybrid', (
+    $,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    try {
+      await $.pumpWidget(buildTestWidget(workType: WorkType.hybrid));
+      await $.pumpAndSettle();
+
+      $.tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
+      await $.pumpAndSettle();
+
+      expect($('Clientes'), findsOneWidget);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  patrolWidgetTest('hides CustomersDrawerItem when workType is internalOnly', (
+    $,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    try {
+      await $.pumpWidget(buildTestWidget(workType: WorkType.internalOnly));
+      await $.pumpAndSettle();
+
+      $.tester.state<ScaffoldState>(find.byType(Scaffold)).openDrawer();
+      await $.pumpAndSettle();
+
+      expect($('Clientes'), findsNothing);
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
 }

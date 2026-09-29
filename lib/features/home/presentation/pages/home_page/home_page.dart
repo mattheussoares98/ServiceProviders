@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/m
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/error_page.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -84,6 +85,11 @@ class HomePage extends HookWidget {
         BlocProvider<PauseWorkflowCubit>(
           create: (context) {
             return GetIt.I<PauseWorkflowCubit>()..loadPauseReasons();
+          },
+        ),
+        BlocProvider<CustomersCubit>(
+          create: (context) {
+            return GetIt.I<CustomersCubit>()..loadCustomers();
           },
         ),
       ],

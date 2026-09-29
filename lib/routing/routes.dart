@@ -171,6 +171,12 @@ class AppRouter extends RootStackRouter {
         ),
         //* Access Logs
         AutoRoute(page: AccessLogsRoute.page, path: kAccessLogsPath),
+        //* Customers
+        AutoRoute(page: CustomersRoute.page, path: kCustomersPath),
+        AutoRoute(
+          page: CreateUpdateCustomerRoute.page,
+          path: '$kCreateUpdateCustomerRoute/$kCreateUpdateCustomerPath',
+        ),
       ],
     ),
   ];

@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entity.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/address_entity.dart';
+import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:uuid/uuid.dart';
 
@@ -267,6 +268,12 @@ class CustomersCubit extends BaseCubit<CustomersState> {
       showDataStateToast(dataState);
       return null;
     }
+  }
+
+  Future<void> navigateToCreateUpdateCustomer({
+    CustomerEntity? customer,
+  }) async {
+    await pushRoute(CreateUpdateCustomerRoute(customer: customer));
   }
 
   void popRoute() {
