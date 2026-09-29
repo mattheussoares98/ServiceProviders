@@ -25,6 +25,7 @@ class CompanyParameterEntity extends Equatable {
     this.maxMaintenancePlans = 0,
     this.maxServiceProviders = 0,
     this.maxObservationsPerWorkOrder = 2,
+    this.currency = 'BRL',
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
@@ -52,6 +53,7 @@ class CompanyParameterEntity extends Equatable {
   final int maxMaintenancePlans;
   final int maxServiceProviders;
   final int maxObservationsPerWorkOrder;
+  final String currency;
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
@@ -106,6 +108,7 @@ class CompanyParameterEntity extends Equatable {
     int? maxMaintenancePlans,
     int? maxServiceProviders,
     int? maxObservationsPerWorkOrder,
+    String? currency,
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
@@ -144,6 +147,7 @@ class CompanyParameterEntity extends Equatable {
       maxServiceProviders: maxServiceProviders ?? this.maxServiceProviders,
       maxObservationsPerWorkOrder:
           maxObservationsPerWorkOrder ?? this.maxObservationsPerWorkOrder,
+      currency: currency ?? this.currency,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: annulDeletedAt == true ? null : (deletedAt ?? this.deletedAt),
@@ -174,6 +178,7 @@ class CompanyParameterEntity extends Equatable {
     maxMaintenancePlans,
     maxServiceProviders,
     maxObservationsPerWorkOrder,
+    currency,
     createdAt,
     updatedAt,
     deletedAt,

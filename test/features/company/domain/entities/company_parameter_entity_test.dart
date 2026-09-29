@@ -93,5 +93,13 @@ void main() {
       expect(withCustomLimit.serviceProvidersEnabled(PlanType.free), isTrue);
       expect(withCustomLimit.serviceProvidersEnabled(PlanType.paid), isTrue);
     });
+
+    test('currency defaults to BRL and can be copied with new value', () {
+      final entity = UserFactory.makeCompanyParameterEntity();
+      expect(entity.currency, 'BRL');
+
+      final updated = entity.copyWith(currency: 'USD');
+      expect(updated.currency, 'USD');
+    });
   });
 }

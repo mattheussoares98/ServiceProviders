@@ -40,6 +40,7 @@ class CompanyParameters extends Table {
       integer().withDefault(const Constant(0))();
   IntColumn get maxObservationsPerWorkOrder =>
       integer().withDefault(const Constant(2))();
+  TextColumn get currency => text().withDefault(const Constant('BRL'))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get deletedAt => dateTime().nullable()();

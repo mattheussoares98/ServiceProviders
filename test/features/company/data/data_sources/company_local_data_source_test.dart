@@ -135,6 +135,10 @@ void main() {
             getResult.data!.inviteExpiryHours,
             tCompanyParameterModel.inviteExpiryHours,
           );
+          expect(
+            getResult.data!.currency,
+            tCompanyParameterModel.currency,
+          );
         },
       );
 

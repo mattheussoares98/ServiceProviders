@@ -45,6 +45,7 @@ void main() {
         resultEntity.maxObservationsPerWorkOrder,
         tEntity.maxObservationsPerWorkOrder,
       );
+      expect(resultEntity.currency, tEntity.currency);
     });
   });
 }

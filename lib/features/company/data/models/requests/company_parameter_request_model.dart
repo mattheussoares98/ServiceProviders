@@ -28,6 +28,7 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     super.maxMaintenancePlans = 0,
     super.maxServiceProviders = 0,
     super.maxObservationsPerWorkOrder = 2,
+    super.currency = 'BRL',
     required super.createdAt,
     required super.updatedAt,
     super.deletedAt,
@@ -59,6 +60,7 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     maxMaintenancePlans: entity.maxMaintenancePlans,
     maxServiceProviders: entity.maxServiceProviders,
     maxObservationsPerWorkOrder: entity.maxObservationsPerWorkOrder,
+    currency: entity.currency,
     createdAt: entity.createdAt,
     updatedAt: entity.updatedAt,
     deletedAt: entity.deletedAt,
@@ -103,6 +105,7 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
         maxServiceProviders: json['max_service_providers'] as int? ?? 0,
         maxObservationsPerWorkOrder:
             json['max_observations_per_work_order'] as int? ?? 2,
+        currency: json['currency'] as String? ?? 'BRL',
         createdAt:
             (json['created_at'] as String?).toUtcDateTime() ??
             DateTime.now().toUtc(),
@@ -135,6 +138,7 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     'max_maintenance_plans': maxMaintenancePlans,
     'max_service_providers': maxServiceProviders,
     'max_observations_per_work_order': maxObservationsPerWorkOrder,
+    'currency': currency,
     'deleted_at': deletedAt?.toIsoUtcString(),
   };
 
@@ -162,6 +166,7 @@ class CompanyParameterRequestModel extends CompanyParameterEntity
     maxMaintenancePlans: maxMaintenancePlans,
     maxServiceProviders: maxServiceProviders,
     maxObservationsPerWorkOrder: maxObservationsPerWorkOrder,
+    currency: currency,
     createdAt: createdAt,
     updatedAt: updatedAt,
     deletedAt: deletedAt,

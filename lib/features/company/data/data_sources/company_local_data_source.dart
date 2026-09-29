@@ -95,6 +95,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
                 params.delayedNotificationIntervalMinutes,
             escalationGroupIds: parseGroupIds(params.escalationGroupIds),
             allowProviderCreateWorkOrder: params.allowProviderCreateWorkOrder,
+            currency: params.currency,
             createdAt: params.createdAt.toUtc(),
             updatedAt: params.updatedAt.toUtc(),
             deletedAt: params.deletedAt?.toUtc(),
@@ -166,6 +167,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
               allowProviderCreateWorkOrder: Value(
                 parameters.allowProviderCreateWorkOrder,
               ),
+              currency: Value(parameters.currency),
               createdAt: Value(parameters.createdAt.toUtc()),
               updatedAt: Value(parameters.updatedAt.toUtc()),
               deletedAt: Value(parameters.deletedAt?.toUtc()),
