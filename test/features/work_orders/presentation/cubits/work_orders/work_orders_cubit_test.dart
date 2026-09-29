@@ -15,6 +15,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/get_attachm
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/upload_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
@@ -1336,6 +1337,150 @@ void main() {
               'sections[saveWorkOrder]',
               const SectionState.error(
                 'Valores financeiros não podem ser negativos',
+              ),
+            ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockCreateWorkOrder.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should reject work order when both locationId and customerId are missing',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              title: 'Ordem sem local e cliente',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.error(
+                'Ordem de serviço deve ter um local ou um cliente',
+              ),
+            ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockCreateWorkOrder.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should allow creation with customerId and null locationId',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              customerId: 'cust-123',
+              title: 'Serviço em cliente externo',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+            );
+            expect(result, isTrue);
+          },
+          verify: (_) {
+            verify(
+              () => mockCreateWorkOrder.call(
+                any(
+                  that: isA<WorkOrderEntity>()
+                      .having(
+                        (wo) => wo.customerId,
+                        'customerId',
+                        equals('cust-123'),
+                      )
+                      .having((wo) => wo.locationId, 'locationId', isNull),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should reject when workType is internalOnly and locationId is null',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              workType: WorkType.internalOnly,
+              customerId: 'cust-123',
+              title: 'Ordem sem local',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.error('Selecione o local da ordem de serviço'),
+            ),
+          ],
+          verify: (_) {
+            verifyNever(() => mockCreateWorkOrder.call(any()));
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should reject when workType is serviceProviderOnly and customerId is null',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              workType: WorkType.serviceProviderOnly,
+              locationId: 'loc-123',
+              title: 'Ordem sem cliente',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+            );
+            expect(result, isFalse);
+          },
+          expect: () => [
+            isA<WorkOrdersState>().having(
+              (s) => s.sections[WorkOrdersSections.saveWorkOrder],
+              'sections[saveWorkOrder]',
+              const SectionState.error(
+                'Selecione o cliente da ordem de serviço',
               ),
             ),
           ],

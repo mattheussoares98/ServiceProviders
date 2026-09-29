@@ -11,6 +11,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_statu
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/delete_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
@@ -431,7 +432,8 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     required String id,
     required bool isEditing,
     String? assetId,
-    required String locationId,
+    String? locationId,
+    String? customerId,
     String? assignedToId,
     String? areaId,
     String? createdById,
@@ -461,9 +463,59 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     String? checklistTemplateId,
     String? slaPolicyId,
     AppMode openedBy = AppMode.internal,
+    WorkType? workType,
   }) async {
     if (title.trim().isEmpty) {
       final message = 'Título da ordem de serviço não pode ser vazio'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.saveWorkOrder,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    final trimmedLocationId = locationId?.trimToNull();
+    final trimmedCustomerId = customerId?.trimToNull();
+
+    if (workType?.requiresLocation == true && trimmedLocationId == null) {
+      final message = 'Selecione o local da ordem de serviço'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.saveWorkOrder,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (workType?.requiresCustomer == true && trimmedCustomerId == null) {
+      final message = 'Selecione o cliente da ordem de serviço'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            WorkOrdersSections.saveWorkOrder,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (trimmedLocationId == null && trimmedCustomerId == null) {
+      final message =
+          'Ordem de serviço deve ter um local ou um cliente'.hardcoded;
       emit(
         state.copyWith(
           sections: withSection(
@@ -534,7 +586,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       id: id,
       companyId: tenantId,
       assetId: assetId?.trimToNull(),
-      locationId: locationId,
+      locationId: (workType?.supportsOwnLocations ?? true)
+          ? trimmedLocationId
+          : null,
+      customerId: (workType?.supportsCustomers ?? true)
+          ? trimmedCustomerId
+          : null,
       areaId: areaId,
       assignedToId: assignedToId?.trimToNull(),
       createdById: isEditing
