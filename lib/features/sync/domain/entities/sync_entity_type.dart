@@ -6,7 +6,8 @@ enum SyncEntityType {
   attachment('attachment'),
   accessLog('access_log'),
   checklistAnswer('checklist_answer'),
-  changeRequest('change_request');
+  changeRequest('change_request'),
+  customer('customer');
 
   const SyncEntityType(this.code);
   final String code;
@@ -20,6 +21,7 @@ enum SyncEntityType {
     'access_log' => SyncEntityType.accessLog,
     'checklist_answer' => SyncEntityType.checklistAnswer,
     'change_request' => SyncEntityType.changeRequest,
+    'customer' => SyncEntityType.customer,
     _ => SyncEntityType.workOrder,
   };
 }

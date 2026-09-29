@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
+import 'package:o_jogo_da_obra/features/customers/data/models/responses/customer_model.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/use_cases/enqueue_sync_item_use_case.dart';
@@ -17,6 +18,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/responses/work_o
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/factories/checklist_factory.dart';
+import '../../../../../testing/mocks/factories/customer_factory.dart';
 import '../../../../../testing/mocks/factories/system_factory.dart';
 import '../../../../../testing/mocks/factories/user_factory.dart';
 import '../../../../../testing/mocks/factories/work_order_factory.dart';
@@ -33,6 +35,7 @@ void main() {
   late MockSessionRepository mockSessionRepository;
   late MockCompanyRepository mockCompanyRepository;
   late MockChecklistsRemoteDataSource mockChecklistsRemoteDataSource;
+  late MockCustomersRemoteDataSource mockCustomersRemoteDataSource;
 
   late EnqueueSyncItemUseCase enqueueUseCase;
   late GetPendingSyncCountUseCase getPendingCountUseCase;
@@ -60,6 +63,9 @@ void main() {
         WorkOrderFactory.makeWorkOrderChangeRequestEntity(),
       ),
     );
+    registerFallbackValue(
+      CustomerModel.fromEntity(CustomerFactory.makeCustomerEntity()),
+    );
   });
 
   setUp(() {
@@ -73,6 +79,7 @@ void main() {
     mockSessionRepository = MockSessionRepository();
     mockCompanyRepository = MockCompanyRepository();
     mockChecklistsRemoteDataSource = MockChecklistsRemoteDataSource();
+    mockCustomersRemoteDataSource = MockCustomersRemoteDataSource();
 
     when(() => mockSessionRepository.getSelectedCompanyId()).thenReturn(null);
 
@@ -87,6 +94,7 @@ void main() {
       pauseRemoteDataSource: mockPauseRemoteDataSource,
       accessLogsRemoteDataSource: mockAccessLogsRemoteDataSource,
       checklistsRemoteDataSource: mockChecklistsRemoteDataSource,
+      customersRemoteDataSource: mockCustomersRemoteDataSource,
       internet: mockInternet,
       sessionRepository: mockSessionRepository,
       companyRepository: mockCompanyRepository,
@@ -243,7 +251,45 @@ void main() {
       );
 
       test(
+        'should dispatch createCustomer when SyncEntityType.customer has create operation',
+        () async {
+          when(() => mockInternet.isConnected).thenReturn(true);
+          final tCustomer = CustomerModel.fromEntity(
+            CustomerFactory.makeCustomerEntity(),
+          );
+          final tItem = tQueueItem.copyWith(
+            entityType: SyncEntityType.customer,
+            operation: SyncOperationType.create,
+            payload: jsonEncode(tCustomer.toJson()),
+          );
+
+          when(
+            () => mockSyncRepository.getPendingItems(),
+          ).thenAnswer((_) async => SuccessState(data: [tItem]));
+          when(
+            () => mockSyncRepository.markItemSyncing(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+          when(
+            () => mockCustomersRemoteDataSource.createCustomer(any()),
+          ).thenAnswer((_) async => SuccessState(data: tCustomer));
+          when(
+            () => mockSyncRepository.removeQueueItem(tItem.id),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await processSyncQueueUseCase();
+
+          expect(result, isA<SuccessState<int>>());
+          expect(result.data, equals(1));
+          verify(
+            () => mockCustomersRemoteDataSource.createCustomer(any()),
+          ).called(1);
+          verify(() => mockSyncRepository.removeQueueItem(tItem.id)).called(1);
+        },
+      );
+
+      test(
         'should upsert a queued checklist answer and clear the item',
+
         () async {
           when(() => mockInternet.isConnected).thenReturn(true);
           final tAnswer = ChecklistAnswerModel.fromEntity(

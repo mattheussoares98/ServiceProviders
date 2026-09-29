@@ -9,11 +9,16 @@ import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entit
 import '../../../../../testing/mocks/client_mocks.dart';
 import '../../../../../testing/mocks/data_source_mocks.dart';
 import '../../../../../testing/mocks/factories/customer_factory.dart';
+import '../../../../../testing/mocks/factories/system_factory.dart';
+import '../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../testing/mocks/repository_mocks.dart';
 
 void main() {
   late MockInternetClient mockInternetClient;
   late MockCustomersRemoteDataSource mockRemoteDataSource;
   late MockCustomersLocalDataSource mockLocalDataSource;
+  late MockSyncRepository mockSyncRepository;
+  late MockSessionRepository mockSessionRepository;
   late CustomersRepositoryImpl repository;
 
   setUpAll(() {
@@ -21,23 +26,40 @@ void main() {
       CustomerModel.fromEntity(CustomerFactory.makeCustomerEntity()),
     );
     registerFallbackValue(<CustomerModel>[]);
+    registerFallbackValue(SystemFactory.makeSyncQueueItemEntity());
   });
+
+  final tCompanyId = faker.guid.guid();
+  final tId = faker.guid.guid();
 
   setUp(() {
     mockInternetClient = MockInternetClient();
     mockRemoteDataSource = MockCustomersRemoteDataSource();
     mockLocalDataSource = MockCustomersLocalDataSource();
+    mockSyncRepository = MockSyncRepository();
+    mockSessionRepository = MockSessionRepository();
+
+    when(
+      () => mockSessionRepository.userData,
+    ).thenReturn(UserFactory.makeUserDataEntity());
+    when(
+      () => mockSessionRepository.getSelectedCompanyId(),
+    ).thenReturn(tCompanyId);
+    when(
+      () => mockSyncRepository.enqueue(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+
     repository = CustomersRepositoryImpl(
       internet: mockInternetClient,
       remoteDataSource: mockRemoteDataSource,
       localDataSource: mockLocalDataSource,
+      syncRepository: mockSyncRepository,
+      sessionRepository: mockSessionRepository,
     );
   });
 
   final tCustomerEntity = CustomerFactory.makeCustomerEntity();
   final tCustomerModel = CustomerModel.fromEntity(tCustomerEntity);
-  final tCompanyId = faker.guid.guid();
-  final tId = faker.guid.guid();
 
   group('CustomersRepositoryImpl', () {
     group('getCustomers', () {
@@ -143,22 +165,27 @@ void main() {
           expect(result.data, isTrue);
           verify(() => mockRemoteDataSource.createCustomer(any())).called(1);
           verify(() => mockLocalDataSource.saveCustomer(any())).called(1);
+          verifyZeroInteractions(mockSyncRepository);
         },
       );
 
-      test('should save to local when offline', () async {
-        when(() => mockInternetClient.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.saveCustomer(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should save to local and enqueue to sync repository when offline',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.saveCustomer(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.createCustomer(tCustomerEntity);
+          final result = await repository.createCustomer(tCustomerEntity);
 
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verifyZeroInteractions(mockRemoteDataSource);
-        verify(() => mockLocalDataSource.saveCustomer(any())).called(1);
-      });
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verifyZeroInteractions(mockRemoteDataSource);
+          verify(() => mockLocalDataSource.saveCustomer(any())).called(1);
+          verify(() => mockSyncRepository.enqueue(any())).called(1);
+        },
+      );
     });
 
     group('updateCustomer', () {
@@ -179,22 +206,27 @@ void main() {
           expect(result.data, isTrue);
           verify(() => mockRemoteDataSource.updateCustomer(any())).called(1);
           verify(() => mockLocalDataSource.saveCustomer(any())).called(1);
+          verifyZeroInteractions(mockSyncRepository);
         },
       );
 
-      test('should save to local when offline', () async {
-        when(() => mockInternetClient.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.saveCustomer(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should save to local and enqueue to sync repository when offline',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.saveCustomer(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.updateCustomer(tCustomerEntity);
+          final result = await repository.updateCustomer(tCustomerEntity);
 
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verifyZeroInteractions(mockRemoteDataSource);
-        verify(() => mockLocalDataSource.saveCustomer(any())).called(1);
-      });
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verifyZeroInteractions(mockRemoteDataSource);
+          verify(() => mockLocalDataSource.saveCustomer(any())).called(1);
+          verify(() => mockSyncRepository.enqueue(any())).called(1);
+        },
+      );
     });
 
     group('deleteCustomer', () {
@@ -216,22 +248,27 @@ void main() {
           expect(result.data, isTrue);
           verify(() => mockRemoteDataSource.deleteCustomer(tId)).called(1);
           verify(() => mockLocalDataSource.deleteCustomer(tId)).called(1);
+          verifyZeroInteractions(mockSyncRepository);
         },
       );
 
-      test('should delete from local when offline', () async {
-        when(() => mockInternetClient.isConnected).thenReturn(false);
-        when(
-          () => mockLocalDataSource.deleteCustomer(any()),
-        ).thenAnswer((_) async => const SuccessState(data: true));
+      test(
+        'should delete from local and enqueue to sync repository when offline',
+        () async {
+          when(() => mockInternetClient.isConnected).thenReturn(false);
+          when(
+            () => mockLocalDataSource.deleteCustomer(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
 
-        final result = await repository.deleteCustomer(tId);
+          final result = await repository.deleteCustomer(tId);
 
-        expect(result, isA<SuccessState<bool>>());
-        expect(result.data, isTrue);
-        verifyZeroInteractions(mockRemoteDataSource);
-        verify(() => mockLocalDataSource.deleteCustomer(tId)).called(1);
-      });
+          expect(result, isA<SuccessState<bool>>());
+          expect(result.data, isTrue);
+          verifyZeroInteractions(mockRemoteDataSource);
+          verify(() => mockLocalDataSource.deleteCustomer(tId)).called(1);
+          verify(() => mockSyncRepository.enqueue(any())).called(1);
+        },
+      );
     });
   });
 }

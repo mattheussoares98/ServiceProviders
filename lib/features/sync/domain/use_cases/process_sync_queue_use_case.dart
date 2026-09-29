@@ -12,6 +12,8 @@ import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_
 import 'package:o_jogo_da_obra/features/checklists/data/models/responses/checklist_answer_model.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/repositories/company_repository.dart';
+import 'package:o_jogo_da_obra/features/customers/data/data_sources/customers_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/customers/data/models/responses/customer_model.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_entity_type.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_error_entity.dart';
 import 'package:o_jogo_da_obra/features/sync/domain/entities/sync_operation_type.dart';
@@ -37,6 +39,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     required PauseRemoteDataSource pauseRemoteDataSource,
     required AccessLogsRemoteDataSource accessLogsRemoteDataSource,
     required ChecklistsRemoteDataSource checklistsRemoteDataSource,
+    required CustomersRemoteDataSource customersRemoteDataSource,
     required InternetClient internet,
     required SessionRepository sessionRepository,
     required CompanyRepository companyRepository,
@@ -46,6 +49,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
        _pauseRemoteDataSource = pauseRemoteDataSource,
        _accessLogsRemoteDataSource = accessLogsRemoteDataSource,
        _checklistsRemoteDataSource = checklistsRemoteDataSource,
+       _customersRemoteDataSource = customersRemoteDataSource,
        _internet = internet,
        _sessionRepository = sessionRepository,
        _companyRepository = companyRepository;
@@ -56,6 +60,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
   final PauseRemoteDataSource _pauseRemoteDataSource;
   final AccessLogsRemoteDataSource _accessLogsRemoteDataSource;
   final ChecklistsRemoteDataSource _checklistsRemoteDataSource;
+  final CustomersRemoteDataSource _customersRemoteDataSource;
   final InternetClient _internet;
   final SessionRepository _sessionRepository;
   final CompanyRepository _companyRepository;
@@ -179,6 +184,7 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
           item,
           payloadMap,
         ),
+        SyncEntityType.customer => _dispatchCustomer(item, payloadMap),
       };
     } catch (e) {
       return FailureState(message: e.toString(), error: e.toString());
@@ -303,4 +309,36 @@ class ProcessSyncQueueUseCase implements UseCaseNoParameter<int> {
     ),
     _ => Future.value(const SuccessState(data: true)),
   };
+
+  FutureData<bool> _dispatchCustomer(
+    SyncQueueItemEntity item,
+    MapDynamic payloadMap,
+  ) {
+    return switch (item.operation) {
+      SyncOperationType.create =>
+        _customersRemoteDataSource
+            .createCustomer(CustomerModel.fromJson(payloadMap))
+            .then(
+              (r) => r is SuccessState
+                  ? const SuccessState(data: true)
+                  : FailureState<bool>(message: r.message, error: r.error),
+            ),
+      SyncOperationType.update =>
+        _customersRemoteDataSource
+            .updateCustomer(CustomerModel.fromJson(payloadMap))
+            .then(
+              (r) => r is SuccessState
+                  ? const SuccessState(data: true)
+                  : FailureState<bool>(message: r.message, error: r.error),
+            ),
+      SyncOperationType.delete =>
+        _customersRemoteDataSource
+            .deleteCustomer(item.entityId)
+            .then(
+              (r) => r is SuccessState
+                  ? const SuccessState(data: true)
+                  : FailureState<bool>(message: r.message, error: r.error),
+            ),
+    };
+  }
 }

@@ -6,6 +6,7 @@ export 'use_cases/categories_mocks.dart';
 export 'use_cases/checklists_mocks.dart';
 export 'use_cases/company_mocks.dart';
 export 'use_cases/core_mocks.dart';
+export 'use_cases/customers_mocks.dart';
 export 'use_cases/locations_mocks.dart';
 export 'use_cases/maintenance_plans_mocks.dart';
 export 'use_cases/notifications_mocks.dart';
