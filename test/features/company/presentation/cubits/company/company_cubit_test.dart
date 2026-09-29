@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
@@ -861,6 +862,109 @@ void main() {
         isA<CompanyState>().having(
           (s) => s.sections[CompanySections.updateWorkType],
           'sections[updateWorkType]',
+          const SectionState.error(),
+        ),
+      ],
+    );
+  });
+
+  group('updateCurrency', () {
+    final tParams = UserFactory.makeCompanyParameterEntity();
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should return false and do nothing when parameters in state is null',
+      build: () => companyCubit,
+      act: (cubit) async {
+        final res = await cubit.updateCurrency('USD');
+        expect(res, isFalse);
+      },
+      expect: () => <CompanyState>[],
+      verify: (_) {
+        verifyNever(() => mockSaveCompanyParametersUseCase.call(any()));
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should return false when currency code is invalid length',
+      build: () => companyCubit..emit(CompanyState(parameters: tParams)),
+      act: (cubit) async {
+        final res = await cubit.updateCurrency('US');
+        expect(res, isFalse);
+      },
+      expect: () => <CompanyState>[],
+      verify: (_) {
+        verifyNever(() => mockSaveCompanyParametersUseCase.call(any()));
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit running and success when saveCompanyParameters succeeds',
+      build: () {
+        when(
+          () => mockSaveCompanyParametersUseCase.call(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return companyCubit..emit(CompanyState(parameters: tParams));
+      },
+      act: (cubit) async {
+        final res = await cubit.updateCurrency('usd');
+        expect(res, isTrue);
+      },
+      expect: () => [
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateCurrency],
+          'sections[updateCurrency]',
+          const SectionState.running(),
+        ),
+        isA<CompanyState>()
+            .having(
+              (s) => s.sections[CompanySections.updateCurrency],
+              'sections[updateCurrency]',
+              const SectionState.success(),
+            )
+            .having(
+              (s) => s.parameters?.currency,
+              'parameters.currency',
+              'USD',
+            ),
+      ],
+      verify: (_) {
+        verify(
+          () => mockSaveCompanyParametersUseCase.call(
+            any(
+              that: isA<CompanyParameterEntity>().having(
+                (p) => p.currency,
+                'currency',
+                'USD',
+              ),
+            ),
+          ),
+        ).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit running and error when saveCompanyParameters fails',
+      build: () {
+        when(
+          () => mockSaveCompanyParametersUseCase.call(any()),
+        ).thenAnswer(
+          (_) async => FailureState(message: 'Failed to save parameters'),
+        );
+        return companyCubit..emit(CompanyState(parameters: tParams));
+      },
+      act: (cubit) async {
+        final res = await cubit.updateCurrency('EUR');
+        expect(res, isFalse);
+      },
+      expect: () => [
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateCurrency],
+          'sections[updateCurrency]',
+          const SectionState.running(),
+        ),
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateCurrency],
+          'sections[updateCurrency]',
           const SectionState.error(),
         ),
       ],

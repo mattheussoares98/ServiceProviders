@@ -21,6 +21,7 @@ enum CompanySections implements SectionKey {
   updateGovernanceParameters,
   changeLogo,
   updateWorkType,
+  updateCurrency,
 }
 
 @injectable
@@ -341,6 +342,54 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         state.copyWith(
           sections: withSection(
             CompanySections.updateWorkType,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      showDataStateToast(result);
+      return false;
+    }
+  }
+
+  Future<bool> updateCurrency(String currency) async {
+    final params = state.parameters;
+    final normalized = currency.trim().toUpperCase();
+    if (params == null || normalized.length != 3) return false;
+
+    emit(
+      state.copyWith(
+        sections: withSection(
+          CompanySections.updateCurrency,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final updated = params.copyWith(
+      currency: normalized,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    final result = await _useCases.saveCompanyParameters(updated);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySections.updateCurrency,
+            SectionStatus.success,
+          ),
+          parameters: updated,
+        ),
+      );
+      showSuccessToast('Moeda padrão atualizada com sucesso'.hardcoded);
+      return true;
+    } else {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySections.updateCurrency,
             SectionStatus.error,
           ),
         ),
