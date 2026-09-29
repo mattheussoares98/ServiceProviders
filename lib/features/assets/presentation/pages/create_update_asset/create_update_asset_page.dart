@@ -17,16 +17,23 @@ import 'package:o_jogo_da_obra/features/assets/presentation/pages/create_update_
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/create_update_asset/widgets/parent_asset_dropdown.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/create_update_asset/widgets/status_dropdown.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/dropdown/base_dropdown.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
+
+part 'widgets/customer_dropdown.dart';
 
 @RoutePage()
 class CreateUpdateAssetPage extends HookWidget {
@@ -43,6 +50,12 @@ class CreateUpdateAssetPage extends HookWidget {
         sections: {AssetsSections.save},
       ),
     ]);
+
+    final workType = context.select<CompanyCubit, WorkType>(
+      (cubit) => cubit.state.company?.workType ?? WorkType.internalOnly,
+    );
+    final isServiceProviderOnly = workType.isServiceProviderOnly;
+    final isInternalOnly = workType.isInternalOnly;
 
     //* the same for locations and areas
     final (loadingLocations, locationsError) = context
@@ -61,11 +74,11 @@ class CreateUpdateAssetPage extends HookWidget {
           return (section.isRunning, section.errorMessage);
         });
 
-    if (loadingCategories || loadingLocations || loadingAssets) {
+    if (loadingCategories || (!isServiceProviderOnly && loadingLocations) || loadingAssets) {
       return const Center(child: LoadingCircle());
     }
     final hasError =
-        (locationsError?.isNotEmpty ?? false) ||
+        (!isServiceProviderOnly && (locationsError?.isNotEmpty ?? false)) ||
         (categoriesError?.isNotEmpty ?? false) ||
         (assetsError?.isNotEmpty ?? false);
 
@@ -75,12 +88,16 @@ class CreateUpdateAssetPage extends HookWidget {
         child: Column(
           children: [
             BaseText.error(
-              [?locationsError, ?categoriesError, ?assetsError].join('\n'),
+              [
+                if (!isServiceProviderOnly) ?locationsError,
+                ?categoriesError,
+                ?assetsError,
+              ].join('\n'),
             ),
             gapH8,
             BaseButton(
               onTap: () {
-                if (locationsError?.isNotEmpty ?? false) {
+                if (!isServiceProviderOnly && (locationsError?.isNotEmpty ?? false)) {
                   context.read<LocationsCubit>().loadLocationsAndAreas();
                 }
                 if (categoriesError?.isNotEmpty ?? false) {
@@ -109,13 +126,16 @@ class CreateUpdateAssetPage extends HookWidget {
     final notesController = useTextEditingController(text: asset?.notes);
 
     final locationId = context.select<LocationsCubit, String?>(
-      (cubit) => cubit.state.allAreas
-          .firstWhereOrNull((e) => e.id == asset?.areaId)
-          ?.locationId,
+      (cubit) =>
+          asset?.locationId ??
+          cubit.state.allAreas
+              .firstWhereOrNull((e) => e.id == asset?.areaId)
+              ?.locationId,
     );
 
     final selectedLocationId = useState<String?>(locationId);
     final selectedAreaId = useState<String?>(asset?.areaId);
+    final selectedCustomerId = useState<String?>(asset?.customerId);
     final selectedCategoryId = useState<String?>(asset?.categoryId);
     final selectedParentAssetId = useState<String?>(asset?.parentAssetId);
     final selectedStatus = useState<AssetStatus>(
@@ -134,11 +154,16 @@ class CreateUpdateAssetPage extends HookWidget {
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
-      if (selectedAreaId.value == null) return;
+      if (isInternalOnly && selectedLocationId.value == null) {
+        ToastUtil.showError('Selecione um local para o equipamento'.hardcoded);
+        return;
+      }
 
       final updated = await context.read<AssetsCubit>().saveAsset(
         id: asset?.id,
-        areaId: selectedAreaId.value!,
+        locationId: selectedLocationId.value,
+        areaId: selectedAreaId.value,
+        customerId: selectedCustomerId.value,
         categoryId: selectedCategoryId.value,
         parentAssetId: selectedParentAssetId.value,
         name: nameController.text,
@@ -178,18 +203,28 @@ class CreateUpdateAssetPage extends HookWidget {
                     nameFocusNode: nameFocusNode,
                     codeFocusNode: codeFocusNode,
                   ),
-                  gapH16,
-                  LocationDropdown(
-                    selectedLocationId: selectedLocationId.value,
-                    onChangeArea: (val) => selectedAreaId.value = val,
-                    onChangeLocation: (val) => selectedLocationId.value = val,
-                  ),
-                  gapH16,
-                  AreaDropdown(
-                    selectedLocationId: selectedLocationId.value,
-                    selectedAreaId: selectedAreaId.value,
-                    onChanged: (value) => selectedAreaId.value = value,
-                  ),
+                  if (!isServiceProviderOnly) ...[
+                    gapH16,
+                    LocationDropdown(
+                      selectedLocationId: selectedLocationId.value,
+                      onChangeArea: (val) => selectedAreaId.value = val,
+                      onChangeLocation: (val) => selectedLocationId.value = val,
+                      isRequired: isInternalOnly,
+                    ),
+                    gapH16,
+                    AreaDropdown(
+                      selectedLocationId: selectedLocationId.value,
+                      selectedAreaId: selectedAreaId.value,
+                      onChanged: (value) => selectedAreaId.value = value,
+                    ),
+                  ],
+                  if (!isInternalOnly) ...[
+                    gapH16,
+                    _CustomerDropdown(
+                      selectedId: selectedCustomerId.value,
+                      onChanged: (val) => selectedCustomerId.value = val,
+                    ),
+                  ],
                   gapH16,
                   CategoryDropdown(
                     selectedCategoryId: selectedCategoryId.value,
@@ -199,6 +234,7 @@ class CreateUpdateAssetPage extends HookWidget {
                   ParentAssetDropdown(
                     onChanged: (value) => selectedParentAssetId.value = value,
                     selectedParentAssetId: selectedParentAssetId.value,
+                    selectedLocationId: selectedLocationId.value,
                     selectedAreaId: selectedAreaId.value,
                     currentAssetId: asset?.id,
                   ),

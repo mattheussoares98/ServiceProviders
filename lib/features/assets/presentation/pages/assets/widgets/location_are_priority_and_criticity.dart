@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/create_update_asset/widgets/extensions.dart';
+import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entity.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -24,13 +26,20 @@ class LocationAreaPriorityAndCriticity extends StatelessWidget {
     final LocationEntity? location = context
         .select<LocationsCubit, LocationEntity?>(
           (cubit) => cubit.state.locations.firstWhereOrNull(
-            (e) => e.id == area?.locationId,
+            (e) => e.id == (asset.locationId ?? area?.locationId),
+          ),
+        );
+    final CustomerEntity? customer = context
+        .select<CustomersCubit, CustomerEntity?>(
+          (cubit) => cubit.state.customers.firstWhereOrNull(
+            (e) => e.id == asset.customerId,
           ),
         );
 
     final locationInfo = [
-      if (area?.name.isNotEmpty ?? false) area!.name,
+      if (customer?.name.isNotEmpty ?? false) customer!.name,
       if (location?.name.isNotEmpty ?? false) location!.name,
+      if (area?.name.isNotEmpty ?? false) area!.name,
     ].join(' - ');
     final subtitleParts = [
       if (asset.code?.isNotEmpty ?? false) '[${asset.code}]',
