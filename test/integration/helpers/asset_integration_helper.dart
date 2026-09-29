@@ -45,7 +45,7 @@ class AssetIntegrationHelper {
           (result.data?.isNotEmpty ?? false)) {
         final existing = result.data!.first;
         // Sync area and location from asset's actual relationships
-        var resolvedAreaId = existing.areaId;
+        var resolvedAreaId = existing.areaId ?? areaId;
         var resolvedLocationId = '';
 
         final areas = await locationsRemote.getAreas(companyId);

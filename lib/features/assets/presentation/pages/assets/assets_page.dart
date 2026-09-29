@@ -8,12 +8,22 @@ import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/asset_card.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/create_asset_button.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
+import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
+import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite_step.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/prerequisites/prerequisite_guide_card.dart';
 
 @RoutePage()
 class AssetsPage extends HookWidget {
@@ -39,7 +49,85 @@ class AssetsPage extends HookWidget {
         onRetry: context.read<AssetsCubit>().loadAssets,
         builder: (context, assets) {
           if (assets.isEmpty) {
-            return BaseText.error('Nenhum equipamento cadastrado'.hardcoded);
+            WorkType workType = WorkType.hybrid;
+            int locationsCount = 0;
+            int customersCount = 0;
+            bool hasLocationCreate = true;
+
+            try {
+              final company = context.watch<CompanyCubit>().state.company;
+              if (company != null) workType = company.workType;
+            } catch (_) {}
+
+            try {
+              final locState = context.watch<LocationsCubit>().state;
+              locationsCount = locState.locations.length;
+            } catch (_) {}
+
+            try {
+              final custState = context.watch<CustomersCubit>().state;
+              customersCount = custState.customers.length;
+            } catch (_) {}
+
+            try {
+              final userCubit = context.watch<UsersCubit>();
+              hasLocationCreate = userCubit.hasPermission(
+                const ActionPermission.resource(
+                  resourceType: ResourceType.locations,
+                  permissionAction: PermissionAction.create,
+                ),
+              );
+            } catch (_) {}
+
+            final bool needsLocation =
+                workType.isInternalOnly && locationsCount == 0;
+            final bool needsCustomer =
+                workType.isServiceProviderOnly && customersCount == 0;
+
+            if (needsLocation) {
+              return PrerequisiteGuideCard(
+                title: 'Pré-requisitos para equipamentos'.hardcoded,
+                subtitle:
+                    'Cadastre um local para poder vincular seus equipamentos:'
+                        .hardcoded,
+                steps: [
+                  PrerequisiteStep(
+                    type: PrerequisiteType.location,
+                    title: 'Cadastrar local'.hardcoded,
+                    description:
+                        'Locais físicos onde os equipamentos estão instalados.'
+                            .hardcoded,
+                    actionLabel: 'Cadastrar Local'.hardcoded,
+                    isCompleted: false,
+                    canPerformAction: hasLocationCreate,
+                  ),
+                ],
+              );
+            }
+
+            if (needsCustomer) {
+              return PrerequisiteGuideCard(
+                title: 'Pré-requisitos para equipamentos'.hardcoded,
+                subtitle:
+                    'Cadastre um cliente para poder vincular seus equipamentos:'
+                        .hardcoded,
+                steps: [
+                  PrerequisiteStep(
+                    type: PrerequisiteType.customer,
+                    title: 'Cadastrar cliente'.hardcoded,
+                    description:
+                        'Clientes externos que possuem equipamentos sob atendimento.'
+                            .hardcoded,
+                    actionLabel: 'Cadastrar Cliente'.hardcoded,
+                    isCompleted: false,
+                  ),
+                ],
+              );
+            }
+
+            return Center(
+              child: BaseText.error('Nenhum equipamento cadastrado'.hardcoded),
+            );
           }
 
           assets.sort((a, b) => a.name.compareTo(b.name));
