@@ -159,8 +159,7 @@ class _CreateUpdatePage extends HookWidget {
     final defaultCurrency = isProviderMode
         ? 'BRL'
         : context.select(
-            (CompanyCubit cubit) =>
-                cubit.state.parameters?.currency ?? 'BRL',
+            (CompanyCubit cubit) => cubit.state.parameters?.currency ?? 'BRL',
           );
     final isEditing = workOrder != null;
 
@@ -235,7 +234,8 @@ class _CreateUpdatePage extends HookWidget {
         isEditing &&
         (workOrder?.openedBy == AppMode.provider ||
             workOrder?.createdByProviderProfileId != null);
-    final canEditCoreFields = !isProviderMode || isProviderCreator;
+    final canEditCoreFields =
+        !isProviderMode || !isEditing || isProviderCreator;
     final canAssignInternalResponsible = !isProviderMode;
     final canChangeProviderCompany = !isProviderMode;
     final canEditSlaPolicy = !isProviderMode;
@@ -469,29 +469,27 @@ class _CreateUpdatePage extends HookWidget {
             onChanged: (val) => selectedAssignedToId.value = val,
           ),
         ),
-      _ServiceProviderCompanyDropdown(
-        //* handling the padding in the widget
-        selectedCompanyId: selectedServiceProviderCompanyId.value,
-        onChanged: canChangeProviderCompany
-            ? (val) {
-                selectedServiceProviderCompanyId.value = val;
-                selectedProviderProfileId.value = null;
-                if (val != null) {
-                  context.read<ServiceProvidersCubit>().ensureProfilesLoaded(
-                    val,
-                  );
-                }
-              }
-            : null,
-      ),
-      Padding(
-        padding: const EdgeInsets.only(top: Sizes.p8),
-        child: _ServiceProviderProfileDropdown(
-          companyId: selectedServiceProviderCompanyId.value,
-          selectedProfileId: selectedProviderProfileId.value,
-          onChanged: (val) => selectedProviderProfileId.value = val,
+      if (workType.canHireServiceProviders && canChangeProviderCompany) ...[
+        _ServiceProviderCompanyDropdown(
+          //* handling the padding in the widget
+          selectedCompanyId: selectedServiceProviderCompanyId.value,
+          onChanged: (val) {
+            selectedServiceProviderCompanyId.value = val;
+            selectedProviderProfileId.value = null;
+            if (val != null) {
+              context.read<ServiceProvidersCubit>().ensureProfilesLoaded(val);
+            }
+          },
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.only(top: Sizes.p8),
+          child: _ServiceProviderProfileDropdown(
+            companyId: selectedServiceProviderCompanyId.value,
+            selectedProfileId: selectedProviderProfileId.value,
+            onChanged: (val) => selectedProviderProfileId.value = val,
+          ),
+        ),
+      ],
       Padding(
         padding: const EdgeInsets.only(top: Sizes.p8),
         child: Row(
