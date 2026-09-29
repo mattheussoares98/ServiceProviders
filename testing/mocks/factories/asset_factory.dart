@@ -74,6 +74,7 @@ abstract final class AssetFactory {
     return AssetEntity(
       id: FactoryHelpers.makeId(),
       companyId: FactoryHelpers.makeId(),
+      locationId: FactoryHelpers.makeId(),
       areaId: FactoryHelpers.makeId(),
       name: FactoryHelpers.makeCompanyName(),
       code: FactoryHelpers.makeString(8),

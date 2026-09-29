@@ -6,7 +6,9 @@ class AssetEntity extends Equatable {
   const AssetEntity({
     required this.id,
     required this.companyId,
-    required this.areaId,
+    this.locationId,
+    this.areaId,
+    this.customerId,
     required this.categoryId,
     required this.parentAssetId,
     required this.name,
@@ -27,7 +29,9 @@ class AssetEntity extends Equatable {
 
   final String id;
   final String companyId;
-  final String areaId;
+  final String? locationId;
+  final String? areaId;
+  final String? customerId;
   final String? categoryId;
   final String? parentAssetId;
   final String name;
@@ -45,11 +49,15 @@ class AssetEntity extends Equatable {
   final DateTime updatedAt;
   final DateTime? deletedAt;
 
+  bool get isDeleted => deletedAt != null;
+
   @override
   List<Object?> get props => [
     id,
     companyId,
+    locationId,
     areaId,
+    customerId,
     categoryId,
     parentAssetId,
     name,
@@ -71,7 +79,9 @@ class AssetEntity extends Equatable {
   AssetEntity copyWith({
     String? id,
     String? companyId,
+    String? locationId,
     String? areaId,
+    String? customerId,
     String? categoryId,
     String? parentAssetId,
     String? name,
@@ -88,6 +98,9 @@ class AssetEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    bool? annulLocationId,
+    bool? annulAreaId,
+    bool? annulCustomerId,
     bool? annulCategoryId,
     bool? annulParentAssetId,
     bool? annulCode,
@@ -103,7 +116,13 @@ class AssetEntity extends Equatable {
     return AssetEntity(
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
-      areaId: areaId ?? this.areaId,
+      locationId: annulLocationId == true
+          ? null
+          : locationId ?? this.locationId,
+      areaId: annulAreaId == true ? null : areaId ?? this.areaId,
+      customerId: annulCustomerId == true
+          ? null
+          : customerId ?? this.customerId,
       categoryId: annulCategoryId == true
           ? null
           : categoryId ?? this.categoryId,
