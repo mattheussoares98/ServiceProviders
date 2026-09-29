@@ -399,7 +399,11 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     }
   }
 
-  Future<void> createCompany({required String name, String? cnpj}) async {
+  Future<void> createCompany({
+    required String name,
+    String? document,
+    String? cnpj,
+  }) async {
     emit(
       state.copyWith(
         sections: withSection(BaseSections.load, SectionStatus.running),
@@ -411,7 +415,7 @@ class CompanyCubit extends BaseCubit<CompanyState> {
     final company = CompanyEntity(
       id: '',
       name: name.trim(),
-      cnpj: cnpj?.trim(),
+      document: (document ?? cnpj)?.trim(),
       isActive: true,
       createdAt: now,
       updatedAt: now,

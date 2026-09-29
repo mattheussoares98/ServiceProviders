@@ -81,7 +81,7 @@ void main() {
     test('initial state has currentStep 0 and default values', () {
       expect(cubit.state.currentStep, 0);
       expect(cubit.state.companyName, '');
-      expect(cubit.state.cnpj, '');
+      expect(cubit.state.document, '');
       expect(cubit.state.workType, WorkType.internalOnly);
     });
 
@@ -105,13 +105,24 @@ void main() {
       expect(cubit.state.currentStep, 0);
     });
 
-    test('updateCompanyInfo updates companyName and cnpj in state', () {
+    test('updateCompanyInfo updates companyName and document in state', () {
+      cubit.updateCompanyInfo(
+        name: 'Minha Empresa',
+        document: '12.345.678/0001-90',
+      );
+      expect(cubit.state.companyName, 'Minha Empresa');
+      expect(cubit.state.document, '12.345.678/0001-90');
+      // ignore: deprecated_member_use_from_same_package
+      expect(cubit.state.cnpj, '12.345.678/0001-90');
+    });
+
+    test('updateCompanyInfo with legacy cnpj updates document in state', () {
       cubit.updateCompanyInfo(
         name: 'Minha Empresa',
         cnpj: '12.345.678/0001-90',
       );
       expect(cubit.state.companyName, 'Minha Empresa');
-      expect(cubit.state.cnpj, '12.345.678/0001-90');
+      expect(cubit.state.document, '12.345.678/0001-90');
     });
 
     test('selectWorkType updates workType in state', () {
@@ -133,16 +144,11 @@ void main() {
     blocTest<OnboardingCubit, OnboardingState>(
       'submit succeeds: creates company, assigns admin group, updates profile & session, navigates home',
       build: () {
-        final createdCompany = CompanyEntity(
+        final createdCompany = UserFactory.makeCompanyEntity().copyWith(
           id: 'comp-100',
           name: 'Empresa Teste',
-          cnpj: null,
-          logoUrl: null,
-          isActive: true,
           workType: WorkType.hybrid,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          deletedAt: null,
+          annulDocument: true,
         );
 
         final adminGroup = UserFactory.makePermissionGroupEntity().copyWith(

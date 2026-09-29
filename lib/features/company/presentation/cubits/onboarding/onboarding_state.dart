@@ -4,26 +4,31 @@ final class OnboardingState extends BaseState {
   const OnboardingState({
     this.currentStep = 0,
     this.companyName = '',
-    this.cnpj = '',
+    String? document,
+    String? cnpj,
     this.workType = WorkType.internalOnly,
     super.sections,
-  });
+  }) : document = document ?? cnpj ?? '';
 
   const OnboardingState.initial()
     : currentStep = 0,
       companyName = '',
-      cnpj = '',
+      document = '',
       workType = WorkType.internalOnly,
       super();
 
   final int currentStep;
   final String companyName;
-  final String cnpj;
+  final String document;
   final WorkType workType;
+
+  @Deprecated('Use document instead')
+  String get cnpj => document;
 
   OnboardingState copyWith({
     int? currentStep,
     String? companyName,
+    String? document,
     String? cnpj,
     WorkType? workType,
     Map<SectionKey, SectionState>? sections,
@@ -31,7 +36,7 @@ final class OnboardingState extends BaseState {
     return OnboardingState(
       currentStep: currentStep ?? this.currentStep,
       companyName: companyName ?? this.companyName,
-      cnpj: cnpj ?? this.cnpj,
+      document: document ?? cnpj ?? this.document,
       workType: workType ?? this.workType,
       sections: sections ?? this.sections,
     );
@@ -41,7 +46,7 @@ final class OnboardingState extends BaseState {
   List<Object?> get props => [
     currentStep,
     companyName,
-    cnpj,
+    document,
     workType,
     sections,
   ];

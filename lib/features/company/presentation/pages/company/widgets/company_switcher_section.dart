@@ -1,4 +1,5 @@
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,9 +88,16 @@ class CompanySwitcherSection extends StatelessWidget {
                   company.name,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
-                subtitle: company.cnpj != null && company.cnpj!.isNotEmpty
+                subtitle:
+                    company.document != null && company.document!.isNotEmpty
                     ? BaseText.caption(
-                        CNPJValidator.format(company.cnpj!),
+                        () {
+                          final clean =
+                              company.document!.replaceAll(RegExp(r'\D'), '');
+                          return clean.length <= 11
+                              ? CPFValidator.format(clean)
+                              : CNPJValidator.format(clean);
+                        }(),
                         color: context.colorScheme.onSurfaceVariant,
                       )
                     : null,

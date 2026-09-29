@@ -15,19 +15,22 @@ class CompanyInfoStep extends HookWidget {
     super.key,
     required this.cubit,
     required this.initialName,
-    required this.initialCnpj,
-  });
+    String? initialDocument,
+    String? initialCnpj,
+  }) : initialDocument = initialDocument ?? initialCnpj ?? '';
 
   final OnboardingCubit cubit;
   final String initialName;
-  final String initialCnpj;
+  final String initialDocument;
+  @Deprecated('Use initialDocument instead')
+  String get initialCnpj => initialDocument;
 
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController(text: initialName);
-    final cnpjController = useTextEditingController(text: initialCnpj);
-    final cnpjFocusNode = useFocusNode();
+    final documentController = useTextEditingController(text: initialDocument);
+    final documentFocusNode = useFocusNode();
 
     return Form(
       key: formKey,
@@ -48,29 +51,29 @@ class CompanyInfoStep extends HookWidget {
             validator: FormValidators.compose([NonEmptyValidator()]),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             textInputAction: TextInputAction.next,
-            onFieldSubmitted: (_) => cnpjFocusNode.requestFocus(),
+            onFieldSubmitted: (_) => documentFocusNode.requestFocus(),
           ),
           gapH20,
           BaseTextFormField(
-            focusNode: cnpjFocusNode,
+            focusNode: documentFocusNode,
             labelText: 'CPF ou CNPJ *'.hardcoded,
             hintText: 'Digite o CPF ou CNPJ (somente números)'.hardcoded,
             validator: FormValidators.compose([
               NonEmptyValidator(),
               CpfCnpjValidator(),
             ]),
-            controller: cnpjController,
+            controller: documentController,
             keyboardType: TextInputType.number,
             maxLength: 14,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) =>
-                _proceed(formKey, nameController, cnpjController),
+                _proceed(formKey, nameController, documentController),
           ),
           gapH32,
           BaseButton(
             expandWidth: true,
             text: 'CONTINUAR'.hardcoded,
-            onTap: () => _proceed(formKey, nameController, cnpjController),
+            onTap: () => _proceed(formKey, nameController, documentController),
           ),
         ],
       ),
@@ -80,12 +83,15 @@ class CompanyInfoStep extends HookWidget {
   void _proceed(
     GlobalKey<FormState> formKey,
     TextEditingController nameController,
-    TextEditingController cnpjController,
+    TextEditingController documentController,
   ) {
     if (formKey.currentState?.validate() != true) return;
     FocusManager.instance.primaryFocus?.unfocus();
     cubit
-      ..updateCompanyInfo(name: nameController.text, cnpj: cnpjController.text)
+      ..updateCompanyInfo(
+        name: nameController.text,
+        document: documentController.text,
+      )
       ..nextStep();
   }
 }

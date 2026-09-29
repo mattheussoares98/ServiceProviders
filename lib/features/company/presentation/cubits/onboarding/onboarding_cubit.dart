@@ -37,11 +37,16 @@ class OnboardingCubit extends BaseCubit<OnboardingState> {
     }
   }
 
-  void updateCompanyInfo({required String name, String? cnpj}) {
+  void updateCompanyInfo({
+    required String name,
+    String? document,
+    String? cnpj,
+  }) {
+    final doc = (document ?? cnpj)?.trim() ?? '';
     emit(
       state.copyWith(
         companyName: name.trim(),
-        cnpj: cnpj?.trim() ?? '',
+        document: doc,
       ),
     );
   }
@@ -68,7 +73,7 @@ class OnboardingCubit extends BaseCubit<OnboardingState> {
     final company = CompanyEntity(
       id: '',
       name: companyName,
-      cnpj: state.cnpj.trim().isEmpty ? null : state.cnpj.trim(),
+      document: state.document.trim().isEmpty ? null : state.document.trim(),
       isActive: true,
       workType: state.workType,
       createdAt: now,

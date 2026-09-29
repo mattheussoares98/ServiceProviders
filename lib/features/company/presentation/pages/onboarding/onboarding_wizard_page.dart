@@ -53,7 +53,7 @@ class OnboardingWizardPage extends HookWidget {
                   child: CompanyInfoStep(
                     cubit: cubit,
                     initialName: state.companyName,
-                    initialCnpj: state.cnpj,
+                    initialDocument: state.document,
                   ),
                 ),
                 SingleChildScrollView(
@@ -66,7 +66,7 @@ class OnboardingWizardPage extends HookWidget {
                   child: ConfirmationStep(
                     cubit: cubit,
                     companyName: state.companyName,
-                    cnpj: state.cnpj,
+                    document: state.document,
                     workType: state.workType,
                     isLoading: isLoading,
                   ),

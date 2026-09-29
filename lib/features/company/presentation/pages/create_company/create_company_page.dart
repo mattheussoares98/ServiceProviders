@@ -22,8 +22,8 @@ class CreateCompanyPage extends HookWidget {
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
     final nameController = useTextEditingController();
-    final cnpjController = useTextEditingController();
-    final cnpjFocusNode = useFocusNode();
+    final documentController = useTextEditingController();
+    final documentFocusNode = useFocusNode();
     final isLoading = context.select(
       (CompanyCubit cubit) =>
           cubit.state.section(BaseSections.load).isRunning,
@@ -48,29 +48,37 @@ class CreateCompanyPage extends HookWidget {
                   validator: FormValidators.compose([NonEmptyValidator()]),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (_) => cnpjFocusNode.requestFocus(),
+                  onFieldSubmitted: (_) => documentFocusNode.requestFocus(),
                 ),
                 gapH20,
                 BaseTextFormField(
                   enabled: !isLoading,
-                  focusNode: cnpjFocusNode,
-                  labelText: 'CNPJ'.hardcoded,
-                  hintText: 'Digite o CNPJ'.hardcoded,
+                  focusNode: documentFocusNode,
+                  labelText: 'CPF / CNPJ'.hardcoded,
+                  hintText: 'Digite o CPF ou CNPJ'.hardcoded,
                   validator: FormValidators.compose([
-                    CpfCnpjValidator(validateOnlyCnpj: true),
+                    CpfCnpjValidator(),
                   ]),
-                  controller: cnpjController,
+                  controller: documentController,
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: (_) =>
-                      _submit(context, formKey, nameController, cnpjController),
+                  onFieldSubmitted: (_) => _submit(
+                    context,
+                    formKey,
+                    nameController,
+                    documentController,
+                  ),
                 ),
                 gapH24,
                 BaseButton(
                   isLoading: isLoading,
                   expandWidth: true,
-                  onTap: () =>
-                      _submit(context, formKey, nameController, cnpjController),
+                  onTap: () => _submit(
+                    context,
+                    formKey,
+                    nameController,
+                    documentController,
+                  ),
                   text: 'SALVAR'.hardcoded,
                 ),
               ],
@@ -85,13 +93,13 @@ class CreateCompanyPage extends HookWidget {
     BuildContext context,
     GlobalKey<FormState> formKey,
     TextEditingController nameController,
-    TextEditingController cnpjController,
+    TextEditingController documentController,
   ) async {
     if (formKey.currentState?.validate() != true) return;
     FocusManager.instance.primaryFocus?.unfocus();
     await context.read<CompanyCubit>().createCompany(
       name: nameController.text,
-      cnpj: cnpjController.text,
+      document: documentController.text,
     );
   }
 }

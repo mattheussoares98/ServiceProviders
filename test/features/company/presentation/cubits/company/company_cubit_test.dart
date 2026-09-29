@@ -176,7 +176,46 @@ void main() {
               ).captured.single
               as CompanyEntity;
       expect(captured.name, 'Empresa Teste');
+      expect(captured.document, '12345678000199');
+      // ignore: deprecated_member_use_from_same_package
       expect(captured.cnpj, '12345678000199');
+      verify(() => mockNavigationClient.maybePop()).called(1);
+    },
+  );
+
+  blocTest<CompanyCubit, CompanyState>(
+    'createCompany with document parameter passes document to use case and pops route',
+    build: () {
+      final company = UserFactory.makeCompanyEntity();
+      when(
+        () => mockCreateCompanyUseCase.call(any()),
+      ).thenAnswer((_) async => SuccessState(data: company));
+      return companyCubit;
+    },
+    act: (cubit) =>
+        cubit.createCompany(name: 'Empresa CPF', document: '12345678901'),
+    expect: () => [
+      isA<CompanyState>().having(
+        (state) => state.sections[BaseSections.load],
+        'sections[load]',
+        const SectionState.running(),
+      ),
+      isA<CompanyState>()
+          .having(
+            (state) => state.sections[BaseSections.load],
+            'sections[load]',
+            const SectionState.success(),
+          )
+          .having((state) => state.company, 'company', isA<CompanyEntity>()),
+    ],
+    verify: (_) {
+      final captured =
+          verify(
+                () => mockCreateCompanyUseCase.call(captureAny()),
+              ).captured.single
+              as CompanyEntity;
+      expect(captured.name, 'Empresa CPF');
+      expect(captured.document, '12345678901');
       verify(() => mockNavigationClient.maybePop()).called(1);
     },
   );

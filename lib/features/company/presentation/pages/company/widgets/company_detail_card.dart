@@ -1,4 +1,5 @@
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -80,10 +81,16 @@ class CompanyDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String? cnpj = company.cnpj;
-    final String formattedCnpj = (cnpj != null && cnpj.isNotEmpty)
-        ? CNPJValidator.format(cnpj)
-        : 'CNPJ não informado'.hardcoded;
+    final String? document = company.document;
+    final String formattedDocument;
+    if (document != null && document.isNotEmpty) {
+      final clean = document.replaceAll(RegExp(r'\D'), '');
+      formattedDocument = clean.length <= 11
+          ? CPFValidator.format(clean)
+          : CNPJValidator.format(clean);
+    } else {
+      formattedDocument = 'Documento não informado'.hardcoded;
+    }
 
     final logoUrl = company.logoUrl;
     final isAdmin = context.select<SessionCubit, bool>(
@@ -167,7 +174,7 @@ class CompanyDetailCard extends StatelessWidget {
                 BaseText.titleMedium(company.name, fontWeight: FontWeight.bold),
                 gapH4,
                 BaseText.bodyMedium(
-                  formattedCnpj,
+                  formattedDocument,
                   color: context.colorScheme.onSurfaceVariant,
                 ),
               ],

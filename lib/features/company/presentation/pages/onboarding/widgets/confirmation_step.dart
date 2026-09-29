@@ -1,3 +1,5 @@
+import 'package:cpf_cnpj_validator/cnpj_validator.dart';
+import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
@@ -13,14 +15,17 @@ class ConfirmationStep extends StatelessWidget {
     super.key,
     required this.cubit,
     required this.companyName,
-    required this.cnpj,
+    String? document,
+    String? cnpj,
     required this.workType,
     required this.isLoading,
-  });
+  }) : document = document ?? cnpj ?? '';
 
   final OnboardingCubit cubit;
   final String companyName;
-  final String cnpj;
+  final String document;
+  @Deprecated('Use document instead')
+  String get cnpj => document;
   final WorkType workType;
   final bool isLoading;
 
@@ -57,15 +62,22 @@ class ConfirmationStep extends StatelessWidget {
               gapH4,
               BaseText.title(companyName),
               gapH16,
-              if (cnpj.isNotEmpty) ...[
+              if (document.isNotEmpty) ...[
                 BaseText(
-                  (cnpj.length <= 11 ? 'CPF' : 'CNPJ').hardcoded,
+                  (document.length <= 11 ? 'CPF' : 'CNPJ').hardcoded,
                   color: context.theme.colorScheme.onSurface.withValues(
                     alpha: 0.6,
                   ),
                 ),
                 gapH4,
-                BaseText(cnpj),
+                BaseText(
+                  () {
+                    final clean = document.replaceAll(RegExp(r'\D'), '');
+                    return clean.length <= 11
+                        ? CPFValidator.format(clean)
+                        : CNPJValidator.format(clean);
+                  }(),
+                ),
                 gapH16,
               ],
               BaseText(
