@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachme
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_parameter_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit_use_cases.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission_group_entity.dart';
@@ -19,6 +20,7 @@ enum CompanySections implements SectionKey {
   updateEscalationParameters,
   updateGovernanceParameters,
   changeLogo,
+  updateWorkType,
 }
 
 @injectable
@@ -288,6 +290,57 @@ class CompanyCubit extends BaseCubit<CompanyState> {
         state.copyWith(
           sections: withSection(
             CompanySections.updateGovernanceParameters,
+            SectionStatus.error,
+          ),
+        ),
+      );
+      showDataStateToast(result);
+      return false;
+    }
+  }
+
+  Future<bool> updateWorkType(WorkType workType) async {
+    final company = state.company;
+    if (company == null) return false;
+
+    emit(
+      state.copyWith(
+        sections: withSection(
+          CompanySections.updateWorkType,
+          SectionStatus.running,
+        ),
+      ),
+    );
+
+    final updated = company.copyWith(
+      workType: workType,
+      updatedAt: DateTime.now().toUtc(),
+    );
+
+    final result = await _useCases.saveCompany(updated);
+    if (isClosed) return false;
+
+    if (result is SuccessState<bool> && result.data == true) {
+      final updatedCompanies = state.companies
+          .map((c) => c.id == updated.id ? updated : c)
+          .toList();
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySections.updateWorkType,
+            SectionStatus.success,
+          ),
+          company: updated,
+          companies: updatedCompanies,
+        ),
+      );
+      showSuccessToast('Modelo de operação atualizado com sucesso'.hardcoded);
+      return true;
+    } else {
+      emit(
+        state.copyWith(
+          sections: withSection(
+            CompanySections.updateWorkType,
             SectionStatus.error,
           ),
         ),

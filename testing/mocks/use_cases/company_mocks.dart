@@ -9,11 +9,14 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_compani
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_parameters_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 
 class MockCreateCompanyUseCase extends Mock implements CreateCompanyUseCase {}
 
 class MockGetCompanyUseCase extends Mock implements GetCompanyUseCase {}
+
+class MockSaveCompanyUseCase extends Mock implements SaveCompanyUseCase {}
 
 class MockUpdateCompanyLogoUseCase extends Mock
     implements UpdateCompanyLogoUseCase {}

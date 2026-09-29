@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/core/domain/use_cases/get_session_user_use_case.d
 import 'package:o_jogo_da_obra/features/attachments/domain/repositories/attachments_repository.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/use_cases/pick_attachment_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/create_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
@@ -40,6 +41,7 @@ void main() {
   late MockGetCompanyParametersUseCase mockGetCompanyParametersUseCase;
   late MockSaveCompanyParametersUseCase mockSaveCompanyParametersUseCase;
   late MockGetPermissionGroupsUseCase mockGetPermissionGroupsUseCase;
+  late MockSaveCompanyUseCase mockSaveCompanyUseCase;
   late CompanyCubit companyCubit;
   late UserProfileEntity userSession;
 
@@ -78,6 +80,7 @@ void main() {
     mockGetCompanyParametersUseCase = MockGetCompanyParametersUseCase();
     mockSaveCompanyParametersUseCase = MockSaveCompanyParametersUseCase();
     mockGetPermissionGroupsUseCase = MockGetPermissionGroupsUseCase();
+    mockSaveCompanyUseCase = MockSaveCompanyUseCase();
 
     userSession = UserFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
@@ -115,6 +118,9 @@ void main() {
     when(
       () => mockGetPermissionGroupsUseCase.call(any()),
     ).thenAnswer((_) async => const SuccessState(data: []));
+    when(
+      () => mockSaveCompanyUseCase.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
     companyCubit = CompanyCubit(
       useCases: CompanyCubitUseCases(
@@ -130,6 +136,7 @@ void main() {
         getCompanyParameters: mockGetCompanyParametersUseCase,
         saveCompanyParameters: mockSaveCompanyParametersUseCase,
         getPermissionGroups: mockGetPermissionGroupsUseCase,
+        saveCompany: mockSaveCompanyUseCase,
       ),
     );
   });
@@ -772,6 +779,88 @@ void main() {
         isA<CompanyState>().having(
           (s) => s.sections[CompanySections.updateGovernanceParameters],
           'sections[updateGovernanceParameters]',
+          const SectionState.error(),
+        ),
+      ],
+    );
+  });
+
+  group('updateWorkType', () {
+    final tCompany = UserFactory.makeCompanyEntity();
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should do nothing and return false when company is null',
+      build: () => companyCubit,
+      act: (cubit) async {
+        final res = await cubit.updateWorkType(WorkType.serviceProviderOnly);
+        expect(res, isFalse);
+      },
+      expect: () => <dynamic>[],
+      verify: (_) {
+        verifyNever(() => mockSaveCompanyUseCase.call(any()));
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit running and success when saveCompany succeeds',
+      build: () {
+        when(() => mockSaveCompanyUseCase.call(any())).thenAnswer(
+          (_) async => const SuccessState(data: true),
+        );
+        return companyCubit..emit(CompanyState(company: tCompany, companies: [tCompany]));
+      },
+      act: (cubit) async {
+        final res = await cubit.updateWorkType(WorkType.hybrid);
+        expect(res, isTrue);
+      },
+      expect: () => [
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateWorkType],
+          'sections[updateWorkType]',
+          const SectionState.running(),
+        ),
+        isA<CompanyState>()
+            .having(
+              (s) => s.sections[CompanySections.updateWorkType],
+              'sections[updateWorkType]',
+              const SectionState.success(),
+            )
+            .having(
+              (s) => s.company?.workType,
+              'company.workType',
+              WorkType.hybrid,
+            ),
+      ],
+      verify: (_) {
+        verify(
+          () => mockSaveCompanyUseCase.call(
+            any(that: isA<CompanyEntity>().having((c) => c.workType, 'workType', WorkType.hybrid)),
+          ),
+        ).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should emit running and error when saveCompany fails',
+      build: () {
+        when(() => mockSaveCompanyUseCase.call(any())).thenAnswer(
+          (_) async => FailureState(message: 'Failed to save company'),
+        );
+        return companyCubit..emit(CompanyState(company: tCompany));
+      },
+      act: (cubit) async {
+        final res = await cubit.updateWorkType(WorkType.serviceProviderOnly);
+        expect(res, isFalse);
+      },
+      expect: () => [
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateWorkType],
+          'sections[updateWorkType]',
+          const SectionState.running(),
+        ),
+        isA<CompanyState>().having(
+          (s) => s.sections[CompanySections.updateWorkType],
+          'sections[updateWorkType]',
           const SectionState.error(),
         ),
       ],

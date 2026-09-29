@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_all_compani
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_parameters_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_parameters_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/save_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/company/domain/use_cases/update_company_logo_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/get_permission_groups_use_case.dart';
 import 'package:o_jogo_da_obra/features/users/domain/use_cases/update_user_profile_use_case.dart';
@@ -27,6 +28,7 @@ class CompanyCubitUseCases {
     required this.getCompanyParameters,
     required this.saveCompanyParameters,
     required this.getPermissionGroups,
+    required this.saveCompany,
   });
 
   final CreateCompanyUseCase createCompany;
@@ -41,4 +43,5 @@ class CompanyCubitUseCases {
   final GetCompanyParametersUseCase getCompanyParameters;
   final SaveCompanyParametersUseCase saveCompanyParameters;
   final GetPermissionGroupsUseCase getPermissionGroups;
+  final SaveCompanyUseCase saveCompany;
 }
