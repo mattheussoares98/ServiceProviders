@@ -27,6 +27,7 @@ class CompanyPage extends HookWidget {
           CompanySections.updateEscalationParameters,
           CompanySections.updateGovernanceParameters,
           CompanySections.changeLogo,
+          CompanySections.updateWorkType,
         },
       ),
     ]);

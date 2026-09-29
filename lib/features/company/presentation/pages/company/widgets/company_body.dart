@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widge
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_switcher_section.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/escalation_parameters_card/escalation_parameters_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/work_order_governance_parameters_card.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/work_type_configuration_card.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
@@ -45,6 +46,7 @@ class CompanyBody extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CompanyDetailCard(company: company),
+            WorkTypeConfigurationCard(company: company),
             BlocSelector<SessionCubit, SessionState, bool>(
               selector: (s) => s.user.isSuperAdmin,
               builder: (context, isSuperAdmin) {
