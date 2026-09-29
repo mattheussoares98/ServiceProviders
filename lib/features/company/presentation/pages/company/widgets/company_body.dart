@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_detail_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/company_switcher_section.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/currency_configuration_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/escalation_parameters_card/escalation_parameters_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/work_order_governance_parameters_card.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/work_type_configuration_card.dart';
@@ -60,6 +61,7 @@ class CompanyBody extends StatelessWidget {
               },
             ),
             if (state.parameters != null) ...[
+              CurrencyConfigurationCard(parameters: state.parameters!),
               WorkOrderGovernanceParametersCard(parameters: state.parameters!),
               EscalationParametersCard(
                 parameters: state.parameters!,

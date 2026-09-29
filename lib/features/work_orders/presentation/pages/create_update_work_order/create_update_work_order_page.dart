@@ -156,6 +156,12 @@ class _CreateUpdatePage extends HookWidget {
             (CompanyCubit cubit) =>
                 cubit.state.company?.workType ?? WorkType.internalOnly,
           );
+    final defaultCurrency = isProviderMode
+        ? 'BRL'
+        : context.select(
+            (CompanyCubit cubit) =>
+                cubit.state.parameters?.currency ?? 'BRL',
+          );
     final isEditing = workOrder != null;
 
     final (assetsError, assetsLoading) = context.select((AssetsCubit cubit) {
@@ -426,6 +432,7 @@ class _CreateUpdatePage extends HookWidget {
         price: canManageFinancials
             ? double.tryParse(priceController.text.trim().replaceAll(',', '.'))
             : workOrder?.price,
+        currency: workOrder?.currency ?? defaultCurrency,
         attachmentsCubit: context.read<AttachmentsCubit>(),
         serviceProviderCompanyId: selectedServiceProviderCompanyId.value,
         providerProfileId: selectedProviderProfileId.value,

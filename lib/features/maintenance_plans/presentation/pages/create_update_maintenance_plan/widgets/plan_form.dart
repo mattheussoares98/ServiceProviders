@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/interval_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
@@ -87,7 +88,15 @@ class PlanForm extends HookWidget {
         description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
         priority: priority.value,
         price: double.tryParse(priceCtrl.text.trim().replaceAll(',', '.')),
-        currency: maintenancePlan?.currency ?? 'BRL',
+        currency: maintenancePlan?.currency ??
+            (() {
+              try {
+                return context.read<CompanyCubit>().state.parameters?.currency ??
+                    'BRL';
+              } catch (_) {
+                return 'BRL';
+              }
+            })(),
         intervalValue: int.tryParse(intervalValCtrl.text.trim()) ?? 1,
         intervalUnit: intervalUnit.value,
         leadTimeDays: int.tryParse(leadTimeCtrl.text.trim()) ?? 0,
