@@ -9,7 +9,9 @@ class AssetModel extends AssetEntity implements DataConvertible<AssetEntity> {
   const AssetModel({
     required super.id,
     required super.companyId,
-    required super.areaId,
+    super.locationId,
+    super.areaId,
+    super.customerId,
     super.categoryId,
     super.parentAssetId,
     required super.name,
@@ -31,7 +33,9 @@ class AssetModel extends AssetEntity implements DataConvertible<AssetEntity> {
   factory AssetModel.fromEntity(AssetEntity entity) => AssetModel(
     id: entity.id,
     companyId: entity.companyId,
+    locationId: entity.locationId,
     areaId: entity.areaId,
+    customerId: entity.customerId,
     categoryId: entity.categoryId,
     parentAssetId: entity.parentAssetId,
     name: entity.name,
@@ -53,7 +57,9 @@ class AssetModel extends AssetEntity implements DataConvertible<AssetEntity> {
   factory AssetModel.fromJson(MapDynamic json) => AssetModel(
     id: json['id'] as String? ?? '',
     companyId: json['company_id'] as String? ?? '',
-    areaId: json['area_id'] as String? ?? '',
+    locationId: json['location_id'] as String?,
+    areaId: json['area_id'] as String?,
+    customerId: json['customer_id'] as String?,
     categoryId: json['category_id'] as String?,
     parentAssetId: json['parent_asset_id'] as String?,
     name: json['name'] as String? ?? '',
@@ -81,7 +87,9 @@ class AssetModel extends AssetEntity implements DataConvertible<AssetEntity> {
   MapDynamic toJson() => {
     'id': id,
     'company_id': companyId,
+    'location_id': locationId,
     'area_id': areaId,
+    'customer_id': customerId,
     'category_id': categoryId,
     'parent_asset_id': parentAssetId,
     'name': name,
@@ -104,7 +112,9 @@ class AssetModel extends AssetEntity implements DataConvertible<AssetEntity> {
   AssetEntity toEntity() => AssetEntity(
     id: id,
     companyId: companyId,
+    locationId: locationId,
     areaId: areaId,
+    customerId: customerId,
     categoryId: categoryId,
     parentAssetId: parentAssetId,
     name: name,

@@ -42,5 +42,30 @@ void main() {
       final entity = model.toEntity();
       expect(entity, tEntity);
     });
+
+    test('should correctly parse and serialize location_id, customer_id, and nullable area_id', () {
+      final json = {
+        'id': 'asset-req-1',
+        'company_id': 'comp-1',
+        'location_id': 'loc-1',
+        'area_id': null,
+        'customer_id': 'cust-1',
+        'name': 'Pump A',
+        'status': 'active',
+        'criticality': 'high',
+        'created_at': DateTime.utc(2026).toIso8601String(),
+        'updated_at': DateTime.utc(2026, 1, 2).toIso8601String(),
+      };
+
+      final model = AssetRequestModel.fromJson(json);
+      expect(model.locationId, equals('loc-1'));
+      expect(model.areaId, isNull);
+      expect(model.customerId, equals('cust-1'));
+
+      final serialized = model.toJson();
+      expect(serialized['location_id'], equals('loc-1'));
+      expect(serialized['area_id'], isNull);
+      expect(serialized['customer_id'], equals('cust-1'));
+    });
   });
 }

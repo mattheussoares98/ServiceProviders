@@ -29,19 +29,20 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query =
           _database.select(_database.assets).join([
-            innerJoin(
+            leftOuterJoin(
               _database.areas,
               _database.areas.id.equalsExp(_database.assets.areaId),
             ),
-            innerJoin(
+            leftOuterJoin(
               _database.locations,
-              _database.locations.id.equalsExp(_database.areas.locationId),
+              _database.locations.id.equalsExp(_database.assets.locationId) |
+                  _database.locations.id.equalsExp(_database.areas.locationId),
             ),
           ])..where(
             _database.assets.companyId.equals(companyId) &
                 _database.assets.deletedAt.isNull() &
-                _database.areas.deletedAt.isNull() &
-                _database.locations.deletedAt.isNull(),
+                (_database.areas.id.isNull() | _database.areas.deletedAt.isNull()) &
+                (_database.locations.id.isNull() | _database.locations.deletedAt.isNull()),
           );
       final rows = await query.get();
 
@@ -50,7 +51,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
         return AssetModel(
           id: asset.id,
           companyId: asset.companyId,
-          areaId: asset.areaId ?? '',
+          locationId: asset.locationId ?? row.readTableOrNull(_database.areas)?.locationId,
+          areaId: asset.areaId,
+          customerId: asset.customerId,
           categoryId: asset.categoryId,
           parentAssetId: asset.parentAssetId,
           name: asset.name,
@@ -79,19 +82,20 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
     return ErrorHandler.execute(() async {
       final query =
           _database.select(_database.assets).join([
-            innerJoin(
+            leftOuterJoin(
               _database.areas,
               _database.areas.id.equalsExp(_database.assets.areaId),
             ),
-            innerJoin(
+            leftOuterJoin(
               _database.locations,
-              _database.locations.id.equalsExp(_database.areas.locationId),
+              _database.locations.id.equalsExp(_database.assets.locationId) |
+                  _database.locations.id.equalsExp(_database.areas.locationId),
             ),
           ])..where(
             _database.assets.id.equals(id) &
                 _database.assets.deletedAt.isNull() &
-                _database.areas.deletedAt.isNull() &
-                _database.locations.deletedAt.isNull(),
+                (_database.areas.id.isNull() | _database.areas.deletedAt.isNull()) &
+                (_database.locations.id.isNull() | _database.locations.deletedAt.isNull()),
           );
       final row = await query.getSingleOrNull();
 
@@ -103,7 +107,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
       final model = AssetModel(
         id: asset.id,
         companyId: asset.companyId,
-        areaId: asset.areaId ?? '',
+        locationId: asset.locationId ?? row.readTableOrNull(_database.areas)?.locationId,
+        areaId: asset.areaId,
+        customerId: asset.customerId,
         categoryId: asset.categoryId,
         parentAssetId: asset.parentAssetId,
         name: asset.name,
@@ -135,7 +141,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
             AssetsCompanion(
               id: Value(asset.id),
               companyId: Value(asset.companyId),
+              locationId: Value(asset.locationId),
               areaId: Value(asset.areaId),
+              customerId: Value(asset.customerId),
               categoryId: Value(asset.categoryId),
               parentAssetId: Value(asset.parentAssetId),
               name: Value(asset.name),
@@ -181,7 +189,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
                 (asset) => AssetsCompanion(
                   id: Value(asset.id),
                   companyId: Value(asset.companyId),
+                  locationId: Value(asset.locationId),
                   areaId: Value(asset.areaId),
+                  customerId: Value(asset.customerId),
                   categoryId: Value(asset.categoryId),
                   parentAssetId: Value(asset.parentAssetId),
                   name: Value(asset.name),
