@@ -75,7 +75,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 40;
+  int get schemaVersion => 41;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -347,6 +347,19 @@ class AppDatabase extends _$AppDatabase {
           companyParameters,
           companyParameters.currency,
         );
+      }
+      if (from < 41) {
+        final info = await customSelect(
+          "PRAGMA table_info('companies')",
+        ).get();
+        final names = info.map((r) => r.read<String>('name')).toSet();
+        if (names.contains('cnpj') && !names.contains('document')) {
+          await customStatement(
+            'ALTER TABLE companies RENAME COLUMN cnpj TO document',
+          );
+        } else if (!names.contains('document')) {
+          await addColumnIfNotExists(companies, companies.document);
+        }
       }
     },
   );

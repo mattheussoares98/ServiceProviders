@@ -48,7 +48,7 @@ void main() {
         expect(getResult.data, isNotNull);
         expect(getResult.data!.id, tCompanyModel.id);
         expect(getResult.data!.name, tCompanyModel.name);
-        expect(getResult.data!.cnpj, tCompanyModel.cnpj);
+        expect(getResult.data!.document, tCompanyModel.document);
         expect(getResult.data!.logoUrl, tCompanyModel.logoUrl);
         expect(getResult.data!.isActive, tCompanyModel.isActive);
       });

@@ -37,7 +37,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
           data: CompanyModel(
             id: company.id,
             name: company.name,
-            cnpj: company.cnpj,
+            document: company.document,
             logoUrl: company.logoUrl,
             isActive: company.isActive,
             createdAt: company.createdAt.toUtc(),
@@ -117,7 +117,7 @@ final class CompanyLocalDataSourceImpl implements CompanyLocalDataSource {
             CompaniesCompanion(
               id: Value(company.id),
               name: Value(company.name),
-              cnpj: Value(company.cnpj),
+              document: Value(company.document),
               logoUrl: Value(company.logoUrl),
               isActive: Value(company.isActive),
               createdAt: Value(company.createdAt.toUtc()),

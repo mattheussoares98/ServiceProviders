@@ -23,11 +23,23 @@ void main() {
 
       expect(resultEntity.id, tEntity.id);
       expect(resultEntity.name, tEntity.name);
-      expect(resultEntity.cnpj, tEntity.cnpj);
+      expect(resultEntity.document, tEntity.document);
       expect(resultEntity.logoUrl, tEntity.logoUrl);
       expect(resultEntity.isActive, tEntity.isActive);
       expect(resultEntity.planType, tEntity.planType);
       expect(resultEntity.workType, tEntity.workType);
+    });
+
+    test('should map document from legacy cnpj key in fromJson', () {
+      final json = {
+        'id': 'c1',
+        'name': 'Test Co',
+        'cnpj': '98765432000100',
+        'is_active': true,
+      };
+
+      final model = CompanyModel.fromJson(json);
+      expect(model.document, '98765432000100');
     });
 
     test('should default planType and workType when null in fromJson', () {

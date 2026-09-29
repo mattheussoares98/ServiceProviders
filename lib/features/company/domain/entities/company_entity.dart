@@ -6,7 +6,8 @@ class CompanyEntity extends Equatable {
   const CompanyEntity({
     required this.id,
     required this.name,
-    required this.cnpj,
+    String? document,
+    String? cnpj,
     required this.logoUrl,
     required this.isActive,
     this.planType = PlanType.free,
@@ -14,11 +15,11 @@ class CompanyEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
-  });
+  }) : document = document ?? cnpj;
 
   final String id;
   final String name;
-  final String? cnpj;
+  final String? document;
   final String? logoUrl;
   final bool isActive;
   final PlanType planType;
@@ -26,6 +27,9 @@ class CompanyEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
+
+  @Deprecated('Use document instead')
+  String? get cnpj => document;
 
   bool get requiresCustomer => workType.requiresCustomer;
   bool get requiresLocation => workType.requiresLocation;
@@ -40,7 +44,7 @@ class CompanyEntity extends Equatable {
   List<Object?> get props => [
     id,
     name,
-    cnpj,
+    document,
     logoUrl,
     isActive,
     planType,
@@ -53,6 +57,7 @@ class CompanyEntity extends Equatable {
   CompanyEntity copyWith({
     String? id,
     String? name,
+    String? document,
     String? cnpj,
     String? logoUrl,
     bool? isActive,
@@ -62,13 +67,16 @@ class CompanyEntity extends Equatable {
     DateTime? updatedAt,
     DateTime? deletedAt,
     bool? annulDeletedAt,
+    bool? annulDocument,
     bool? annulCnpj,
     bool? annulLogoUrl,
   }) {
+    final effectiveDoc = document ?? cnpj;
+    final shouldAnnulDoc = (annulDocument == true) || (annulCnpj == true);
     return CompanyEntity(
       id: id ?? this.id,
       name: name ?? this.name,
-      cnpj: annulCnpj == true ? null : (cnpj ?? this.cnpj),
+      document: shouldAnnulDoc ? null : (effectiveDoc ?? this.document),
       logoUrl: annulLogoUrl == true ? null : (logoUrl ?? this.logoUrl),
       isActive: isActive ?? this.isActive,
       planType: planType ?? this.planType,

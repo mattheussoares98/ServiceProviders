@@ -10,6 +10,7 @@ class CompanyRequestModel extends CompanyEntity
   const CompanyRequestModel({
     required super.id,
     required super.name,
+    super.document,
     super.cnpj,
     super.logoUrl,
     required super.isActive,
@@ -24,7 +25,7 @@ class CompanyRequestModel extends CompanyEntity
       CompanyRequestModel(
         id: entity.id,
         name: entity.name,
-        cnpj: entity.cnpj,
+        document: entity.document,
         logoUrl: entity.logoUrl,
         isActive: entity.isActive,
         planType: entity.planType,
@@ -37,7 +38,7 @@ class CompanyRequestModel extends CompanyEntity
   factory CompanyRequestModel.fromJson(MapDynamic json) => CompanyRequestModel(
     id: json['id'] as String? ?? '',
     name: json['name'] as String? ?? '',
-    cnpj: json['cnpj'] as String?,
+    document: (json['document'] ?? json['cnpj']) as String?,
     logoUrl: json['logo_url'] as String?,
     isActive: json['is_active'] as bool? ?? true,
     planType: PlanType.fromCode(json['plan_type'] as String?) ?? PlanType.free,
@@ -56,7 +57,7 @@ class CompanyRequestModel extends CompanyEntity
   @override
   MapDynamic toJson() => {
     'name': name,
-    'cnpj': cnpj,
+    'document': document,
     'logo_url': logoUrl,
     'is_active': isActive,
     'plan_type': planType.code,
@@ -68,7 +69,7 @@ class CompanyRequestModel extends CompanyEntity
   CompanyEntity toEntity() => CompanyEntity(
     id: id,
     name: name,
-    cnpj: cnpj,
+    document: document,
     logoUrl: logoUrl,
     isActive: isActive,
     planType: planType,

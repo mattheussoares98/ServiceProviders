@@ -37,7 +37,7 @@ void main() {
       expect(result.containsKey('created_at'), isFalse);
       expect(result.containsKey('updated_at'), isFalse);
       expect(result['name'], model.name);
-      expect(result['cnpj'], model.cnpj);
+      expect(result['document'], model.document);
       expect(result['logo_url'], model.logoUrl);
       expect(result['is_active'], model.isActive);
       expect(result['plan_type'], model.planType.code);

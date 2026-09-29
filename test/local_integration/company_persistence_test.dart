@@ -19,7 +19,7 @@ void main() {
     () async {
       final a = UserFactory.makeCompanyEntity();
       final b = UserFactory.makeCompanyEntity().copyWith(
-        cnpj: '98765432000188',
+        document: '98765432000188',
       );
       expect(
         (await source().saveCompany(CompanyModel.fromEntity(a))).data,
@@ -43,7 +43,7 @@ void main() {
       final changed = (await source().getCompany(a.id)).data!;
       expect(changed.name, 'Empresa revisada');
       expect(changed.isActive, isFalse);
-      expect(changed.cnpj, a.cnpj);
+      expect(changed.document, a.document);
       expect((await source().getCompany(b.id)).data!.name, b.name);
       expect((await source().getCompany(b.id)).data!.isActive, isTrue);
     },

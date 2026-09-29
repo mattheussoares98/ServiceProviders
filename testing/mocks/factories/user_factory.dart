@@ -22,7 +22,7 @@ abstract final class UserFactory {
     return CompanyEntity(
       id: FactoryHelpers.makeId(),
       name: FactoryHelpers.makeCompanyName(),
-      cnpj: '12345678000199',
+      document: '12345678000199',
       logoUrl: FactoryHelpers.makeHttps(),
       isActive: true,
       createdAt: FactoryHelpers.makeDateTime(),
