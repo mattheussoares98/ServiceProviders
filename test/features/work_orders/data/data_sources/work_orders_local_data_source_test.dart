@@ -32,8 +32,9 @@ void main() {
   Future<void> insertDependencies({
     required String companyId,
     required String userId,
-    required String locationId,
-    required String areaId,
+    String? locationId,
+    String? customerId,
+    String? areaId,
     required String assetId,
     required String serviceProviderCompanyId,
     required String providerProfileId,
@@ -62,29 +63,46 @@ void main() {
           ),
         );
 
-    // 3. Location
-    await database
-        .into(database.locations)
-        .insert(
-          LocationsCompanion.insert(
-            id: locationId,
-            companyId: companyId,
-            name: faker.company.name(),
-            isActive: const Value(true),
-          ),
-        );
+    // 3. Location & Area (if provided)
+    if (locationId != null) {
+      await database
+          .into(database.locations)
+          .insert(
+            LocationsCompanion.insert(
+              id: locationId,
+              companyId: companyId,
+              name: faker.company.name(),
+              isActive: const Value(true),
+            ),
+          );
 
-    // 4. Area
-    await database
-        .into(database.areas)
-        .insert(
-          AreasCompanion.insert(
-            id: areaId,
-            locationId: locationId,
-            companyId: companyId,
-            name: faker.company.name(),
-          ),
-        );
+      if (areaId != null) {
+        await database
+            .into(database.areas)
+            .insert(
+              AreasCompanion.insert(
+                id: areaId,
+                locationId: locationId,
+                companyId: companyId,
+                name: faker.company.name(),
+              ),
+            );
+      }
+    }
+
+    // Customer (if provided)
+    if (customerId != null) {
+      await database
+          .into(database.customers)
+          .insert(
+            CustomersCompanion.insert(
+              id: customerId,
+              companyId: companyId,
+              name: faker.person.name(),
+              isActive: const Value(true),
+            ),
+          );
+    }
 
     // 5. Asset
     await database
@@ -184,6 +202,52 @@ void main() {
         expect(getSingleResult.data!.id, tWorkOrderModel.id);
         expect(getSingleResult.data!.companyId, tWorkOrderModel.companyId);
         expect(getSingleResult.data!.title, tWorkOrderModel.title);
+      },
+    );
+
+    test(
+      'should save a work order with customerId and null locationId and successfully retrieve it',
+      () async {
+        final custId = faker.guid.guid();
+        final customerOrder = WorkOrderModel.fromEntity(
+          tWorkOrderModel.copyWith(
+            customerId: custId,
+            annulLocationId: true,
+            annulAreaId: true,
+          ),
+        );
+
+        await insertDependencies(
+          companyId: customerOrder.companyId,
+          userId: customerOrder.createdById!,
+          customerId: custId,
+          assetId: customerOrder.assetId!,
+          providerProfileId: customerOrder.providerProfileId!,
+          serviceProviderCompanyId: customerOrder.serviceProviderCompanyId!,
+        );
+
+        final saveResult = await dataSource.saveWorkOrder(customerOrder);
+        expect(saveResult, isA<SuccessState<bool>>());
+
+        final getResult = await dataSource.getWorkOrderById(customerOrder.id);
+        expect(getResult, isA<SuccessState<WorkOrderModel>>());
+        expect(getResult.data!.id, equals(customerOrder.id));
+        expect(getResult.data!.customerId, equals(custId));
+        expect(getResult.data!.locationId, isNull);
+
+        final listResult = await dataSource.getWorkOrders(
+          customerOrder.companyId,
+        );
+        expect(listResult, isA<SuccessState<List<WorkOrderModel>>>());
+        expect(
+          listResult.data!.any(
+            (o) =>
+                o.id == customerOrder.id &&
+                o.customerId == custId &&
+                o.locationId == null,
+          ),
+          isTrue,
+        );
       },
     );
 
@@ -715,37 +779,40 @@ void main() {
       expect(result.data, containsAll([wo1.id, wo2.id, wo3.id]));
     });
 
-    test('getWorkOrders returns work orders even if location is soft deleted or missing in table', () async {
-      final companyId = faker.guid.guid();
-      final locationId = faker.guid.guid();
-      final wo = WorkOrderFactory.makeWorkOrderEntity().copyWith(
-        companyId: companyId,
-        locationId: locationId,
-        attachments: const [],
-      );
+    test(
+      'getWorkOrders returns work orders even if location is soft deleted or missing in table',
+      () async {
+        final companyId = faker.guid.guid();
+        final locationId = faker.guid.guid();
+        final wo = WorkOrderFactory.makeWorkOrderEntity().copyWith(
+          companyId: companyId,
+          locationId: locationId,
+          attachments: const [],
+        );
 
-      await insertDependencies(
-        companyId: companyId,
-        userId: wo.createdById ?? faker.guid.guid(),
-        locationId: locationId,
-        areaId: faker.guid.guid(),
-        assetId: wo.assetId ?? faker.guid.guid(),
-        providerProfileId: wo.providerProfileId ?? faker.guid.guid(),
-        serviceProviderCompanyId:
-            wo.serviceProviderCompanyId ?? faker.guid.guid(),
-      );
+        await insertDependencies(
+          companyId: companyId,
+          userId: wo.createdById ?? faker.guid.guid(),
+          locationId: locationId,
+          areaId: faker.guid.guid(),
+          assetId: wo.assetId ?? faker.guid.guid(),
+          providerProfileId: wo.providerProfileId ?? faker.guid.guid(),
+          serviceProviderCompanyId:
+              wo.serviceProviderCompanyId ?? faker.guid.guid(),
+        );
 
-      // Soft-delete the location
-      await (database.update(database.locations)
-            ..where((tbl) => tbl.id.equals(locationId)))
-          .write(LocationsCompanion(deletedAt: Value(DateTime.now())));
+        // Soft-delete the location
+        await (database.update(database.locations)
+              ..where((tbl) => tbl.id.equals(locationId)))
+            .write(LocationsCompanion(deletedAt: Value(DateTime.now())));
 
-      await dataSource.saveWorkOrders([WorkOrderModel.fromEntity(wo)]);
+        await dataSource.saveWorkOrders([WorkOrderModel.fromEntity(wo)]);
 
-      final result = await dataSource.getWorkOrders(companyId);
-      expect(result, isA<SuccessState<List<WorkOrderModel>>>());
-      expect(result.data, isNotEmpty);
-      expect(result.data!.first.id, wo.id);
-    });
+        final result = await dataSource.getWorkOrders(companyId);
+        expect(result, isA<SuccessState<List<WorkOrderModel>>>());
+        expect(result.data, isNotEmpty);
+        expect(result.data!.first.id, wo.id);
+      },
+    );
   });
 }

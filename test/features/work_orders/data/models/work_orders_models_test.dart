@@ -55,7 +55,33 @@ void main() {
       expect(resultEntity.currency, tEntity.currency);
       expect(responseJson['price'], tEntity.price);
       expect(responseJson['currency'], tEntity.currency);
+      expect(resultEntity.locationId, tEntity.locationId);
+      expect(resultEntity.customerId, tEntity.customerId);
+      expect(responseJson['location_id'], tEntity.locationId);
+      expect(responseJson['customer_id'], tEntity.customerId);
     });
+
+    test(
+      'should handle customerId with null locationId in WorkOrderModel correctly',
+      () {
+        final orderEntity = tEntity.copyWith(
+          customerId: 'cust-xyz',
+          annulLocationId: true,
+        );
+        final model = WorkOrderModel.fromEntity(orderEntity);
+        final json = model.toJson();
+        final fromJson = WorkOrderModel.fromJson(json);
+
+        expect(model.customerId, 'cust-xyz');
+        expect(model.locationId, isNull);
+        expect(json['customer_id'], 'cust-xyz');
+        expect(json['location_id'], isNull);
+        expect(fromJson.customerId, 'cust-xyz');
+        expect(fromJson.locationId, isNull);
+        expect(fromJson.toEntity().customerId, 'cust-xyz');
+        expect(fromJson.toEntity().locationId, isNull);
+      },
+    );
   });
 
   group('TaskRequestModel & TaskModel', () {
