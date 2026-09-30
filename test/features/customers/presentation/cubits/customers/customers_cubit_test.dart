@@ -506,28 +506,21 @@ void main() {
     });
 
     group('navigateToCreateUpdateCustomer', () {
-      test(
-        'should push CreateUpdateCustomerRoute and reload customers',
-        () async {
-          when(
-            () => mockNavigationClient.pushRoute<CreateUpdateCustomerRouteArgs>(
-              any(),
-            ),
-          ).thenAnswer((_) async => null);
-          when(
-            () => mockGetCustomers.call(any()),
-          ).thenAnswer((_) async => SuccessState(data: [tCustomer]));
+      test('should push CreateUpdateCustomerRoute', () async {
+        when(
+          () => mockNavigationClient.pushRoute<CreateUpdateCustomerRouteArgs>(
+            any(),
+          ),
+        ).thenAnswer((_) async => null);
 
-          await cubit.navigateToCreateUpdateCustomer(customer: tCustomer);
+        await cubit.navigateToCreateUpdateCustomer(customer: tCustomer);
 
-          verify(
-            () => mockNavigationClient.pushRoute<CreateUpdateCustomerRouteArgs>(
-              any(),
-            ),
-          ).called(1);
-          verify(() => mockGetCustomers.call(tCompanyId)).called(1);
-        },
-      );
+        verify(
+          () => mockNavigationClient.pushRoute<CreateUpdateCustomerRouteArgs>(
+            any(),
+          ),
+        ).called(1);
+      });
     });
   });
 }

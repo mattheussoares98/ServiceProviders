@@ -9,6 +9,7 @@ import 'package:o_jogo_da_obra/features/categories/data/data_sources/categories_
 import 'package:o_jogo_da_obra/features/checklists/data/data_sources/checklists_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/company/data/data_sources/company_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/configurations/data/data_sources/configurations_remote_data_source.dart';
+import 'package:o_jogo_da_obra/features/customers/data/data_sources/customers_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/locations/data/data_sources/locations_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/notifications/data/data_sources/notifications_remote_data_source.dart';
 import 'package:o_jogo_da_obra/features/sectors/data/data_sources/sectors_remote_data_source.dart';
@@ -40,6 +41,7 @@ final class IntegrationDataSources {
     required this.checklists,
     required this.company,
     required this.configurations,
+    required this.customers,
     required this.locations,
     required this.notifications,
     required this.sectors,
@@ -82,6 +84,7 @@ final class IntegrationDataSources {
       ),
       company: CompanyRemoteDataSourceImpl(database: database),
       configurations: ConfigurationsRemoteDataSourceImpl(database: database),
+      customers: CustomersRemoteDataSourceImpl(database: database),
       locations: LocationsRemoteDataSourceImpl(
         database: database,
         realtimeClient: realtime,
@@ -130,6 +133,7 @@ final class IntegrationDataSources {
   final ChecklistsRemoteDataSource checklists;
   final CompanyRemoteDataSource company;
   final ConfigurationsRemoteDataSource configurations;
+  final CustomersRemoteDataSource customers;
   final LocationsRemoteDataSource locations;
   final NotificationsRemoteDataSource notifications;
   final SectorsRemoteDataSource sectors;

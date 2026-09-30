@@ -114,16 +114,17 @@ void main() {
     'unchanged edit is disabled and reverting edits disables save again',
     (tester) async {
       await open(tester, editing: true);
-      expect(tester.widget<BaseButton>(find.byType(BaseButton)).onTap, isNull);
+      final saveButton = find.widgetWithText(BaseButton, 'Salvar');
+      expect(tester.widget<BaseButton>(saveButton).onTap, isNull);
       await tester.enterText(find.byType(TextFormField).first, 'Changed');
       await tester.pump();
       expect(
-        tester.widget<BaseButton>(find.byType(BaseButton)).onTap,
+        tester.widget<BaseButton>(saveButton).onTap,
         isNotNull,
       );
       await tester.enterText(find.byType(TextFormField).first, category.name);
       await tester.pump();
-      expect(tester.widget<BaseButton>(find.byType(BaseButton)).onTap, isNull);
+      expect(tester.widget<BaseButton>(saveButton).onTap, isNull);
       expect(submissions, isEmpty);
     },
   );

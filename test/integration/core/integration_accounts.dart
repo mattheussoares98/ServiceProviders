@@ -19,6 +19,10 @@ class IntegrationAccounts {
 
   final Map<String, String> _values;
 
+  String? get companyInternalId => _values['TEST_COMPANY_INTERNAL_ID']?.trim();
+  String? get companyProviderId => _values['TEST_COMPANY_PROVIDER_ID']?.trim();
+  String? get companyHybridId => _values['TEST_COMPANY_HYBRID_ID']?.trim();
+
   TestCredentials forIdentity(Identity identity) {
     final alias = switch (identity) {
       Identity.admin => 'ADMIN_A',
