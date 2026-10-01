@@ -16,6 +16,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/has_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/has_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
@@ -33,10 +35,12 @@ void main() {
   late UpdateLocationUseCase updateLocationUseCase;
   late DeleteLocationUseCase deleteLocationUseCase;
   late GetLocationsUseCase getLocationsUseCase;
+  late HasLocationsUseCase hasLocationsUseCase;
   late CreateAreaUseCase createAreaUseCase;
   late UpdateAreaUseCase updateAreaUseCase;
   late DeleteAreaUseCase deleteAreaUseCase;
   late GetAreasUseCase getAreasUseCase;
+  late HasAreasUseCase hasAreasUseCase;
   late GetLocationsByIdsUseCase getLocationsByIdsUseCase;
   late GetAreasByIdsUseCase getAreasByIdsUseCase;
   late GetProviderLocationsUseCase getProviderLocationsUseCase;
@@ -65,10 +69,14 @@ void main() {
     getLocationsUseCase = GetLocationsUseCase(
       locationsRepository: mockRepository,
     );
+    hasLocationsUseCase = HasLocationsUseCase(
+      locationsRepository: mockRepository,
+    );
     createAreaUseCase = CreateAreaUseCase(locationsRepository: mockRepository);
     updateAreaUseCase = UpdateAreaUseCase(locationsRepository: mockRepository);
     deleteAreaUseCase = DeleteAreaUseCase(locationsRepository: mockRepository);
     getAreasUseCase = GetAreasUseCase(locationsRepository: mockRepository);
+    hasAreasUseCase = HasAreasUseCase(locationsRepository: mockRepository);
     getLocationsByIdsUseCase = GetLocationsByIdsUseCase(
       locationsRepository: mockRepository,
     );
@@ -688,6 +696,34 @@ void main() {
 
         expect(result, isA<FailureState<AddressEntity>>());
         verify(() => mockRepository.getAddressByCep(tCep)).called(1);
+      });
+    });
+
+    group('HasLocationsUseCase', () {
+      test('should call repository.hasNonDeletedLocations and return SuccessState', () async {
+        when(
+          () => mockRepository.hasNonDeletedLocations(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await hasLocationsUseCase(tId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockRepository.hasNonDeletedLocations(tId)).called(1);
+      });
+    });
+
+    group('HasAreasUseCase', () {
+      test('should call repository.hasNonDeletedAreas and return SuccessState', () async {
+        when(
+          () => mockRepository.hasNonDeletedAreas(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await hasAreasUseCase(tId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockRepository.hasNonDeletedAreas(tId)).called(1);
       });
     });
   });
