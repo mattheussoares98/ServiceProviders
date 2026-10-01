@@ -62,7 +62,10 @@ class CompanyBody extends StatelessWidget {
             ),
             if (state.parameters != null) ...[
               CurrencyConfigurationCard(parameters: state.parameters!),
-              WorkOrderGovernanceParametersCard(parameters: state.parameters!),
+              if (state.company?.workType.isInternalOnly ?? false)
+                WorkOrderGovernanceParametersCard(
+                  parameters: state.parameters!,
+                ),
               EscalationParametersCard(
                 parameters: state.parameters!,
                 permissionGroups: state.permissionGroups,
