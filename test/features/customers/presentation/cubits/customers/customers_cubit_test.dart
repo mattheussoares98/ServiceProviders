@@ -25,6 +25,7 @@ void main() {
   late MockUpdateCustomerUseCase mockUpdateCustomer;
   late MockDeleteCustomerUseCase mockDeleteCustomer;
   late MockGetAddressByCepUseCase mockGetAddressByCep;
+  late MockHasCustomersUseCase mockHasCustomers;
   late MockNavigationClient mockNavigationClient;
 
   late CustomersCubit cubit;
@@ -44,6 +45,7 @@ void main() {
     mockUpdateCustomer = MockUpdateCustomerUseCase();
     mockDeleteCustomer = MockDeleteCustomerUseCase();
     mockGetAddressByCep = MockGetAddressByCepUseCase();
+    mockHasCustomers = MockHasCustomersUseCase();
     mockNavigationClient = MockNavigationClient();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
@@ -54,6 +56,7 @@ void main() {
     );
 
     when(() => mockGetActiveCompanyId.call()).thenReturn(tCompanyId);
+    when(() => mockHasCustomers.call(any())).thenAnswer((_) async => const SuccessState(data: true));
 
     final useCases = CustomersCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -63,6 +66,7 @@ void main() {
       updateCustomer: mockUpdateCustomer,
       deleteCustomer: mockDeleteCustomer,
       getAddressByCep: mockGetAddressByCep,
+      hasCustomers: mockHasCustomers,
     );
 
     cubit = CustomersCubit(useCases: useCases);
@@ -94,10 +98,12 @@ void main() {
                 'sections[load]',
                 const SectionState.success(),
               )
-              .having((s) => s.customers, 'customers', [tCustomer]),
+              .having((s) => s.customers, 'customers', [tCustomer])
+              .having((s) => s.hasCustomers, 'hasCustomers', true),
         ],
         verify: (_) {
           verify(() => mockGetCustomers.call(tCompanyId)).called(1);
+          verify(() => mockHasCustomers.call(tCompanyId)).called(1);
         },
       );
 

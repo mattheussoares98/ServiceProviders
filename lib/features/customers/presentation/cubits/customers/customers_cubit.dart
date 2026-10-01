@@ -31,19 +31,31 @@ class CustomersCubit extends BaseCubit<CustomersState> {
       );
     }
 
-    final result = await _useCases.getCustomers(companyId);
+    final results = await Future.wait([
+      _useCases.getCustomers(companyId),
+      _useCases.hasCustomers(companyId),
+    ]);
     if (isClosed) return;
+
+    final result = results[0] as DataState<List<CustomerEntity>>;
+    final hasCustomersResult = results[1] as DataState<bool>;
+
+    final hasCustomers =
+        hasCustomersResult is SuccessState<bool> &&
+        (hasCustomersResult.data ?? false);
 
     if (result is SuccessState<List<CustomerEntity>>) {
       emit(
         state.copyWith(
           customers: result.data ?? [],
+          hasCustomers: hasCustomers,
           sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
     } else {
       emit(
         state.copyWith(
+          hasCustomers: hasCustomers,
           sections: withSection(
             BaseSections.load,
             SectionStatus.error,
