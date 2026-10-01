@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entit
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/pages/customers/customers_page.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/pages/customers/widgets/customer_card.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/themes/theme.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
@@ -115,4 +116,13 @@ void main() {
       ).called(1);
     },
   );
+
+  testWidgets('renders OpenDrawerIconButton as leading widget in AppBar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(buildTestWidget(customers: []));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(OpenDrawerIconButton), findsOneWidget);
+  });
 }

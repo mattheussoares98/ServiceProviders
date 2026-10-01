@@ -6,6 +6,7 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entity.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/pages/customers/widgets/customer_card.dart';
+import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
@@ -25,6 +26,7 @@ class CustomersPage extends StatelessWidget {
       isScrollable: false,
       appBar: BaseAppBar(
         title: 'Clientes'.hardcoded,
+        leading: const OpenDrawerIconButton(),
         actions: [
           BaseIconButton(
             onPressed: () =>
