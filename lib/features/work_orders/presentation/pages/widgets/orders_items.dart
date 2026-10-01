@@ -84,7 +84,10 @@ class _OrdersItemsState extends State<OrdersItems> {
                     final hasFilter = context.select<WorkOrdersCubit, bool>(
                       (c) => c.state.activeFilter != const WorkOrderFilter(),
                     );
-                    if (hasFilter) {
+                    final hasWorkOrders = context.select<WorkOrdersCubit, bool>(
+                      (c) => c.state.hasWorkOrders,
+                    );
+                    if (hasFilter || hasWorkOrders) {
                       return CustomScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         slivers: [
@@ -101,10 +104,10 @@ class _OrdersItemsState extends State<OrdersItems> {
                     }
 
                     WorkType workType = WorkType.hybrid;
-                    int locationsCount = 0;
-                    int areasCount = 0;
-                    int customersCount = 0;
-                    int assetsCount = 0;
+                    bool hasLocations = false;
+                    bool hasAreas = false;
+                    bool hasCustomers = false;
+                    bool hasAssets = false;
                     bool hasLocationCreate = true;
                     bool hasAssetCreate = true;
 
@@ -115,19 +118,24 @@ class _OrdersItemsState extends State<OrdersItems> {
                     } catch (_) {}
 
                     try {
-                      final locState = context.watch<LocationsCubit>().state;
-                      locationsCount = locState.locations.length;
-                      areasCount = locState.allAreas.length;
+                      hasLocations = context.select<LocationsCubit, bool>(
+                        (c) => c.state.hasLocations,
+                      );
+                      hasAreas = context.select<LocationsCubit, bool>(
+                        (c) => c.state.hasAreas,
+                      );
                     } catch (_) {}
 
                     try {
-                      final custState = context.watch<CustomersCubit>().state;
-                      customersCount = custState.customers.length;
+                      hasCustomers = context.select<CustomersCubit, bool>(
+                        (c) => c.state.hasCustomers,
+                      );
                     } catch (_) {}
 
                     try {
-                      final assetState = context.watch<AssetsCubit>().state;
-                      assetsCount = assetState.assets.length;
+                      hasAssets = context.select<AssetsCubit, bool>(
+                        (c) => c.state.hasAssets,
+                      );
                     } catch (_) {}
 
                     try {
@@ -149,10 +157,10 @@ class _OrdersItemsState extends State<OrdersItems> {
                     final eval = const EvaluatePrerequisitesUseCase()(
                       EvaluatePrerequisitesParams(
                         workType: workType,
-                        locationsCount: locationsCount,
-                        areasCount: areasCount,
-                        customersCount: customersCount,
-                        assetsCount: assetsCount,
+                        hasLocations: hasLocations,
+                        hasAreas: hasAreas,
+                        hasCustomers: hasCustomers,
+                        hasAssets: hasAssets,
                         hasLocationCreatePermission: hasLocationCreate,
                         hasAssetCreatePermission: hasAssetCreate,
                       ),

@@ -163,6 +163,7 @@ void main() {
           locations: [loc],
           allAreas: const [],
           areasByLocation: const {},
+          hasLocations: true,
         ),
       );
 

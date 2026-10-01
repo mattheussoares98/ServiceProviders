@@ -49,10 +49,14 @@ class AssetsPage extends HookWidget {
         dataSelector: (state) => state.assets,
         onRetry: context.read<AssetsCubit>().loadAssets,
         builder: (context, assets) {
-          if (assets.isEmpty) {
+          final hasAssets = context.select<AssetsCubit, bool>(
+            (c) => c.state.hasAssets,
+          );
+
+          if (!hasAssets && assets.isEmpty) {
             WorkType workType = WorkType.hybrid;
-            int locationsCount = 0;
-            int customersCount = 0;
+            bool hasLocations = false;
+            bool hasCustomers = false;
             bool hasLocationCreate = true;
 
             try {
@@ -61,13 +65,15 @@ class AssetsPage extends HookWidget {
             } catch (_) {}
 
             try {
-              final locState = context.watch<LocationsCubit>().state;
-              locationsCount = locState.locations.length;
+              hasLocations = context.select<LocationsCubit, bool>(
+                (c) => c.state.hasLocations,
+              );
             } catch (_) {}
 
             try {
-              final custState = context.watch<CustomersCubit>().state;
-              customersCount = custState.customers.length;
+              hasCustomers = context.select<CustomersCubit, bool>(
+                (c) => c.state.hasCustomers,
+              );
             } catch (_) {}
 
             try {
@@ -81,9 +87,9 @@ class AssetsPage extends HookWidget {
             } catch (_) {}
 
             final bool needsLocation =
-                workType.isInternalOnly && locationsCount == 0;
+                workType.isInternalOnly && !hasLocations;
             final bool needsCustomer =
-                workType.isServiceProviderOnly && customersCount == 0;
+                workType.isServiceProviderOnly && !hasCustomers;
 
             if (needsLocation) {
               return PrerequisiteGuideCard(
@@ -128,6 +134,12 @@ class AssetsPage extends HookWidget {
 
             return Center(
               child: BaseText.error('Nenhum equipamento cadastrado'.hardcoded),
+            );
+          }
+
+          if (assets.isEmpty) {
+            return Center(
+              child: BaseText.error('Nenhum equipamento encontrado'.hardcoded),
             );
           }
 
