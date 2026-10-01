@@ -11,6 +11,7 @@ class WorkOrdersState extends BaseState {
     this.isLoadingMore = false,
     this.providerCompanies = const [],
     this.canProviderCreateWorkOrder = false,
+    this.hasWorkOrders = false,
     super.sections = const {},
   });
 
@@ -22,6 +23,7 @@ class WorkOrdersState extends BaseState {
       isLoadingMore = false,
       providerCompanies = const [],
       canProviderCreateWorkOrder = false,
+      hasWorkOrders = false,
       super();
 
   final List<WorkOrderEntity> workOrders;
@@ -29,6 +31,7 @@ class WorkOrdersState extends BaseState {
   final WorkOrderFilter activeFilter;
   final bool hasMorePages;
   final bool isLoadingMore;
+  final bool hasWorkOrders;
 
   /// Provider mode only. The provider companies the signed-in user belongs to.
   /// The company filter is offered only when this holds more than one entry.
@@ -57,6 +60,7 @@ class WorkOrdersState extends BaseState {
     bool? isLoadingMore,
     List<ServiceProviderCompanyEntity>? providerCompanies,
     bool? canProviderCreateWorkOrder,
+    bool? hasWorkOrders,
     Map<SectionKey, SectionState>? sections,
   }) {
     return WorkOrdersState(
@@ -68,6 +72,7 @@ class WorkOrdersState extends BaseState {
       providerCompanies: providerCompanies ?? this.providerCompanies,
       canProviderCreateWorkOrder:
           canProviderCreateWorkOrder ?? this.canProviderCreateWorkOrder,
+      hasWorkOrders: hasWorkOrders ?? this.hasWorkOrders,
       sections: sections ?? this.sections,
     );
   }
@@ -81,6 +86,7 @@ class WorkOrdersState extends BaseState {
     isLoadingMore,
     providerCompanies,
     canProviderCreateWorkOrder,
+    hasWorkOrders,
     sections,
   ];
 }

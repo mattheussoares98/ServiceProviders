@@ -135,6 +135,7 @@ void main() {
   late MockWatchWorkOrderChangeRequestsRealtimeUseCase
   mockWatchChangeRequestsRealtime;
   late MockCanProviderCreateWorkOrderUseCase mockCanProviderCreateWorkOrder;
+  late MockHasWorkOrdersUseCase mockHasWorkOrders;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -207,6 +208,7 @@ void main() {
     mockWatchChangeRequestsRealtime =
         MockWatchWorkOrderChangeRequestsRealtimeUseCase();
     mockCanProviderCreateWorkOrder = MockCanProviderCreateWorkOrderUseCase();
+    mockHasWorkOrders = MockHasWorkOrdersUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -239,6 +241,9 @@ void main() {
     when(
       () => mockCanProviderCreateWorkOrder(any()),
     ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockHasWorkOrders(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
     useCases = WorkOrdersCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -263,6 +268,7 @@ void main() {
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
       canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
+      hasWorkOrders: mockHasWorkOrders,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -300,12 +306,16 @@ void main() {
                 const SectionState.success(),
               )
               .having((s) => s.workOrders, 'workOrders', isNotEmpty)
-              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty),
+              .having((s) => s.changeRequests, 'changeRequests', isNotEmpty)
+              .having((s) => s.hasWorkOrders, 'hasWorkOrders', true),
         ],
         verify: (_) {
           verify(() => mockGetWorkOrders.call(any())).called(1);
           verify(
             () => mockGetChangeRequests.call(tUserProfile.companyId),
+          ).called(1);
+          verify(
+            () => mockHasWorkOrders.call(tUserProfile.companyId),
           ).called(1);
         },
       );
@@ -1931,6 +1941,7 @@ void main() {
               getSessionUser: mockGetSessionUser,
               getSelectedMode: mockGetSelectedMode,
               canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
+              hasWorkOrders: mockHasWorkOrders,
             );
 
             final testCubit = WorkOrdersCubit(useCases: useCases);
@@ -2002,6 +2013,7 @@ void providerModeTests() {
   late MockGetAttachmentsUseCase mockGetAttachments;
   late MockSyncEngine mockSyncEngine;
   late MockCanProviderCreateWorkOrderUseCase mockCanProviderCreateWorkOrder;
+  late MockHasWorkOrdersUseCase mockHasWorkOrders;
   late UserProfileEntity tUserProfile;
   late List<ServiceProviderCompanyEntity> tCompanies;
   late List<ServiceProviderProfileEntity> tProfiles;
@@ -2031,6 +2043,7 @@ void providerModeTests() {
       getSessionUser: mockGetSessionUser,
       getSelectedMode: mockGetSelectedMode,
       canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
+      hasWorkOrders: mockHasWorkOrders,
     ),
   );
 
@@ -2062,6 +2075,10 @@ void providerModeTests() {
       mockGetAttachments = MockGetAttachmentsUseCase();
       mockSyncEngine = MockSyncEngine();
       mockCanProviderCreateWorkOrder = MockCanProviderCreateWorkOrderUseCase();
+      mockHasWorkOrders = MockHasWorkOrdersUseCase();
+      when(
+        () => mockHasWorkOrders(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
       when(
         () => mockCanProviderCreateWorkOrder(any()),
       ).thenAnswer((_) async => const SuccessState(data: true));

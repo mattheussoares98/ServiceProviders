@@ -132,11 +132,17 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
         GetWorkOrdersParams(companyId: companyId, filter: activeFilter),
       ),
       _useCases.getChangeRequests(companyId),
+      _useCases.hasWorkOrders(companyId),
     ]);
     if (isClosed) return false;
 
     final workOrdersResult = results[0];
     final changeRequestsResult = results[1];
+    final hasWorkOrdersResult = results[2];
+
+    final hasWorkOrders = hasWorkOrdersResult is SuccessState<bool>
+        ? (hasWorkOrdersResult.data ?? false)
+        : false;
 
     if (workOrdersResult is SuccessState<List<WorkOrderEntity>> &&
         changeRequestsResult
@@ -150,6 +156,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           activeFilter: activeFilter,
           hasMorePages: fetchedOrders.length == _pageSize,
           isLoadingMore: false,
+          hasWorkOrders: hasWorkOrders,
         ),
       );
       return true;
@@ -159,6 +166,7 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
           : changeRequestsResult.message;
       emit(
         state.copyWith(
+          hasWorkOrders: hasWorkOrders,
           sections: withSection(
             BaseSections.load,
             SectionStatus.error,

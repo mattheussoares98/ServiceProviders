@@ -16,6 +16,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provide
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/has_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/sync_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/update_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/watch_work_order_change_requests_realtime_use_case.dart';
@@ -45,6 +46,7 @@ class WorkOrdersCubitUseCases {
     required this.getSessionUser,
     required this.getSelectedMode,
     required this.canProviderCreateWorkOrder,
+    required this.hasWorkOrders,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -72,4 +74,5 @@ class WorkOrdersCubitUseCases {
   final GetSessionUserUseCase getSessionUser;
   final GetSelectedModeUseCase getSelectedMode;
   final CanProviderCreateWorkOrderUseCase canProviderCreateWorkOrder;
+  final HasWorkOrdersUseCase hasWorkOrders;
 }
