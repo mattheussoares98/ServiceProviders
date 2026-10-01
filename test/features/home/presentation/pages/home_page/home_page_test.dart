@@ -628,6 +628,7 @@ void main() {
         expect(find.text('Ordens'), findsOneWidget);
         expect(find.text('Equipamentos'), findsOneWidget);
         expect(find.text('Locais'), findsNothing);
+        expect(find.text('Clientes'), findsOneWidget);
 
         await $.tester.pump(const Duration(seconds: 1));
       } finally {

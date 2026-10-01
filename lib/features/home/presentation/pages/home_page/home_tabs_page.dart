@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/home_drawer.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
@@ -14,8 +15,8 @@ class HomeTabsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final supportsOwnLocations = context.select<CompanyCubit, bool>(
-      (cubit) => cubit.state.company?.supportsOwnLocations ?? true,
+    final workType = context.select<CompanyCubit, WorkType>(
+      (cubit) => cubit.state.company?.workType ?? WorkType.internalOnly,
     );
 
     return AutoTabsScaffold(
@@ -23,7 +24,8 @@ class HomeTabsPage extends StatelessWidget {
         const DashboardRoute(),
         const WorkOrdersRoute(),
         const AssetsRoute(),
-        if (supportsOwnLocations) const LocationsRoute(),
+        if (workType.requiresLocation) const LocationsRoute(),
+        if (workType.requiresCustomer) const CustomersRoute(),
       ],
       drawer: const HomeDrawer(),
       bottomNavigationBuilder: (context, tabsRouter) {
@@ -64,7 +66,7 @@ class HomeTabsPage extends StatelessWidget {
               ),
               label: 'Equipamentos'.hardcoded,
             ),
-            if (supportsOwnLocations)
+            if (workType.requiresLocation)
               NavigationDestination(
                 icon: const PlatformIcon(
                   materialIcon: Icons.location_on_outlined,
@@ -75,6 +77,18 @@ class HomeTabsPage extends StatelessWidget {
                   cupertinoIcon: CupertinoIcons.location_fill,
                 ),
                 label: 'Locais'.hardcoded,
+              ),
+            if (workType.requiresCustomer)
+              NavigationDestination(
+                icon: const PlatformIcon(
+                  materialIcon: Icons.people_outline,
+                  cupertinoIcon: CupertinoIcons.person_2,
+                ),
+                selectedIcon: const PlatformIcon(
+                  materialIcon: Icons.people,
+                  cupertinoIcon: CupertinoIcons.person_2_fill,
+                ),
+                label: 'Clientes'.hardcoded,
               ),
           ],
         );
