@@ -58,7 +58,9 @@ class LocationsPage extends StatelessWidget {
         builder: (context, locations) {
           final state = context.watch<LocationsCubit>().state;
           if (locations.isEmpty) {
-            return BaseText.error('Nenhum local cadastrado'.hardcoded);
+            return Center(
+              child: BaseText.error('Nenhum local cadastrado'.hardcoded),
+            );
           }
 
           locations.sort((a, b) => a.name.compareTo(b.name));
