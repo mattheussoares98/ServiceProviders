@@ -610,6 +610,40 @@ void main() {
     });
   });
 
+  group('hasNonDeletedWorkOrders', () {
+    test('should call remoteDataSource when online', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(true);
+      when(
+        () => mockRemoteDataSource.hasNonDeletedWorkOrders(any()),
+      ).thenAnswer((_) async => const SuccessState(data: true));
+
+      final result = await repository.hasNonDeletedWorkOrders(tCompanyId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+      verify(
+        () => mockRemoteDataSource.hasNonDeletedWorkOrders(tCompanyId),
+      ).called(1);
+      verifyZeroInteractions(mockLocalDataSource);
+    });
+
+    test('should call localDataSource when offline', () async {
+      when(() => mockInternetClient.isConnected).thenReturn(false);
+      when(
+        () => mockLocalDataSource.hasNonDeletedWorkOrders(any()),
+      ).thenAnswer((_) async => const SuccessState(data: false));
+
+      final result = await repository.hasNonDeletedWorkOrders(tCompanyId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isFalse);
+      verify(
+        () => mockLocalDataSource.hasNonDeletedWorkOrders(tCompanyId),
+      ).called(1);
+      verifyZeroInteractions(mockRemoteDataSource);
+    });
+  });
+
   group('syncWorkOrders', () {
     test('should return FailureState when internet is disconnected', () async {
       when(() => mockInternetClient.isConnected).thenReturn(false);

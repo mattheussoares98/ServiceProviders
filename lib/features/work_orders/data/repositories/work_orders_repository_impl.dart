@@ -342,6 +342,14 @@ final class WorkOrdersRepositoryImpl implements WorkOrdersRepository {
       );
 
   @override
+  FutureBool hasNonDeletedWorkOrders(String companyId) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        localCallback: () => _localDataSource.hasNonDeletedWorkOrders(companyId),
+        remoteCallback: () => _remoteDataSource.hasNonDeletedWorkOrders(companyId),
+      );
+
+  @override
   FutureBool syncWorkOrders(String companyId) async {
     if (!_internet.isConnected) {
       return FailureState.noInternet();
