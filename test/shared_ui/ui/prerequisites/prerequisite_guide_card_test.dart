@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/prerequisites/prerequisite_guide_card.dart';
 
 void main() {
@@ -63,18 +64,11 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(
-            body: PrerequisiteGuideCard(
-              steps: steps,
-            ),
-          ),
+          home: Scaffold(body: PrerequisiteGuideCard(steps: steps)),
         ),
       );
 
-      expect(
-        find.text('Aguardando administrador cadastrar'),
-        findsOneWidget,
-      );
+      expect(find.text('Aguardando administrador cadastrar'), findsOneWidget);
       expect(find.byIcon(Icons.lock_outline), findsOneWidget);
       expect(find.text('Cadastrar Local'), findsNothing);
     });

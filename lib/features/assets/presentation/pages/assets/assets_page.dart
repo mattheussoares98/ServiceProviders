@@ -17,7 +17,8 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';

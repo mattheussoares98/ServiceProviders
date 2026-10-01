@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_type.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/evaluate_prerequisites_use_case.dart';
 
 void main() {
@@ -139,20 +139,23 @@ void main() {
         expect(result.hasPendingRequiredPrerequisites, isFalse);
       });
 
-      test('when customer is present, first step and customer step are satisfied', () {
-        final result = useCase(
-          const EvaluatePrerequisitesParams(
-            workType: WorkType.hybrid,
-            locationsCount: 0,
-            areasCount: 0,
-            customersCount: 1,
-          ),
-        );
+      test(
+        'when customer is present, first step and customer step are satisfied',
+        () {
+          final result = useCase(
+            const EvaluatePrerequisitesParams(
+              workType: WorkType.hybrid,
+              locationsCount: 0,
+              areasCount: 0,
+              customersCount: 1,
+            ),
+          );
 
-        expect(result.steps[0].isCompleted, isTrue);
-        expect(result.steps[1].isCompleted, isTrue);
-        expect(result.hasPendingRequiredPrerequisites, isFalse);
-      });
+          expect(result.steps[0].isCompleted, isTrue);
+          expect(result.steps[1].isCompleted, isTrue);
+          expect(result.hasPendingRequiredPrerequisites, isFalse);
+        },
+      );
     });
 
     group('permissions reflection', () {

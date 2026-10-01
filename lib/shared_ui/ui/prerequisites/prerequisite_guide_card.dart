@@ -5,7 +5,8 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_type.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -42,8 +43,8 @@ class PrerequisiteGuideCard extends StatelessWidget {
           final locs = context.read<LocationsCubit>().state.locations;
           if (locs.isNotEmpty) {
             context.read<LocationsCubit>().navigateToCreateUpdateArea(
-                  locationId: locs.first.id,
-                );
+              locationId: locs.first.id,
+            );
           } else {
             context.read<LocationsCubit>().navigateToCreateUpdateLocation();
           }
@@ -62,9 +63,9 @@ class PrerequisiteGuideCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final nextPending = steps.cast<PrerequisiteStep?>().firstWhere(
-          (s) => s?.isCompleted == false,
-          orElse: () => null,
-        );
+      (s) => s?.isCompleted == false,
+      orElse: () => null,
+    );
 
     return Center(
       child: SingleChildScrollView(
@@ -161,8 +162,8 @@ class PrerequisiteGuideCard extends StatelessWidget {
         color: isHighlighted
             ? context.colorScheme.primaryContainer.withValues(alpha: 0.25)
             : isDone
-                ? context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
-                : Colors.transparent,
+            ? context.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(Sizes.p12),
         border: Border.all(
           color: isHighlighted
@@ -182,8 +183,8 @@ class PrerequisiteGuideCard extends StatelessWidget {
               color: isDone
                   ? Colors.green
                   : isHighlighted
-                      ? context.colorScheme.primary
-                      : context.colorScheme.outlineVariant,
+                  ? context.colorScheme.primary
+                  : context.colorScheme.outlineVariant,
             ),
             child: Center(
               child: isDone
@@ -205,9 +206,13 @@ class PrerequisiteGuideCard extends StatelessWidget {
                     Expanded(
                       child: BaseText.bodyMedium(
                         step.title,
-                        fontWeight: isHighlighted ? FontWeight.bold : FontWeight.w600,
+                        fontWeight: isHighlighted
+                            ? FontWeight.bold
+                            : FontWeight.w600,
                         color: isDone
-                            ? context.colorScheme.onSurface.withValues(alpha: 0.6)
+                            ? context.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              )
                             : context.colorScheme.onSurface,
                       ),
                     ),
@@ -249,8 +254,9 @@ class PrerequisiteGuideCard extends StatelessWidget {
                         vertical: Sizes.p4,
                       ),
                       decoration: BoxDecoration(
-                        color: context.colorScheme.errorContainer
-                            .withValues(alpha: 0.5),
+                        color: context.colorScheme.errorContainer.withValues(
+                          alpha: 0.5,
+                        ),
                         borderRadius: BorderRadius.circular(Sizes.p8),
                       ),
                       child: Row(

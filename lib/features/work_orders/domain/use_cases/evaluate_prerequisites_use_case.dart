@@ -6,7 +6,9 @@ import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_permission.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_evaluation_result.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_step.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_type.dart';
 
 class EvaluatePrerequisitesParams extends Equatable {
   const EvaluatePrerequisitesParams({
@@ -75,9 +77,8 @@ class EvaluatePrerequisitesUseCase
           PrerequisiteStep(
             type: PrerequisiteType.area,
             title: 'Cadastrar área'.hardcoded,
-            description:
-                'Subdivisões do local (ex: salas, andares ou setores).'
-                    .hardcoded,
+            description: 'Subdivisões do local (ex: salas, andares ou setores).'
+                .hardcoded,
             actionLabel: 'Cadastrar Área'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.locations,
@@ -90,9 +91,8 @@ class EvaluatePrerequisitesUseCase
           PrerequisiteStep(
             type: PrerequisiteType.asset,
             title: 'Cadastrar equipamento'.hardcoded,
-            description:
-                'Máquinas ou aparelhos que recebem ordens de serviço.'
-                    .hardcoded,
+            description: 'Máquinas ou aparelhos que recebem ordens de serviço.'
+                .hardcoded,
             actionLabel: 'Cadastrar Equipamento'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.assets,
@@ -120,8 +120,7 @@ class EvaluatePrerequisitesUseCase
             type: PrerequisiteType.asset,
             title: 'Cadastrar equipamento do cliente'.hardcoded,
             description:
-                'Equipamentos atendidos ou ferramentas de trabalho.'
-                    .hardcoded,
+                'Equipamentos atendidos ou ferramentas de trabalho.'.hardcoded,
             actionLabel: 'Cadastrar Equipamento'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.assets,
@@ -153,8 +152,7 @@ class EvaluatePrerequisitesUseCase
             type: PrerequisiteType.customer,
             title: 'Cadastrar cliente externo'.hardcoded,
             description:
-                'Empresas ou parceiros que solicitam serviços.'
-                    .hardcoded,
+                'Empresas ou parceiros que solicitam serviços.'.hardcoded,
             actionLabel: 'Cadastrar Cliente'.hardcoded,
             isCompleted: params.customersCount > 0,
             isOptional: true,
@@ -163,9 +161,7 @@ class EvaluatePrerequisitesUseCase
           PrerequisiteStep(
             type: PrerequisiteType.asset,
             title: 'Cadastrar equipamento'.hardcoded,
-            description:
-                'Equipamentos ou máquinas sob manutenção.'
-                    .hardcoded,
+            description: 'Equipamentos ou máquinas sob manutenção.'.hardcoded,
             actionLabel: 'Cadastrar Equipamento'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.assets,
