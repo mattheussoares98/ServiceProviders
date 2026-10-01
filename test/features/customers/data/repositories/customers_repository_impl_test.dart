@@ -270,5 +270,39 @@ void main() {
         },
       );
     });
+
+    group('hasNonDeletedCustomers', () {
+      test('should call remoteDataSource when online', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.hasNonDeletedCustomers(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(
+          () => mockRemoteDataSource.hasNonDeletedCustomers(tCompanyId),
+        ).called(1);
+        verifyZeroInteractions(mockLocalDataSource);
+      });
+
+      test('should call localDataSource when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.hasNonDeletedCustomers(any()),
+        ).thenAnswer((_) async => const SuccessState(data: false));
+
+        final result = await repository.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+        verify(
+          () => mockLocalDataSource.hasNonDeletedCustomers(tCompanyId),
+        ).called(1);
+        verifyZeroInteractions(mockRemoteDataSource);
+      });
+    });
   });
 }

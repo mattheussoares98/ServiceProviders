@@ -8,4 +8,5 @@ abstract interface class CustomersRepository {
   FutureBool createCustomer(CustomerEntity customer);
   FutureBool updateCustomer(CustomerEntity customer);
   FutureBool deleteCustomer(String id);
+  FutureBool hasNonDeletedCustomers(String companyId);
 }

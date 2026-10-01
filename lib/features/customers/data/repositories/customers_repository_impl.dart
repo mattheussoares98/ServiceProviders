@@ -152,4 +152,12 @@ final class CustomersRepositoryImpl implements CustomersRepository {
           return result;
         },
       );
+
+  @override
+  FutureBool hasNonDeletedCustomers(String companyId) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.hasNonDeletedCustomers(companyId),
+        localCallback: () => _localDataSource.hasNonDeletedCustomers(companyId),
+      );
 }
