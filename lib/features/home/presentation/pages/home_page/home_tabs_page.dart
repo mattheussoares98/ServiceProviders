@@ -38,6 +38,7 @@ class HomeTabsPage extends StatelessWidget {
                 materialIcon: Icons.dashboard_outlined,
                 cupertinoIcon: CupertinoIcons.square_grid_2x2,
               ),
+              tooltip: '',
               selectedIcon: const PlatformIcon(
                 materialIcon: Icons.dashboard,
                 cupertinoIcon: CupertinoIcons.square_grid_2x2_fill,
@@ -49,6 +50,7 @@ class HomeTabsPage extends StatelessWidget {
                 materialIcon: Icons.assignment_outlined,
                 cupertinoIcon: CupertinoIcons.doc_text,
               ),
+              tooltip: '',
               selectedIcon: const PlatformIcon(
                 materialIcon: Icons.assignment,
                 cupertinoIcon: CupertinoIcons.doc_text_fill,
@@ -60,6 +62,7 @@ class HomeTabsPage extends StatelessWidget {
                 materialIcon: Icons.build_outlined,
                 cupertinoIcon: CupertinoIcons.wrench,
               ),
+              tooltip: '',
               selectedIcon: const PlatformIcon(
                 materialIcon: Icons.build,
                 cupertinoIcon: CupertinoIcons.wrench_fill,
@@ -72,6 +75,7 @@ class HomeTabsPage extends StatelessWidget {
                   materialIcon: Icons.location_on_outlined,
                   cupertinoIcon: CupertinoIcons.location,
                 ),
+                tooltip: '',
                 selectedIcon: const PlatformIcon(
                   materialIcon: Icons.location_on,
                   cupertinoIcon: CupertinoIcons.location_fill,
@@ -84,6 +88,7 @@ class HomeTabsPage extends StatelessWidget {
                   materialIcon: Icons.people_outline,
                   cupertinoIcon: CupertinoIcons.person_2,
                 ),
+                tooltip: '',
                 selectedIcon: const PlatformIcon(
                   materialIcon: Icons.people,
                   cupertinoIcon: CupertinoIcons.person_2_fill,
