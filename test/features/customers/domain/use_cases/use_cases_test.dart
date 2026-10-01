@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/customers/domain/use_cases/delete_custom
 import 'package:o_jogo_da_obra/features/customers/domain/use_cases/get_customer_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/customers/domain/use_cases/get_customers_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/customers/domain/use_cases/get_customers_use_case.dart';
+import 'package:o_jogo_da_obra/features/customers/domain/use_cases/has_customers_use_case.dart';
 import 'package:o_jogo_da_obra/features/customers/domain/use_cases/update_customer_use_case.dart';
 
 import '../../../../../testing/mocks/factories/customer_factory.dart';
@@ -22,6 +23,7 @@ void main() {
   late GetCustomersUseCase getCustomersUseCase;
   late GetCustomersByIdsUseCase getCustomersByIdsUseCase;
   late GetCustomerByIdUseCase getCustomerByIdUseCase;
+  late HasCustomersUseCase hasCustomersUseCase;
 
   setUpAll(() {
     registerFallbackValue(CustomerFactory.makeCustomerEntity());
@@ -45,6 +47,9 @@ void main() {
       customersRepository: mockRepository,
     );
     getCustomerByIdUseCase = GetCustomerByIdUseCase(
+      customersRepository: mockRepository,
+    );
+    hasCustomersUseCase = HasCustomersUseCase(
       customersRepository: mockRepository,
     );
   });
@@ -223,6 +228,31 @@ void main() {
 
         expect(result, isA<FailureState<CustomerEntity>>());
         verify(() => mockRepository.getCustomerById(tId)).called(1);
+      });
+    });
+
+    group('HasCustomersUseCase', () {
+      test('should call repository.hasNonDeletedCustomers and return SuccessState', () async {
+        when(() => mockRepository.hasNonDeletedCustomers(any())).thenAnswer(
+          (_) async => const SuccessState(data: true),
+        );
+
+        final result = await hasCustomersUseCase('company_123');
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(() => mockRepository.hasNonDeletedCustomers('company_123')).called(1);
+      });
+
+      test('should return FailureState when repository fails', () async {
+        when(() => mockRepository.hasNonDeletedCustomers(any())).thenAnswer(
+          (_) async => FailureState<bool>(message: 'Error'),
+        );
+
+        final result = await hasCustomersUseCase('company_123');
+
+        expect(result, isA<FailureState<bool>>());
+        verify(() => mockRepository.hasNonDeletedCustomers('company_123')).called(1);
       });
     });
   });
