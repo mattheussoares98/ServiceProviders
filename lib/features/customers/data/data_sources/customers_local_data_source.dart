@@ -12,6 +12,7 @@ abstract interface class CustomersLocalDataSource {
   FutureBool saveCustomer(CustomerModel customer);
   FutureBool saveCustomers(List<CustomerModel> customers);
   FutureBool deleteCustomer(String id);
+  FutureBool hasNonDeletedCustomers(String companyId);
 }
 
 @LazySingleton(as: CustomersLocalDataSource)
@@ -127,6 +128,17 @@ final class CustomersLocalDataSourceImpl implements CustomersLocalDataSource {
         CustomersCompanion(deletedAt: Value(DateTime.now().toUtc())),
       );
       return const SuccessState(data: true);
+    });
+  }
+
+  @override
+  FutureBool hasNonDeletedCustomers(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.customers)
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())
+        ..limit(1);
+      final rows = await query.get();
+      return SuccessState(data: rows.isNotEmpty);
     });
   }
 

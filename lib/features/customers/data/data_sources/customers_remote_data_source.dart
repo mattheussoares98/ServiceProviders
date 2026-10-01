@@ -13,6 +13,7 @@ abstract interface class CustomersRemoteDataSource {
   FutureData<CustomerModel> createCustomer(CustomerModel request);
   FutureData<CustomerModel> updateCustomer(CustomerModel request);
   FutureVoid deleteCustomer(String id);
+  FutureBool hasNonDeletedCustomers(String companyId);
 }
 
 @LazySingleton(as: CustomersRemoteDataSource)
@@ -95,4 +96,19 @@ final class CustomersRemoteDataSourceImpl implements CustomersRemoteDataSource {
       filters: [SupabaseFilter.eq('id', id)],
     );
   });
+
+  @override
+  FutureBool hasNonDeletedCustomers(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'customers',
+          columns: 'id',
+          limit: 1,
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+        );
+        return response.isNotEmpty;
+      });
 }

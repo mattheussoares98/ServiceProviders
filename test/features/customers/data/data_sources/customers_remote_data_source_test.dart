@@ -171,5 +171,47 @@ void main() {
         ).called(1);
       });
     });
+
+    group('hasNonDeletedCustomers', () {
+      test('should return true when records exist', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            limit: any(named: 'limit'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => [{'id': '1'}]);
+
+        final result = await dataSource.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+        verify(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'customers',
+            columns: 'id',
+            limit: 1,
+            filters: any(named: 'filters'),
+          ),
+        ).called(1);
+      });
+
+      test('should return false when no records exist', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            limit: any(named: 'limit'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => []);
+
+        final result = await dataSource.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+    });
   });
 }

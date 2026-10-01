@@ -120,5 +120,35 @@ void main() {
         },
       );
     });
+
+    group('hasNonDeletedCustomers', () {
+      test('should return true when non-deleted customers exist', () async {
+        await insertCompany(tCompanyId);
+        await dataSource.saveCustomer(tCustomerModel);
+
+        final result = await dataSource.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isTrue);
+      });
+
+      test('should return false when no customers exist', () async {
+        final result = await dataSource.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+
+      test('should return false when only deleted customers exist', () async {
+        await insertCompany(tCompanyId);
+        await dataSource.saveCustomer(tCustomerModel);
+        await dataSource.deleteCustomer(tCustomerModel.id);
+
+        final result = await dataSource.hasNonDeletedCustomers(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect(result.data, isFalse);
+      });
+    });
   });
 }
