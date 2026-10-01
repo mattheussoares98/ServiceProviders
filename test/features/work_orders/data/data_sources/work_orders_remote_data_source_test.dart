@@ -444,6 +444,46 @@ void main() {
         ),
       ).called(1);
     });
+
+    test('hasNonDeletedWorkOrders should return true when records exist', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          limit: any(named: 'limit'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => [{'id': '1'}]);
+
+      final result = await dataSource.hasNonDeletedWorkOrders(tCompanyId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+      verify(
+        () => mockDatabase.selectList(
+          table: 'work_orders',
+          columns: 'id',
+          limit: 1,
+          filters: any(named: 'filters'),
+        ),
+      ).called(1);
+    });
+
+    test('hasNonDeletedWorkOrders should return false when no records exist', () async {
+      when(
+        () => mockDatabase.selectList(
+          table: any(named: 'table'),
+          columns: any(named: 'columns'),
+          limit: any(named: 'limit'),
+          filters: any(named: 'filters'),
+        ),
+      ).thenAnswer((_) async => []);
+
+      final result = await dataSource.hasNonDeletedWorkOrders(tCompanyId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isFalse);
+    });
   });
 
   group('WorkOrdersRemoteDataSourceImpl - Tasks', () {

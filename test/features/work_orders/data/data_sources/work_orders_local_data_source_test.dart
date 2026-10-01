@@ -572,6 +572,50 @@ void main() {
         expect(pagedResult2.data!.first.id, isNot(pagedResult1.data!.first.id));
       },
     );
+
+    test('hasNonDeletedWorkOrders should return true when non-deleted work orders exist', () async {
+      await insertDependencies(
+        companyId: tWorkOrderModel.companyId,
+        userId: tWorkOrderModel.createdById!,
+        locationId: tWorkOrderModel.locationId,
+        areaId: faker.guid.guid(),
+        assetId: tWorkOrderModel.assetId!,
+        providerProfileId: tWorkOrderModel.providerProfileId!,
+        serviceProviderCompanyId: tWorkOrderModel.serviceProviderCompanyId!,
+      );
+      await dataSource.saveWorkOrder(tWorkOrderModel);
+
+      final result = await dataSource.hasNonDeletedWorkOrders(tWorkOrderModel.companyId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isTrue);
+    });
+
+    test('hasNonDeletedWorkOrders should return false when no work orders exist', () async {
+      final result = await dataSource.hasNonDeletedWorkOrders('empty_company');
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isFalse);
+    });
+
+    test('hasNonDeletedWorkOrders should return false when only deleted work orders exist', () async {
+      await insertDependencies(
+        companyId: tWorkOrderModel.companyId,
+        userId: tWorkOrderModel.createdById!,
+        locationId: tWorkOrderModel.locationId,
+        areaId: faker.guid.guid(),
+        assetId: tWorkOrderModel.assetId!,
+        providerProfileId: tWorkOrderModel.providerProfileId!,
+        serviceProviderCompanyId: tWorkOrderModel.serviceProviderCompanyId!,
+      );
+      await dataSource.saveWorkOrder(tWorkOrderModel);
+      await dataSource.deleteWorkOrder(tWorkOrderModel.id);
+
+      final result = await dataSource.hasNonDeletedWorkOrders(tWorkOrderModel.companyId);
+
+      expect(result, isA<SuccessState<bool>>());
+      expect(result.data, isFalse);
+    });
   });
 
   group('WorkOrdersLocalDataSourceImpl - Tasks', () {

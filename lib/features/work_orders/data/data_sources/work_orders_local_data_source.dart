@@ -37,6 +37,7 @@ abstract interface class WorkOrdersLocalDataSource {
   FutureBool restoreWorkOrder(String id);
   FutureBool hardDeleteWorkOrder(String id);
   FutureData<int> countTodayWorkOrders(String companyId);
+  FutureBool hasNonDeletedWorkOrders(String companyId);
 
   // Tasks
   FutureList<TaskModel> getTasksByWorkOrder(String workOrderId);
@@ -508,6 +509,17 @@ final class WorkOrdersLocalDataSourceImpl implements WorkOrdersLocalDataSource {
       final row = await query.getSingle();
       final count = row.read(countExpression) ?? 0;
       return SuccessState(data: count);
+    });
+  }
+
+  @override
+  FutureBool hasNonDeletedWorkOrders(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.workOrders)
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())
+        ..limit(1);
+      final rows = await query.get();
+      return SuccessState(data: rows.isNotEmpty);
     });
   }
 
