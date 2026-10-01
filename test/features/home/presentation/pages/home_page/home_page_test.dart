@@ -17,6 +17,7 @@ import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/m
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/splash/splash_cubit.dart';
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/home/home_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/drawer/drawer_items/logout_drawer_item.dart';
@@ -516,6 +517,118 @@ void main() {
         ).called(greaterThanOrEqualTo(2));
 
         await companyStateController.close();
+        await $.tester.pump(const Duration(seconds: 1));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
+
+  patrolWidgetTest(
+    'HomeTabsPage shows Locais tab for company supporting own locations',
+    ($) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final mockScreenObserverCubit = MockScreenObserverCubit();
+        when(
+          () => mockScreenObserverCubit.state,
+        ).thenReturn(ScreenObserverState.initial());
+        when(
+          () => mockScreenObserverCubit.stream,
+        ).thenAnswer((_) => const Stream.empty());
+
+        when(() => mockCompanyCubit.state).thenReturn(
+          CompanyState(
+            company: UserFactory.makeCompanyEntity().copyWith(
+              workType: WorkType.internalOnly,
+            ),
+          ),
+        );
+
+        await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+        final appRouter = AppRouter();
+
+        await $.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<ScreenObserverCubit>(
+                create: (_) => mockScreenObserverCubit,
+              ),
+              BlocProvider<UsersCubit>(create: (_) => mockUsersCubit),
+              BlocProvider<SessionCubit>(create: (_) => mockSessionCubit),
+            ],
+            child: MaterialApp.router(
+              theme: lightTheme,
+              routerConfig: appRouter.config(
+                deepLinkBuilder: (_) => const DeepLink.path('/home'),
+              ),
+            ),
+          ),
+        );
+
+        await $.pumpAndSettle();
+
+        expect(find.text('Início'), findsOneWidget);
+        expect(find.text('Ordens'), findsOneWidget);
+        expect(find.text('Equipamentos'), findsOneWidget);
+        expect(find.text('Locais'), findsOneWidget);
+
+        await $.tester.pump(const Duration(seconds: 1));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
+
+  patrolWidgetTest(
+    'HomeTabsPage hides Locais tab when company is serviceProviderOnly',
+    ($) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final mockScreenObserverCubit = MockScreenObserverCubit();
+        when(
+          () => mockScreenObserverCubit.state,
+        ).thenReturn(ScreenObserverState.initial());
+        when(
+          () => mockScreenObserverCubit.stream,
+        ).thenAnswer((_) => const Stream.empty());
+
+        when(() => mockCompanyCubit.state).thenReturn(
+          CompanyState(
+            company: UserFactory.makeCompanyEntity().copyWith(
+              workType: WorkType.serviceProviderOnly,
+            ),
+          ),
+        );
+
+        await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+        final appRouter = AppRouter();
+
+        await $.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<ScreenObserverCubit>(
+                create: (_) => mockScreenObserverCubit,
+              ),
+              BlocProvider<UsersCubit>(create: (_) => mockUsersCubit),
+              BlocProvider<SessionCubit>(create: (_) => mockSessionCubit),
+            ],
+            child: MaterialApp.router(
+              theme: lightTheme,
+              routerConfig: appRouter.config(
+                deepLinkBuilder: (_) => const DeepLink.path('/home'),
+              ),
+            ),
+          ),
+        );
+
+        await $.pumpAndSettle();
+
+        expect(find.text('Início'), findsOneWidget);
+        expect(find.text('Ordens'), findsOneWidget);
+        expect(find.text('Equipamentos'), findsOneWidget);
+        expect(find.text('Locais'), findsNothing);
+
         await $.tester.pump(const Duration(seconds: 1));
       } finally {
         debugDefaultTargetPlatformOverride = null;

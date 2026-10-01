@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/pages/home_page/widgets/home_drawer.dart';
 import 'package:o_jogo_da_obra/routing/routes.gr.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
@@ -12,12 +14,16 @@ class HomeTabsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final supportsOwnLocations = context.select<CompanyCubit, bool>(
+      (cubit) => cubit.state.company?.supportsOwnLocations ?? true,
+    );
+
     return AutoTabsScaffold(
-      routes: const [
-        DashboardRoute(),
-        WorkOrdersRoute(),
-        AssetsRoute(),
-        LocationsRoute(),
+      routes: [
+        const DashboardRoute(),
+        const WorkOrdersRoute(),
+        const AssetsRoute(),
+        if (supportsOwnLocations) const LocationsRoute(),
       ],
       drawer: const HomeDrawer(),
       bottomNavigationBuilder: (context, tabsRouter) {
@@ -58,17 +64,18 @@ class HomeTabsPage extends StatelessWidget {
               ),
               label: 'Equipamentos'.hardcoded,
             ),
-            NavigationDestination(
-              icon: const PlatformIcon(
-                materialIcon: Icons.location_on_outlined,
-                cupertinoIcon: CupertinoIcons.location,
+            if (supportsOwnLocations)
+              NavigationDestination(
+                icon: const PlatformIcon(
+                  materialIcon: Icons.location_on_outlined,
+                  cupertinoIcon: CupertinoIcons.location,
+                ),
+                selectedIcon: const PlatformIcon(
+                  materialIcon: Icons.location_on,
+                  cupertinoIcon: CupertinoIcons.location_fill,
+                ),
+                label: 'Locais'.hardcoded,
               ),
-              selectedIcon: const PlatformIcon(
-                materialIcon: Icons.location_on,
-                cupertinoIcon: CupertinoIcons.location_fill,
-              ),
-              label: 'Locais'.hardcoded,
-            ),
           ],
         );
       },
