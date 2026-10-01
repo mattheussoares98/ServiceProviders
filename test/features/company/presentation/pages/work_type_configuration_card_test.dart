@@ -1,4 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,7 +10,6 @@ import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/comp
 import 'package:o_jogo_da_obra/features/company/presentation/pages/company/widgets/work_type_configuration_card.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
-
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 
 import '../../../../../testing/mocks/factories/user_factory.dart';
@@ -37,9 +37,9 @@ void main() {
       workType: WorkType.internalOnly,
     );
 
-    when(() => mockCompanyCubit.state).thenReturn(
-      CompanyState(company: tCompany),
-    );
+    when(
+      () => mockCompanyCubit.state,
+    ).thenReturn(CompanyState(company: tCompany));
 
     final adminUser = UserFactory.makeUserProfileEntity().copyWith(
       isAdmin: true,
@@ -72,40 +72,134 @@ void main() {
     expect(find.text('Ambos'), findsOneWidget);
   });
 
-  testWidgets('admin tapping unselected option invokes updateWorkType', (tester) async {
-    when(
-      () => mockCompanyCubit.updateWorkType(any()),
-    ).thenAnswer((_) async => true);
+  testWidgets(
+    'admin tapping hybrid option shows confirmation dialog and invokes updateWorkType when confirmed',
+    (tester) async {
+      when(
+        () => mockCompanyCubit.updateWorkType(any()),
+      ).thenAnswer((_) async => true);
 
-    await tester.pumpWidget(buildSubject());
+      await tester.pumpWidget(buildSubject());
 
-    final hybridOption = find.byKey(const ValueKey('WorkTypeOption_hybrid'));
-    expect(hybridOption, findsOneWidget);
+      final hybridOption = find.byKey(const ValueKey('WorkTypeOption_hybrid'));
+      expect(hybridOption, findsOneWidget);
 
-    await tester.tap(hybridOption);
-    await tester.pumpAndSettle();
+      await tester.tap(hybridOption);
+      await tester.pumpAndSettle();
 
-    verify(() => mockCompanyCubit.updateWorkType(WorkType.hybrid)).called(1);
-  });
+      expect(find.text('Alterar modelo de operação'), findsOneWidget);
 
-  testWidgets('non-admin tapping unselected option does not invoke updateWorkType', (tester) async {
-    final regularUser = UserFactory.makeUserProfileEntity().copyWith(
-      isAdmin: false,
-    );
-    when(
-      () => mockSessionCubit.state,
-    ).thenReturn(SessionState(user: regularUser, isLoggedIn: true));
+      // Locate the confirm CupertinoDialogAction and invoke onPressed directly
+      // because tester.tap doesn't reliably trigger the callback chain
+      // through AlertDialog.adaptive in the FakeAsync test environment
+      final confirmFinder = find.widgetWithText(
+        CupertinoDialogAction,
+        'Confirmar',
+      );
+      expect(confirmFinder, findsOneWidget);
+      final action = tester.widget<CupertinoDialogAction>(confirmFinder);
+      action.onPressed!();
+      await tester.pumpAndSettle();
 
-    await tester.pumpWidget(buildSubject());
+      verify(() => mockCompanyCubit.updateWorkType(WorkType.hybrid)).called(1);
+    },
+  );
 
-    final hybridOption = find.byKey(const ValueKey('WorkTypeOption_hybrid'));
-    await tester.tap(hybridOption);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'admin cancelling confirmation dialog does not invoke updateWorkType',
+    (tester) async {
+      await tester.pumpWidget(buildSubject());
 
-    verifyNever(() => mockCompanyCubit.updateWorkType(any()));
-  });
+      final hybridOption = find.byKey(const ValueKey('WorkTypeOption_hybrid'));
+      await tester.tap(hybridOption);
+      await tester.pumpAndSettle();
 
-  testWidgets('shows loading circle when updateWorkType is running', (tester) async {
+      final cancelAction = find.byWidgetPredicate(
+        (widget) =>
+            (widget is CupertinoDialogAction || widget is TextButton) &&
+            find
+                .descendant(
+                  of: find.byWidget(widget),
+                  matching: find.text('Cancelar'),
+                )
+                .evaluate()
+                .isNotEmpty,
+      );
+      expect(cancelAction, findsOneWidget);
+
+      await tester.tap(cancelAction);
+      await tester.pumpAndSettle();
+
+      verifyNever(() => mockCompanyCubit.updateWorkType(any()));
+    },
+  );
+
+  testWidgets(
+    'admin cannot tap serviceProviderOnly option when current is internalOnly',
+    (tester) async {
+      await tester.pumpWidget(
+        buildSubject(
+          company: tCompany.copyWith(workType: WorkType.internalOnly),
+        ),
+      );
+
+      final providerOption = find.byKey(
+        const ValueKey('WorkTypeOption_service_provider_only'),
+      );
+      await tester.tap(providerOption);
+      await tester.pumpAndSettle();
+
+      verifyNever(() => mockCompanyCubit.updateWorkType(any()));
+      expect(find.text('Alterar modelo de operação'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'admin cannot tap internalOnly option when current is serviceProviderOnly',
+    (tester) async {
+      final providerCompany = tCompany.copyWith(
+        workType: WorkType.serviceProviderOnly,
+      );
+      when(
+        () => mockCompanyCubit.state,
+      ).thenReturn(CompanyState(company: providerCompany));
+
+      await tester.pumpWidget(buildSubject(company: providerCompany));
+
+      final internalOption = find.byKey(
+        const ValueKey('WorkTypeOption_internal_only'),
+      );
+      await tester.tap(internalOption);
+      await tester.pumpAndSettle();
+
+      verifyNever(() => mockCompanyCubit.updateWorkType(any()));
+      expect(find.text('Alterar modelo de operação'), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'non-admin tapping unselected option does not invoke updateWorkType',
+    (tester) async {
+      final regularUser = UserFactory.makeUserProfileEntity().copyWith(
+        isAdmin: false,
+      );
+      when(
+        () => mockSessionCubit.state,
+      ).thenReturn(SessionState(user: regularUser, isLoggedIn: true));
+
+      await tester.pumpWidget(buildSubject());
+
+      final hybridOption = find.byKey(const ValueKey('WorkTypeOption_hybrid'));
+      await tester.tap(hybridOption);
+      await tester.pumpAndSettle();
+
+      verifyNever(() => mockCompanyCubit.updateWorkType(any()));
+    },
+  );
+
+  testWidgets('shows loading circle when updateWorkType is running', (
+    tester,
+  ) async {
     when(() => mockCompanyCubit.state).thenReturn(
       CompanyState(
         company: tCompany,

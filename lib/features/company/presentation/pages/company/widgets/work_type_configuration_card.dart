@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/extensions/work_type_ui_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/alert_dialogs.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
@@ -24,8 +25,7 @@ class WorkTypeConfigurationCard extends StatelessWidget {
       (cubit) => cubit.state.user.isAdmin,
     );
     final isUpdating = context.select<CompanyCubit, bool>(
-      (cubit) =>
-          cubit.state.section(CompanySections.updateWorkType).isRunning,
+      (cubit) => cubit.state.section(CompanySections.updateWorkType).isRunning,
     );
 
     return Card(
@@ -46,9 +46,7 @@ class WorkTypeConfigurationCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      BaseText.titleMedium(
-                        'Modelo de operação'.hardcoded,
-                      ),
+                      BaseText.titleMedium('Modelo de operação'.hardcoded),
                       gapH4,
                       BaseText.bodySmall(
                         'Define o fluxo de trabalho da sua empresa (locais próprios, atendimento a clientes ou híbrido).'
@@ -66,62 +64,87 @@ class WorkTypeConfigurationCard extends StatelessWidget {
             gapH12,
             ...WorkType.values.map((type) {
               final isSelected = company.workType == type;
-              return InkWell(
-                key: ValueKey('WorkTypeOption_${type.code}'),
-                onTap: (!isAdmin || isUpdating || isSelected)
-                    ? null
-                    : () => context.read<CompanyCubit>().updateWorkType(type),
-                borderRadius: BorderRadius.circular(Sizes.p8),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: Sizes.p8,
-                    horizontal: Sizes.p8,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Sizes.p8),
-                    color: isSelected
-                        ? context.colorScheme.primaryContainer.withValues(alpha: 0.3)
-                        : Colors.transparent,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      type.platformIcon,
-                      gapW12,
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            BaseText.bodyMedium(
-                              type.label,
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isSelected
-                                  ? context.colorScheme.primary
-                                  : context.colorScheme.onSurface,
-                            ),
-                            gapH4,
-                            BaseText.bodySmall(
-                              type.description,
-                              color: context.colorScheme.onSurfaceVariant,
-                            ),
-                          ],
+              final isAllowed = isSelected || company.canUpgradeTo(type);
+              final isEnabled =
+                  isAdmin && !isUpdating && isAllowed && !isSelected;
+
+              return Opacity(
+                opacity: isAllowed ? 1.0 : 0.38,
+                child: InkWell(
+                  key: ValueKey('WorkTypeOption_${type.code}'),
+                  onTap: !isEnabled
+                      ? null
+                      : () async {
+                          final companyCubit = context.read<CompanyCubit>();
+                          final confirmed = await showAlertDialog(
+                            context: context,
+                            title: 'Alterar modelo de operação'.hardcoded,
+                            contentText:
+                                'Ao alterar o modelo para híbrido, a empresa passará a gerenciar locais próprios e clientes simultaneamente. Essa alteração não poderá ser desfeita para modelos exclusivos.'
+                                    .hardcoded,
+                            cancelActionText: 'Cancelar'.hardcoded,
+                            defaultActionText: 'Confirmar'.hardcoded,
+                          );
+                          if (confirmed ?? false) {
+                            await companyCubit.updateWorkType(type);
+                          }
+                        },
+                  borderRadius: BorderRadius.circular(Sizes.p8),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: Sizes.p8,
+                      horizontal: Sizes.p8,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(Sizes.p8),
+                      color: isSelected
+                          ? context.colorScheme.primaryContainer.withValues(
+                              alpha: 0.3,
+                            )
+                          : Colors.transparent,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        type.platformIcon,
+                        gapW12,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              BaseText.bodyMedium(
+                                type.label,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? context.colorScheme.primary
+                                    : context.colorScheme.onSurface,
+                              ),
+                              gapH4,
+                              BaseText.bodySmall(
+                                type.description,
+                                color: context.colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: Sizes.p4),
-                        child: Icon(
-                          isSelected
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_unchecked,
-                          color: isSelected
-                              ? context.colorScheme.primary
-                              : context.colorScheme.outline,
-                          size: 20,
+                        Padding(
+                          padding: const EdgeInsets.only(top: Sizes.p4),
+                          child: Icon(
+                            isSelected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_unchecked,
+                            color: isSelected
+                                ? context.colorScheme.primary
+                                : (isAllowed
+                                      ? context.colorScheme.outline
+                                      : context.colorScheme.outlineVariant),
+                            size: 20,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
