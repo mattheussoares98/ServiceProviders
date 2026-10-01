@@ -39,6 +39,7 @@ class CompanyEntity extends Equatable {
   bool get isInternalOnly => workType.isInternalOnly;
   bool get isServiceProviderOnly => workType.isServiceProviderOnly;
   bool get isHybrid => workType.isHybrid;
+  bool canUpgradeTo(WorkType target) => workType.canUpgradeTo(target);
 
   @override
   List<Object?> get props => [

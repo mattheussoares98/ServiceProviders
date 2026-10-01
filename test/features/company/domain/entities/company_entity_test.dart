@@ -17,6 +17,12 @@ void main() {
       expect(internalCompany.isInternalOnly, isTrue);
       expect(internalCompany.isServiceProviderOnly, isFalse);
       expect(internalCompany.isHybrid, isFalse);
+      expect(internalCompany.canUpgradeTo(WorkType.hybrid), isTrue);
+      expect(
+        internalCompany.canUpgradeTo(WorkType.serviceProviderOnly),
+        isFalse,
+      );
+      expect(internalCompany.canUpgradeTo(WorkType.internalOnly), isFalse);
 
       final providerCompany = UserFactory.makeCompanyEntity().copyWith(
         workType: WorkType.serviceProviderOnly,
@@ -29,6 +35,12 @@ void main() {
       expect(providerCompany.isInternalOnly, isFalse);
       expect(providerCompany.isServiceProviderOnly, isTrue);
       expect(providerCompany.isHybrid, isFalse);
+      expect(providerCompany.canUpgradeTo(WorkType.hybrid), isTrue);
+      expect(providerCompany.canUpgradeTo(WorkType.internalOnly), isFalse);
+      expect(
+        providerCompany.canUpgradeTo(WorkType.serviceProviderOnly),
+        isFalse,
+      );
 
       final hybridCompany = UserFactory.makeCompanyEntity().copyWith(
         workType: WorkType.hybrid,
@@ -41,6 +53,9 @@ void main() {
       expect(hybridCompany.isInternalOnly, isFalse);
       expect(hybridCompany.isServiceProviderOnly, isFalse);
       expect(hybridCompany.isHybrid, isTrue);
+      expect(hybridCompany.canUpgradeTo(WorkType.internalOnly), isFalse);
+      expect(hybridCompany.canUpgradeTo(WorkType.serviceProviderOnly), isFalse);
+      expect(hybridCompany.canUpgradeTo(WorkType.hybrid), isFalse);
     });
 
     test('copyWith updates workType correctly', () {
