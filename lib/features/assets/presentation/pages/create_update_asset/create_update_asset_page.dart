@@ -54,8 +54,7 @@ class CreateUpdateAssetPage extends HookWidget {
     final workType = context.select<CompanyCubit, WorkType>(
       (cubit) => cubit.state.company?.workType ?? WorkType.internalOnly,
     );
-    final isServiceProviderOnly = workType.isServiceProviderOnly;
-    final isInternalOnly = workType.isInternalOnly;
+    final requireLocation = workType.requiresLocation;
 
     //* the same for locations and areas
     final (loadingLocations, locationsError) = context
@@ -74,11 +73,13 @@ class CreateUpdateAssetPage extends HookWidget {
           return (section.isRunning, section.errorMessage);
         });
 
-    if (loadingCategories || (!isServiceProviderOnly && loadingLocations) || loadingAssets) {
+    if (loadingCategories ||
+        (requireLocation && loadingLocations) ||
+        loadingAssets) {
       return const Center(child: LoadingCircle());
     }
     final hasError =
-        (!isServiceProviderOnly && (locationsError?.isNotEmpty ?? false)) ||
+        (requireLocation && (locationsError?.isNotEmpty ?? false)) ||
         (categoriesError?.isNotEmpty ?? false) ||
         (assetsError?.isNotEmpty ?? false);
 
@@ -89,7 +90,7 @@ class CreateUpdateAssetPage extends HookWidget {
           children: [
             BaseText.error(
               [
-                if (!isServiceProviderOnly) ?locationsError,
+                if (requireLocation) ?locationsError,
                 ?categoriesError,
                 ?assetsError,
               ].join('\n'),
@@ -97,7 +98,7 @@ class CreateUpdateAssetPage extends HookWidget {
             gapH8,
             BaseButton(
               onTap: () {
-                if (!isServiceProviderOnly && (locationsError?.isNotEmpty ?? false)) {
+                if (requireLocation && (locationsError?.isNotEmpty ?? false)) {
                   context.read<LocationsCubit>().loadLocationsAndAreas();
                 }
                 if (categoriesError?.isNotEmpty ?? false) {
@@ -154,7 +155,7 @@ class CreateUpdateAssetPage extends HookWidget {
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
-      if (isInternalOnly && selectedLocationId.value == null) {
+      if (requireLocation && selectedLocationId.value == null) {
         ToastUtil.showError('Selecione um local para o equipamento'.hardcoded);
         return;
       }
@@ -203,13 +204,13 @@ class CreateUpdateAssetPage extends HookWidget {
                     nameFocusNode: nameFocusNode,
                     codeFocusNode: codeFocusNode,
                   ),
-                  if (!isServiceProviderOnly) ...[
+                  if (requireLocation) ...[
                     gapH16,
                     LocationDropdown(
                       selectedLocationId: selectedLocationId.value,
                       onChangeArea: (val) => selectedAreaId.value = val,
                       onChangeLocation: (val) => selectedLocationId.value = val,
-                      isRequired: isInternalOnly,
+                      isRequired: requireLocation,
                     ),
                     gapH16,
                     AreaDropdown(
@@ -218,7 +219,7 @@ class CreateUpdateAssetPage extends HookWidget {
                       onChanged: (value) => selectedAreaId.value = value,
                     ),
                   ],
-                  if (!isInternalOnly) ...[
+                  if (requireLocation) ...[
                     gapH16,
                     _CustomerDropdown(
                       selectedId: selectedCustomerId.value,
