@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/use_cases/delete_asset_use
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_asset_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/has_assets_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 
@@ -25,6 +26,7 @@ void main() {
   late GetAssetsUseCase getAssetsUseCase;
   late GetAssetsByIdsUseCase getAssetsByIdsUseCase;
   late GetAssetByIdUseCase getAssetByIdUseCase;
+  late HasAssetsUseCase hasAssetsUseCase;
   late WatchAssetsRealtimeUseCase watchAssetsRealtimeUseCase;
 
   setUpAll(() {
@@ -41,6 +43,7 @@ void main() {
       assetsRepository: mockRepository,
     );
     getAssetByIdUseCase = GetAssetByIdUseCase(assetsRepository: mockRepository);
+    hasAssetsUseCase = HasAssetsUseCase(assetsRepository: mockRepository);
     watchAssetsRealtimeUseCase = WatchAssetsRealtimeUseCase(
       assetsRepository: mockRepository,
     );
@@ -273,6 +276,23 @@ void main() {
           () => mockRepository.watchAssetsRealtime(companyId: tId),
         ).called(1);
       });
+    });
+
+    group('HasAssetsUseCase', () {
+      test(
+        'should call repository.hasNonDeletedAssets and return SuccessState',
+        () async {
+          when(
+            () => mockRepository.hasNonDeletedAssets(any()),
+          ).thenAnswer((_) async => const SuccessState(data: true));
+
+          final result = await hasAssetsUseCase(tId);
+
+          expect(result, isA<SuccessState<bool>>());
+          expect((result as SuccessState<bool>).data, isTrue);
+          verify(() => mockRepository.hasNonDeletedAssets(tId)).called(1);
+        },
+      );
     });
   });
 }
