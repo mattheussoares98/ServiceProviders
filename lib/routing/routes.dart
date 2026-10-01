@@ -65,6 +65,7 @@ class AppRouter extends RootStackRouter {
             AutoRoute(page: WorkOrdersRoute.page, path: kWorkOrdersPath),
             AutoRoute(page: AssetsRoute.page, path: kAssetsPath),
             AutoRoute(page: LocationsRoute.page, path: kLocationsPath),
+            AutoRoute(page: CustomersRoute.page, path: kCustomersPath),
           ],
         ),
         //* Company
