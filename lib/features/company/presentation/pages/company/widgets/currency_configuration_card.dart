@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 class CurrencyOption {
+  //TODO move this file
   const CurrencyOption({
     required this.code,
     required this.label,
@@ -57,8 +58,7 @@ class CurrencyConfigurationCard extends StatelessWidget {
       (cubit) => cubit.state.user.isAdmin,
     );
     final isUpdating = context.select<CompanyCubit, bool>(
-      (cubit) =>
-          cubit.state.section(CompanySections.updateCurrency).isRunning,
+      (cubit) => cubit.state.section(CompanySections.updateCurrency).isRunning,
     );
 
     final currentCurrency = parameters.currency.toUpperCase();
@@ -103,9 +103,9 @@ class CurrencyConfigurationCard extends StatelessWidget {
                 key: ValueKey('CurrencyOption_${currency.code}'),
                 onTap: (!isAdmin || isUpdating || isSelected)
                     ? null
-                    : () => context
-                        .read<CompanyCubit>()
-                        .updateCurrency(currency.code),
+                    : () => context.read<CompanyCubit>().updateCurrency(
+                        currency.code,
+                      ),
                 borderRadius: BorderRadius.circular(Sizes.p8),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
@@ -115,8 +115,9 @@ class CurrencyConfigurationCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(Sizes.p8),
                     color: isSelected
-                        ? context.colorScheme.primaryContainer
-                            .withValues(alpha: 0.3)
+                        ? context.colorScheme.primaryContainer.withValues(
+                            alpha: 0.3,
+                          )
                         : Colors.transparent,
                   ),
                   child: Row(
@@ -128,7 +129,9 @@ class CurrencyConfigurationCard extends StatelessWidget {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? context.colorScheme.primary.withValues(alpha: 0.1)
+                              ? context.colorScheme.primary.withValues(
+                                  alpha: 0.1,
+                                )
                               : context.colorScheme.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(Sizes.p8),
                         ),
