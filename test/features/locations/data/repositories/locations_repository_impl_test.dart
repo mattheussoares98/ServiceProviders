@@ -1065,6 +1065,66 @@ void main() {
         verify(() => mockRemoteDataSource.getAddressByCep(tCep)).called(1);
       });
     });
+
+    group('hasNonDeletedLocations', () {
+      test('fetches from remote when connected', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.hasNonDeletedLocations(tCompanyId),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.hasNonDeletedLocations(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockRemoteDataSource.hasNonDeletedLocations(tCompanyId)).called(1);
+        verifyNever(() => mockLocalDataSource.hasNonDeletedLocations(any()));
+      });
+
+      test('falls back to local when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.hasNonDeletedLocations(tCompanyId),
+        ).thenAnswer((_) async => const SuccessState(data: false));
+
+        final result = await repository.hasNonDeletedLocations(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+        verify(() => mockLocalDataSource.hasNonDeletedLocations(tCompanyId)).called(1);
+        verifyNever(() => mockRemoteDataSource.hasNonDeletedLocations(any()));
+      });
+    });
+
+    group('hasNonDeletedAreas', () {
+      test('fetches from remote when connected', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.hasNonDeletedAreas(tCompanyId),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.hasNonDeletedAreas(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockRemoteDataSource.hasNonDeletedAreas(tCompanyId)).called(1);
+        verifyNever(() => mockLocalDataSource.hasNonDeletedAreas(any()));
+      });
+
+      test('falls back to local when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.hasNonDeletedAreas(tCompanyId),
+        ).thenAnswer((_) async => const SuccessState(data: false));
+
+        final result = await repository.hasNonDeletedAreas(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+        verify(() => mockLocalDataSource.hasNonDeletedAreas(tCompanyId)).called(1);
+        verifyNever(() => mockRemoteDataSource.hasNonDeletedAreas(any()));
+      });
+    });
   });
 }
 

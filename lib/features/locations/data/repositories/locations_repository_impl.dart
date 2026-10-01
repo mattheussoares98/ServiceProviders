@@ -97,6 +97,15 @@ final class LocationsRepositoryImpl implements LocationsRepository {
       );
 
   @override
+  FutureBool hasNonDeletedLocations(String companyId) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () =>
+            _remoteDataSource.hasNonDeletedLocations(companyId),
+        localCallback: () => _localDataSource.hasNonDeletedLocations(companyId),
+      );
+
+  @override
   FutureList<AreaEntity> getAreas(String companyId) =>
       RepositoryHandler.fetchWithFallbackAndMapList<AreaModel, AreaEntity>(
         isInternetConnected: _internet.isConnected,
@@ -154,6 +163,14 @@ final class LocationsRepositoryImpl implements LocationsRepository {
     remoteCallback: () => _remoteDataSource.deleteArea(id),
     onRemoteSuccess: (_) => _localDataSource.deleteArea(id),
   );
+
+  @override
+  FutureBool hasNonDeletedAreas(String companyId) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.hasNonDeletedAreas(companyId),
+        localCallback: () => _localDataSource.hasNonDeletedAreas(companyId),
+      );
 
 
   @override

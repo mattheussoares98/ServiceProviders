@@ -12,6 +12,7 @@ abstract interface class LocationsRepository {
   FutureBool createLocation(LocationEntity location);
   FutureBool updateLocation(LocationEntity location);
   FutureBool deleteLocation(String id);
+  FutureBool hasNonDeletedLocations(String companyId);
   Stream<RealtimeEvent<LocationEntity>> watchLocationsRealtime({String? companyId});
 
   // Areas
@@ -21,6 +22,7 @@ abstract interface class LocationsRepository {
   FutureBool createArea(AreaEntity area);
   FutureBool updateArea(AreaEntity area);
   FutureBool deleteArea(String id);
+  FutureBool hasNonDeletedAreas(String companyId);
   Stream<RealtimeEvent<AreaEntity>> watchAreasRealtime({String? companyId});
 
   // Address lookup
