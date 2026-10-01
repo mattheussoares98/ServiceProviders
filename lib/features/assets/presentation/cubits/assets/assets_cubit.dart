@@ -43,7 +43,8 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       idSelector: (a) => a.id,
       isDeleted: (a) => a.deletedAt != null,
     );
-    emit(state.copyWith(assets: updatedAssets));
+    final hasAssets = updatedAssets.isNotEmpty || state.hasAssets;
+    emit(state.copyWith(assets: updatedAssets, hasAssets: hasAssets));
   }
 
   Future<void> loadAssets({bool emitLoading = true}) async {
@@ -74,19 +75,25 @@ class AssetsCubit extends BaseCubit<AssetsState> {
       );
     }
 
+    final hasAssetsResult = await _useCases.hasAssets(companyId);
+    final hasAssets = hasAssetsResult.data ?? false;
+
     final result = await _useCases.getAssets(companyId);
     if (isClosed) return;
 
     if (result is SuccessState<List<AssetEntity>>) {
+      final assetsList = result.data ?? [];
       emit(
         state.copyWith(
-          assets: result.data ?? [],
+          assets: assetsList,
+          hasAssets: hasAssets || assetsList.isNotEmpty,
           sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
     } else {
       emit(
         state.copyWith(
+          hasAssets: hasAssets,
           sections: withSection(
             BaseSections.load,
             SectionStatus.error,

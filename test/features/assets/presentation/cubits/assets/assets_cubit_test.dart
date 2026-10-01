@@ -61,6 +61,7 @@ void main() {
   late MockUpdateAssetUseCase mockUpdateAsset;
   late MockDeleteAssetUseCase mockDeleteAsset;
   late MockWatchAssetsRealtimeUseCase mockWatchAssetsRealtime;
+  late MockHasAssetsUseCase mockHasAssets;
   late MockNavigationClient mockNavigationClient;
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyIdUseCase;
 
@@ -80,6 +81,7 @@ void main() {
     mockUpdateAsset = MockUpdateAssetUseCase();
     mockDeleteAsset = MockDeleteAssetUseCase();
     mockWatchAssetsRealtime = MockWatchAssetsRealtimeUseCase();
+    mockHasAssets = MockHasAssetsUseCase();
     mockNavigationClient = MockNavigationClient();
     mockGetActiveCompanyIdUseCase = MockGetActiveCompanyIdUseCase();
 
@@ -92,6 +94,9 @@ void main() {
     when(
       () => mockWatchAssetsRealtime.call(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockHasAssets.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
     final useCases = AssetsCubitUseCases(
       getAssets: mockGetAssets,
@@ -102,6 +107,7 @@ void main() {
       deleteAsset: mockDeleteAsset,
       getActiveCompanyId: mockGetActiveCompanyIdUseCase,
       watchAssetsRealtime: mockWatchAssetsRealtime,
+      hasAssets: mockHasAssets,
     );
 
     cubit = AssetsCubit(useCases: useCases);
@@ -938,6 +944,7 @@ void main() {
               deleteAsset: mockDeleteAsset,
               getActiveCompanyId: mockGetActiveCompanyIdUseCase,
               watchAssetsRealtime: mockWatchAssetsRealtime,
+              hasAssets: mockHasAssets,
             ),
           );
 
@@ -983,6 +990,7 @@ void main() {
               deleteAsset: mockDeleteAsset,
               getActiveCompanyId: mockGetActiveCompanyIdUseCase,
               watchAssetsRealtime: mockWatchAssetsRealtime,
+              hasAssets: mockHasAssets,
             ),
           );
 
@@ -1031,6 +1039,7 @@ void main() {
               deleteAsset: mockDeleteAsset,
               getActiveCompanyId: mockGetActiveCompanyIdUseCase,
               watchAssetsRealtime: mockWatchAssetsRealtime,
+              hasAssets: mockHasAssets,
             ),
           );
 
@@ -1077,6 +1086,7 @@ void main() {
               deleteAsset: mockDeleteAsset,
               getActiveCompanyId: mockGetActiveCompanyIdUseCase,
               watchAssetsRealtime: mockWatchAssetsRealtime,
+              hasAssets: mockHasAssets,
             ),
           );
 

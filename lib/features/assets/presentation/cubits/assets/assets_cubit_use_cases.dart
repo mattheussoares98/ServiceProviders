@@ -4,6 +4,7 @@ import 'package:o_jogo_da_obra/features/assets/domain/use_cases/delete_asset_use
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_asset_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_by_ids_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/get_assets_use_case.dart';
+import 'package:o_jogo_da_obra/features/assets/domain/use_cases/has_assets_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/update_asset_use_case.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/use_cases/watch_assets_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
@@ -19,6 +20,7 @@ class AssetsCubitUseCases {
     required this.updateAsset,
     required this.deleteAsset,
     required this.watchAssetsRealtime,
+    required this.hasAssets,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -29,4 +31,5 @@ class AssetsCubitUseCases {
   final UpdateAssetUseCase updateAsset;
   final DeleteAssetUseCase deleteAsset;
   final WatchAssetsRealtimeUseCase watchAssetsRealtime;
+  final HasAssetsUseCase hasAssets;
 }
