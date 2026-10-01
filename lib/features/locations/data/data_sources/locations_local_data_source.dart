@@ -12,11 +12,13 @@ abstract interface class LocationsLocalDataSource {
   FutureBool saveLocation(LocationModel location);
   FutureBool deleteLocation(String id);
   FutureBool saveLocations(List<LocationModel> locations);
+  FutureBool hasNonDeletedLocations(String companyId);
 
   FutureList<AreaModel> getAreas(String companyId);
   FutureBool saveArea(AreaModel area);
   FutureBool deleteArea(String id);
   FutureBool saveAreas(List<AreaModel> areas);
+  FutureBool hasNonDeletedAreas(String companyId);
 }
 
 @LazySingleton(as: LocationsLocalDataSource)
@@ -25,6 +27,28 @@ final class LocationsLocalDataSourceImpl implements LocationsLocalDataSource {
     : _database = database;
 
   final AppDatabase _database;
+
+  @override
+  FutureBool hasNonDeletedLocations(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.locations)
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())
+        ..limit(1);
+      final rows = await query.get();
+      return SuccessState(data: rows.isNotEmpty);
+    });
+  }
+
+  @override
+  FutureBool hasNonDeletedAreas(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.areas)
+        ..where((t) => t.companyId.equals(companyId) & t.deletedAt.isNull())
+        ..limit(1);
+      final rows = await query.get();
+      return SuccessState(data: rows.isNotEmpty);
+    });
+  }
 
   @override
   FutureList<LocationModel> getLocations(String companyId) {

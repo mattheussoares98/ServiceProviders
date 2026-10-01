@@ -229,5 +229,44 @@ void main() {
         },
       );
     });
+
+    group('hasNonDeletedLocations', () {
+      test('returns true when non-deleted location exists', () async {
+        await insertTestCompany(tLocationModel.companyId);
+        await dataSource.saveLocation(tLocationModel);
+
+        final result = await dataSource.hasNonDeletedLocations(tLocationModel.companyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      });
+
+      test('returns false when no non-deleted location exists', () async {
+        final result = await dataSource.hasNonDeletedLocations('other-company');
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+      });
+    });
+
+    group('hasNonDeletedAreas', () {
+      test('returns true when non-deleted area exists', () async {
+        await insertTestCompany(tAreaModel.companyId);
+        await dataSource.saveLocation(tLocationModel);
+        await dataSource.saveArea(tAreaModel);
+
+        final result = await dataSource.hasNonDeletedAreas(tAreaModel.companyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      });
+
+      test('returns false when no non-deleted area exists', () async {
+        final result = await dataSource.hasNonDeletedAreas('other-company');
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+      });
+    });
   });
 }

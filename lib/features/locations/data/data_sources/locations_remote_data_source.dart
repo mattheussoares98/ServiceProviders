@@ -22,6 +22,7 @@ abstract interface class LocationsRemoteDataSource {
   FutureData<LocationModel> createLocation(LocationModel request);
   FutureData<LocationModel> updateLocation(LocationModel request);
   FutureVoid deleteLocation(String id);
+  FutureBool hasNonDeletedLocations(String companyId);
   Stream<RealtimeEvent<LocationModel>> watchLocationsRealtime({
     String? companyId,
   });
@@ -31,6 +32,7 @@ abstract interface class LocationsRemoteDataSource {
   FutureData<AreaModel> createArea(AreaRequestModel request);
   FutureData<AreaModel> updateArea(AreaRequestModel request);
   FutureVoid deleteArea(String id);
+  FutureBool hasNonDeletedAreas(String companyId);
   Stream<RealtimeEvent<AreaModel>> watchAreasRealtime({String? companyId});
 
   FutureData<AddressModel> getAddressByCep(String cep);
@@ -49,6 +51,36 @@ final class LocationsRemoteDataSourceImpl implements LocationsRemoteDataSource {
   final SupabaseDatabaseClient _database;
   final SupabaseRealtimeClient _realtimeClient;
   final HttpClient _httpClient;
+
+  @override
+  FutureBool hasNonDeletedLocations(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'locations',
+          columns: 'id',
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+          limit: 1,
+        );
+        return response.isNotEmpty;
+      });
+
+  @override
+  FutureBool hasNonDeletedAreas(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'areas',
+          columns: 'id',
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+          limit: 1,
+        );
+        return response.isNotEmpty;
+      });
 
   @override
   FutureList<LocationModel> getLocations(String companyId) =>

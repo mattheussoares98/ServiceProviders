@@ -496,5 +496,73 @@ void main() {
         expect(result, isA<FailureState<AddressModel>>());
       });
     });
+
+    group('hasNonDeletedLocations', () {
+      test('returns true when non-deleted location exists', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'locations',
+            columns: 'id',
+            filters: any(named: 'filters'),
+            limit: 1,
+          ),
+        ).thenAnswer((_) async => [{'id': 'loc-1'}]);
+
+        final result = await dataSource.hasNonDeletedLocations(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      });
+
+      test('returns false when no non-deleted location exists', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'locations',
+            columns: 'id',
+            filters: any(named: 'filters'),
+            limit: 1,
+          ),
+        ).thenAnswer((_) async => []);
+
+        final result = await dataSource.hasNonDeletedLocations(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+      });
+    });
+
+    group('hasNonDeletedAreas', () {
+      test('returns true when non-deleted area exists', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'areas',
+            columns: 'id',
+            filters: any(named: 'filters'),
+            limit: 1,
+          ),
+        ).thenAnswer((_) async => [{'id': 'area-1'}]);
+
+        final result = await dataSource.hasNonDeletedAreas(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      });
+
+      test('returns false when no non-deleted area exists', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'areas',
+            columns: 'id',
+            filters: any(named: 'filters'),
+            limit: 1,
+          ),
+        ).thenAnswer((_) async => []);
+
+        final result = await dataSource.hasNonDeletedAreas(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+      });
+    });
   });
 }
