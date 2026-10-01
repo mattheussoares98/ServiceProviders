@@ -210,7 +210,6 @@ class CreateUpdateAssetPage extends HookWidget {
                       selectedLocationId: selectedLocationId.value,
                       onChangeArea: (val) => selectedAreaId.value = val,
                       onChangeLocation: (val) => selectedLocationId.value = val,
-                      isRequired: requireLocation,
                     ),
                     gapH16,
                     AreaDropdown(

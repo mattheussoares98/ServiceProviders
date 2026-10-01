@@ -12,12 +12,12 @@ class AreaDropdown extends StatelessWidget {
     required this.selectedLocationId,
     required this.selectedAreaId,
     required this.onChanged,
-    this.isRequired = false,
+    // this.isRequired = false,
   });
   final String? selectedAreaId;
   final String? selectedLocationId;
   final ValueChanged<String?> onChanged;
-  final bool isRequired;
+  // final bool isRequired;
 
   @override
   Widget build(BuildContext context) {
@@ -34,16 +34,14 @@ class AreaDropdown extends StatelessWidget {
 
     return BaseDropDown<String>(
       key: const ValueKey('Area'),
-      label: isRequired ? 'Área *'.hardcoded : 'Área (opcional)'.hardcoded,
+      label: 'Área *'.hardcoded,
       selectedItem: selectedAreaId,
       hint: selectedLocationId == null
           ? BaseText('Selecione primeiro o local'.hardcoded)
           : (filteredAreas.isEmpty
                 ? BaseText('Sem áreas cadastradas'.hardcoded)
                 : BaseText('Nenhuma área selecionada'.hardcoded)),
-      validator: isRequired
-          ? (val) => val == null ? 'Selecione uma área'.hardcoded : null
-          : null,
+      validator: (val) => val == null ? 'Selecione uma área'.hardcoded : null,
       items: areasItems,
       onChanged: onChanged,
       onClear: selectedAreaId != null ? () => onChanged(null) : null,
