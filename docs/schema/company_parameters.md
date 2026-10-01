@@ -24,6 +24,7 @@ Configuration limits governing client offline allowances, file upload thresholds
 | `max_maintenance_plans` | INT | NO | 0 | Max maintenance plans. 0 = unlimited for paid, disabled when free |
 | `max_service_providers` | INT | NO | 0 | Max service providers. 0 = unlimited for paid, disabled when free |
 | `max_observations_per_work_order` | INT | NO | 0 | Max observations per WO. 0 = unlimited |
+| `currency` | VARCHAR(3) | NO | 'BRL' | ISO 4217 3-letter currency code (e.g. BRL, USD, EUR) |
 
 **Note**: `company_id` has a UNIQUE constraint (one row per company).
 
