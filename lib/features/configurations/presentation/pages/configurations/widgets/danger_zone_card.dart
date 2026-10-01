@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,8 +32,8 @@ class DangerZoneCard extends StatelessWidget {
     );
   }
 
-  void _showConfirmationDialog(BuildContext context) {
-    showAlertDialog(
+  Future<void> _showConfirmationDialog(BuildContext context) async {
+    final proceed = await showAlertDialog(
       context: context,
       title: 'Limpar Cache?'.hardcoded,
       contentText:
@@ -39,7 +41,9 @@ class DangerZoneCard extends StatelessWidget {
           'Você será desconectado e as preferências serão resetadas.'.hardcoded,
       defaultActionText: 'Limpar'.hardcoded,
       cancelActionText: 'Cancelar'.hardcoded,
-      onOkPressed: context.read<ConfigurationsCubit>().clearAppCache,
     );
+    if (proceed == true && context.mounted) {
+      unawaited(context.read<ConfigurationsCubit>().clearAppCache());
+    }
   }
 }

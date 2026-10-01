@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -17,11 +19,11 @@ class ResetPassword extends HookWidget {
   const ResetPassword({super.key, required this.emailController});
   final TextEditingController emailController;
 
-  void _showResetPasswordDialog(
+  Future<void> _showResetPasswordDialog(
     BuildContext context,
     GlobalKey<FormState> formKey,
     TextEditingController resetPasswordController,
-  ) {
+  ) async {
     if (EmailValidator().isValid(emailController.text)) {
       resetPasswordController.text = emailController.text;
     } else {
@@ -37,10 +39,9 @@ class ResetPassword extends HookWidget {
 
     final loginCubit = context.read<LoginCubit>();
 
-    showAlertDialog(
+    final proceed = await showAlertDialog(
       context: context,
       title: 'Recuperar Senha'.hardcoded,
-      onOkPressed: onSubmit,
       actions: [],
       contentWidget: BlocProvider.value(
         value: loginCubit,
@@ -52,6 +53,9 @@ class ResetPassword extends HookWidget {
         ),
       ),
     );
+    if (proceed == true && context.mounted) {
+      unawaited(onSubmit());
+    }
   }
 
   @override

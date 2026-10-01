@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,8 +52,8 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
                     materialIcon: Icons.mail,
                     cupertinoIcon: CupertinoIcons.mail,
                   ),
-                  onPressed: () {
-                    showAlertDialog(
+                  onPressed: () async {
+                    final proceed = await showAlertDialog(
                       context: context,
                       title: 'Enviar convite'.hardcoded,
                       contentText:
@@ -60,13 +62,15 @@ class ServiceProviderCompanySubtitle extends StatelessWidget {
                               .hardcoded,
                       defaultActionText: 'Sim'.hardcoded,
                       cancelActionText: 'Não'.hardcoded,
-                      onOkPressed: () {
+                    );
+                    if (proceed == true && context.mounted) {
+                      unawaited(
                         context.read<ServiceProvidersCubit>().sendInvitation(
                           serviceProviderCompanyId: company.id,
                           email: company.contactEmail!,
-                        );
-                      },
-                    );
+                        ),
+                      );
+                    }
                   },
                 )
               else if (company.invitationStatus !=

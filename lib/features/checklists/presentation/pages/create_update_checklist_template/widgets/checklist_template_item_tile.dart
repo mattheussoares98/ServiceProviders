@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,19 +61,26 @@ class ChecklistTemplateItemTile extends StatelessWidget {
                   resourceType: ResourceType.checklists,
                   permissionAction: PermissionAction.delete,
                 ),
-                onPressed: () => showAlertDialog(
-                  context: context,
-                  title: 'Atenção!'.hardcoded,
-                  contentText:
-                      'Deseja realmente excluir o item "${item.label}"?'
-                          .hardcoded,
-                  defaultActionText: 'Sim'.hardcoded,
-                  cancelActionText: 'Não'.hardcoded,
-                  onOkPressed: () => cubit.deleteItem(
-                    id: item.id,
-                    templateId: item.templateId,
-                  ),
-                ),
+                onPressed: () async {
+                  final proceed = await showAlertDialog(
+                    context: context,
+                    title: 'Atenção!'.hardcoded,
+                    contentText:
+                        'Deseja realmente excluir o item "${item.label}"?'
+                            .hardcoded,
+                    defaultActionText: 'Sim'.hardcoded,
+                    cancelActionText: 'Não'.hardcoded,
+                  );
+
+                  if (proceed == true && context.mounted) {
+                    unawaited(
+                      cubit.deleteItem(
+                        id: item.id,
+                        templateId: item.templateId,
+                      ),
+                    );
+                  }
+                },
                 platformIcon: const PlatformIcon(
                   materialIcon: Icons.delete_outline,
                   cupertinoIcon: CupertinoIcons.delete,

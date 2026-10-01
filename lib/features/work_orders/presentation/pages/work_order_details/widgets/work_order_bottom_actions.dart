@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -27,19 +29,22 @@ class WorkOrderBottomActions extends StatelessWidget {
       return _BottomBar(
         child: BaseButton(
           text: 'Iniciar trabalho'.hardcoded,
-          onTap: () {
-            showAlertDialog(
+          onTap: () async {
+            final proceed = await showAlertDialog(
               context: context,
               title: 'Iniciar trabalho'.hardcoded,
               contentText: 'Deseja realmente iniciar o trabalho?'.hardcoded,
               defaultActionText: 'Sim'.hardcoded,
               cancelActionText: 'Não'.hardcoded,
-              onOkPressed: () =>
-                  context.read<WorkOrderDetailsCubit>().changeWorkOrderStatus(
-                    workOrder: workOrder,
-                    status: WorkOrderStatus.inProgress,
-                  ),
             );
+            if (proceed == true && context.mounted) {
+              unawaited(
+                context.read<WorkOrderDetailsCubit>().changeWorkOrderStatus(
+                  workOrder: workOrder,
+                  status: WorkOrderStatus.inProgress,
+                ),
+              );
+            }
           },
         ),
       );
@@ -50,20 +55,23 @@ class WorkOrderBottomActions extends StatelessWidget {
       return _BottomBar(
         child: BaseButton(
           text: 'Retomar trabalho'.hardcoded,
-          onTap: () {
-            showAlertDialog(
+          onTap: () async {
+            final proceed = await showAlertDialog(
               context: context,
               title: 'Retomar trabalho'.hardcoded,
               contentText: 'Deseja realmente retomar o trabalho?'.hardcoded,
               defaultActionText: 'Sim'.hardcoded,
               cancelActionText: 'Não'.hardcoded,
-              onOkPressed: () =>
-                  context.read<WorkOrderDetailsCubit>().resumeWork(
-                    workOrder: workOrder,
-                    currentUserId: context.read<SessionCubit>().state.user.id,
-                    pauseCubit: context.read<PauseWorkflowCubit>(),
-                  ),
             );
+            if (proceed == true && context.mounted) {
+              unawaited(
+                context.read<WorkOrderDetailsCubit>().resumeWork(
+                  workOrder: workOrder,
+                  currentUserId: context.read<SessionCubit>().state.user.id,
+                  pauseCubit: context.read<PauseWorkflowCubit>(),
+                ),
+              );
+            }
           },
         ),
       );

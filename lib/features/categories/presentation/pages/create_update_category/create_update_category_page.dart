@@ -72,8 +72,8 @@ class CreateUpdateCategoryPage extends HookWidget {
                 resourceType: ResourceType.categories,
                 permissionAction: PermissionAction.delete,
               ),
-              onPressed: () {
-                showAlertDialog(
+              onPressed: () async {
+                final proceed = await showAlertDialog(
                   context: context,
                   title: 'Atenção!'.hardcoded,
                   contentText:
@@ -81,16 +81,16 @@ class CreateUpdateCategoryPage extends HookWidget {
                           .hardcoded,
                   defaultActionText: 'Sim'.hardcoded,
                   cancelActionText: 'Não'.hardcoded,
-                  onOkPressed: () async {
-                    final succeeds = await context
-                        .read<CategoriesCubit>()
-                        .deleteCategory(category!.id);
-
-                    if (succeeds && context.mounted) {
-                      Navigator.of(context).pop();
-                    }
-                  },
                 );
+                if (proceed == true && context.mounted) {
+                  final succeeds = await context
+                      .read<CategoriesCubit>()
+                      .deleteCategory(category!.id);
+
+                  if (succeeds && context.mounted) {
+                    Navigator.of(context).pop();
+                  }
+                }
               },
               platformIcon: const PlatformIcon(
                 materialIcon: Icons.delete_outline,

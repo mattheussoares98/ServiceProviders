@@ -27,21 +27,21 @@ class DeleteLocationButton extends StatelessWidget {
             cubit.state.sections[LocationsSections.deleteLocation] ==
             const SectionState.running(),
       ),
-      onPressed: () {
-        showAlertDialog(
+      onPressed: () async {
+        final proceed = await showAlertDialog(
           context: context,
           title: 'Excluir local?'.hardcoded,
-          onOkPressed: () async {
-            final cubit = context.read<LocationsCubit>();
-            final succeeds = await cubit.deleteLocation(locationId!);
-            if (succeeds && context.mounted) {
-              cubit.popRoute();
-            }
-          },
           contentText: 'Tem certeza que deseja excluir o local?'.hardcoded,
           defaultActionText: 'Sim'.hardcoded,
           cancelActionText: 'Cancelar'.hardcoded,
         );
+        if (proceed == true && context.mounted) {
+          final cubit = context.read<LocationsCubit>();
+          final succeeds = await cubit.deleteLocation(locationId!);
+          if (succeeds && context.mounted) {
+            cubit.popRoute();
+          }
+        }
       },
       platformIcon: const PlatformIcon(
         cupertinoIcon: CupertinoIcons.trash,

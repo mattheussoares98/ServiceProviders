@@ -23,21 +23,21 @@ class DeleteIconButton extends StatelessWidget {
         resourceType: ResourceType.locations,
         permissionAction: PermissionAction.delete,
       ),
-      onPressed: () {
-        showAlertDialog(
+      onPressed: () async {
+        final proceed = await showAlertDialog(
           context: context,
           title: 'Excluir área'.hardcoded,
-          onOkPressed: () async {
-            final cubit = context.read<LocationsCubit>();
-            final succeeds = await cubit.deleteArea(area!.id, area!.locationId);
-            if (succeeds && context.mounted) {
-              cubit.popRoute();
-            }
-          },
           contentText: 'Tem certeza que deseja excluir a área?'.hardcoded,
           defaultActionText: 'Sim'.hardcoded,
           cancelActionText: 'Cancelar'.hardcoded,
         );
+        if (proceed == true && context.mounted) {
+          final cubit = context.read<LocationsCubit>();
+          final succeeds = await cubit.deleteArea(area!.id, area!.locationId);
+          if (succeeds && context.mounted) {
+            cubit.popRoute();
+          }
+        }
       },
       platformIcon: const PlatformIcon(
         materialIcon: Icons.delete,

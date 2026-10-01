@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -52,8 +54,8 @@ class AttachmentItem extends StatelessWidget {
           ),
         );
 
-    void onDelete() {
-      showAlertDialog(
+    Future<void> onDelete() async {
+      final proceed = await showAlertDialog(
         context: context,
         title: 'Remover anexo'.hardcoded,
         contentText: isChecklistEvidence
@@ -62,13 +64,15 @@ class AttachmentItem extends StatelessWidget {
             : 'Deseja realmente remover o anexo?'.hardcoded,
         defaultActionText: 'Sim'.hardcoded,
         cancelActionText: 'Não'.hardcoded,
-        onOkPressed: () {
+      );
+      if (proceed == true && context.mounted) {
+        unawaited(
           context.read<AttachmentsCubit>().deleteAttachment(
             attachment.id,
             autoDelete: autoDelete,
-          );
-        },
-      );
+          ),
+        );
+      }
     }
 
     return Container(

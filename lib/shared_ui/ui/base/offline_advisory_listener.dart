@@ -17,7 +17,7 @@ class OfflineAdvisoryListener extends StatelessWidget {
       listenWhen: (previous, current) =>
           current.shouldShowDialog &&
           previous.advisoryEvent != current.advisoryEvent,
-      listener: (context, state) {
+      listener: (context, state) async {
         final event = state.advisoryEvent;
         if (event == null) return;
 
@@ -43,24 +43,22 @@ class OfflineAdvisoryListener extends StatelessWidget {
               .hardcoded,
         );
 
-        showAlertDialog(
+        final proceed = await showAlertDialog(
           context: context,
           title: 'Aviso de modo offline'.hardcoded,
           contentText: buffer.toString(),
           defaultActionText: 'Entendi'.hardcoded,
-          onOkPressed: () {
-            context.read<OfflineAdvisoryCubit>().dismissAlert();
-          },
         );
+        if (proceed == true && context.mounted) {
+          context.read<OfflineAdvisoryCubit>().dismissAlert();
+        }
       },
       builder: (context, state) {
         return Stack(
           children: [
             child,
             if (state.isProviderBlocked)
-              const Positioned.fill(
-                child: ProviderOfflineBlocker(),
-              ),
+              const Positioned.fill(child: ProviderOfflineBlocker()),
           ],
         );
       },

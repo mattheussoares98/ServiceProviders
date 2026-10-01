@@ -22,8 +22,8 @@ class ChecklistTemplateDeleteAction extends StatelessWidget {
         resourceType: ResourceType.checklists,
         permissionAction: PermissionAction.delete,
       ),
-      onPressed: () {
-        showAlertDialog(
+      onPressed: () async {
+        final proceed = await showAlertDialog(
           context: context,
           title: 'Atenção!'.hardcoded,
           contentText:
@@ -31,14 +31,14 @@ class ChecklistTemplateDeleteAction extends StatelessWidget {
                   .hardcoded,
           defaultActionText: 'Sim'.hardcoded,
           cancelActionText: 'Não'.hardcoded,
-          onOkPressed: () async {
-            final succeeds = await context
-                .read<ChecklistTemplatesCubit>()
-                .deleteTemplate(template.id);
-
-            if (succeeds && context.mounted) Navigator.of(context).pop();
-          },
         );
+        if (proceed == true && context.mounted) {
+          final succeeds = await context
+              .read<ChecklistTemplatesCubit>()
+              .deleteTemplate(template.id);
+
+          if (succeeds && context.mounted) Navigator.of(context).pop();
+        }
       },
       platformIcon: const PlatformIcon(
         materialIcon: Icons.delete,

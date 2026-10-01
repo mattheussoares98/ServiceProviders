@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -197,8 +199,8 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                             resourceType: ResourceType.serviceProviders,
                             permissionAction: PermissionAction.delete,
                           ),
-                          onPressed: () {
-                            showAlertDialog(
+                          onPressed: () async {
+                            final proceed = await showAlertDialog(
                               context: context,
                               title: 'Atenção'.hardcoded,
                               contentText:
@@ -206,13 +208,17 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                       .hardcoded,
                               defaultActionText: 'Sim'.hardcoded,
                               cancelActionText: 'Não'.hardcoded,
-                              onOkPressed: () => context
-                                  .read<ServiceProvidersCubit>()
-                                  .deleteInvitation(
-                                    invitationId: correspondingInvitation.id,
-                                    serviceProviderCompanyId: company.id,
-                                  ),
                             );
+                            if (proceed == true && context.mounted) {
+                              unawaited(
+                                context
+                                    .read<ServiceProvidersCubit>()
+                                    .deleteInvitation(
+                                      invitationId: correspondingInvitation.id,
+                                      serviceProviderCompanyId: company.id,
+                                    ),
+                              );
+                            }
                           },
                         ),
                     ],
@@ -238,8 +244,8 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                 permissionAction: PermissionAction.update,
                               ),
                               text: 'Convidar por e-mail'.hardcoded,
-                              onPressed: () {
-                                showAlertDialog(
+                              onPressed: () async {
+                                final proceed = await showAlertDialog(
                                   context: context,
                                   title: 'Atenção'.hardcoded,
                                   contentText:
@@ -247,13 +253,17 @@ class ServiceProvidersInvitationsItems extends HookWidget {
                                           .hardcoded,
                                   defaultActionText: 'Sim'.hardcoded,
                                   cancelActionText: 'Não'.hardcoded,
-                                  onOkPressed: () => context
-                                      .read<ServiceProvidersCubit>()
-                                      .sendInvitation(
-                                        serviceProviderCompanyId: company.id,
-                                        email: company.contactEmail!,
-                                      ),
                                 );
+                                if (proceed == true && context.mounted) {
+                                  unawaited(
+                                    context
+                                        .read<ServiceProvidersCubit>()
+                                        .sendInvitation(
+                                          serviceProviderCompanyId: company.id,
+                                          email: company.contactEmail!,
+                                        ),
+                                  );
+                                }
                               },
                             ),
                           ],

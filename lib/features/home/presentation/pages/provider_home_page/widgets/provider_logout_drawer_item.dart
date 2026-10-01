@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,16 +24,16 @@ class ProviderLogoutDrawerItem extends StatelessWidget {
         color: Colors.red,
       ),
       onTap: () async {
-        await showAlertDialog(
+        final proceed = await showAlertDialog(
           context: context,
           title: 'Deseja realmente sair?'.hardcoded,
-          onOkPressed: () {
-            context.pop();
-            context.read<ProviderHomeCubit>().logout();
-          },
           cancelActionText: 'Não'.hardcoded,
           defaultActionText: 'Sim'.hardcoded,
         );
+        if (proceed == true && context.mounted) {
+          context.pop();
+          unawaited(context.read<ProviderHomeCubit>().logout());
+        }
       },
     );
   }

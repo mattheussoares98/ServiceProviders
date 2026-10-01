@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -113,8 +115,8 @@ class ObservationsSection extends HookWidget {
                                 builder: (context, isDeleting) {
                                   return BaseIconButton(
                                     isLoading: isDeleting,
-                                    onPressed: () {
-                                      showAlertDialog(
+                                    onPressed: () async {
+                                      final proceed = await showAlertDialog(
                                         context: context,
                                         title: 'Excluir observação'.hardcoded,
                                         contentText:
@@ -122,9 +124,12 @@ class ObservationsSection extends HookWidget {
                                                 .hardcoded,
                                         cancelActionText: 'Não'.hardcoded,
                                         defaultActionText: 'Sim'.hardcoded,
-                                        onOkPressed: () =>
-                                            cubit.deleteObservation(item.id),
                                       );
+                                      if (proceed == true && context.mounted) {
+                                        unawaited(
+                                          cubit.deleteObservation(item.id),
+                                        );
+                                      }
                                     },
                                     permission:
                                         const ActionPermission.workOrderSubAction(

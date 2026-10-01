@@ -16,7 +16,6 @@ Future<bool?> showAlertDialog({
   Widget? contentWidget,
   String? cancelActionText,
   String defaultActionText = 'OK',
-  VoidCallback? onOkPressed,
   List<Widget>? actions,
 }) {
   return showDialog<bool>(
@@ -58,7 +57,6 @@ Future<bool?> showAlertDialog({
                     child: BaseText(defaultActionText),
                     onPressed: () {
                       Navigator.of(context).pop(true);
-                      onOkPressed?.call();
                     },
                   ),
                 ]
@@ -72,7 +70,6 @@ Future<bool?> showAlertDialog({
                     child: BaseText(defaultActionText),
                     onPressed: () {
                       Navigator.of(context).pop(true);
-                      onOkPressed?.call();
                     },
                   ),
                 ]),
