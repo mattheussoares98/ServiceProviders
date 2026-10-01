@@ -156,11 +156,9 @@ class _CreateUpdatePage extends HookWidget {
             (CompanyCubit cubit) =>
                 cubit.state.company?.workType ?? WorkType.internalOnly,
           );
-    final defaultCurrency = isProviderMode
-        ? 'BRL'
-        : context.select(
-            (CompanyCubit cubit) => cubit.state.parameters?.currency ?? 'BRL',
-          );
+    final defaultCurrency = context.select(
+      (CompanyCubit cubit) => cubit.state.parameters?.currency ?? 'BRL',
+    );
     final isEditing = workOrder != null;
 
     final (assetsError, assetsLoading) = context.select((AssetsCubit cubit) {
