@@ -18,6 +18,7 @@ abstract interface class AssetsRemoteDataSource {
   FutureData<AssetModel> createAsset(AssetRequestModel request);
   FutureData<AssetModel> updateAsset(AssetRequestModel request);
   FutureVoid deleteAsset(String id);
+  FutureBool hasNonDeletedAssets(String companyId);
   Stream<RealtimeEvent<AssetModel>> watchAssetsRealtime({String? companyId});
 }
 
@@ -31,6 +32,21 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
 
   final SupabaseDatabaseClient _database;
   final SupabaseRealtimeClient _realtimeClient;
+
+  @override
+  FutureBool hasNonDeletedAssets(String companyId) =>
+      SupabaseHandler.call(() async {
+        final response = await _database.selectList(
+          table: 'assets',
+          columns: 'id',
+          filters: [
+            SupabaseFilter.eq('company_id', companyId),
+            SupabaseFilter.isFilter('deleted_at', null),
+          ],
+          limit: 1,
+        );
+        return response.isNotEmpty;
+      });
 
   @override
   FutureList<AssetModel> getAssets(
@@ -131,10 +147,9 @@ final class AssetsRemoteDataSourceImpl implements AssetsRemoteDataSource {
         : null;
 
     return _realtimeClient
-        .streamTableChanges(
-          table: 'assets',
-          filter: filter,
-        )
-        .map((payload) => RealtimePayloadMapper.map(payload, AssetModel.fromJson));
+        .streamTableChanges(table: 'assets', filter: filter)
+        .map(
+          (payload) => RealtimePayloadMapper.map(payload, AssetModel.fromJson),
+        );
   }
 }

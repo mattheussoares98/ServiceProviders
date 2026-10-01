@@ -15,6 +15,7 @@ abstract interface class AssetsLocalDataSource {
   FutureBool saveAsset(AssetModel asset);
   FutureBool deleteAsset(String id);
   FutureBool saveAssets(List<AssetModel> assets);
+  FutureBool hasNonDeletedAssets(String companyId);
 }
 
 @LazySingleton(as: AssetsLocalDataSource)
@@ -23,6 +24,19 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
     : _database = database;
 
   final AppDatabase _database;
+
+  @override
+  FutureBool hasNonDeletedAssets(String companyId) {
+    return ErrorHandler.execute(() async {
+      final query = _database.select(_database.assets)
+        ..where(
+          (tbl) => tbl.companyId.equals(companyId) & tbl.deletedAt.isNull(),
+        )
+        ..limit(1);
+      final rows = await query.get();
+      return SuccessState(data: rows.isNotEmpty);
+    });
+  }
 
   @override
   FutureList<AssetModel> getAssets(String companyId) {
@@ -41,8 +55,10 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
           ])..where(
             _database.assets.companyId.equals(companyId) &
                 _database.assets.deletedAt.isNull() &
-                (_database.areas.id.isNull() | _database.areas.deletedAt.isNull()) &
-                (_database.locations.id.isNull() | _database.locations.deletedAt.isNull()),
+                (_database.areas.id.isNull() |
+                    _database.areas.deletedAt.isNull()) &
+                (_database.locations.id.isNull() |
+                    _database.locations.deletedAt.isNull()),
           );
       final rows = await query.get();
 
@@ -51,7 +67,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
         return AssetModel(
           id: asset.id,
           companyId: asset.companyId,
-          locationId: asset.locationId ?? row.readTableOrNull(_database.areas)?.locationId,
+          locationId:
+              asset.locationId ??
+              row.readTableOrNull(_database.areas)?.locationId,
           areaId: asset.areaId,
           customerId: asset.customerId,
           categoryId: asset.categoryId,
@@ -94,8 +112,10 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
           ])..where(
             _database.assets.id.equals(id) &
                 _database.assets.deletedAt.isNull() &
-                (_database.areas.id.isNull() | _database.areas.deletedAt.isNull()) &
-                (_database.locations.id.isNull() | _database.locations.deletedAt.isNull()),
+                (_database.areas.id.isNull() |
+                    _database.areas.deletedAt.isNull()) &
+                (_database.locations.id.isNull() |
+                    _database.locations.deletedAt.isNull()),
           );
       final row = await query.getSingleOrNull();
 
@@ -107,7 +127,9 @@ final class AssetsLocalDataSourceImpl implements AssetsLocalDataSource {
       final model = AssetModel(
         id: asset.id,
         companyId: asset.companyId,
-        locationId: asset.locationId ?? row.readTableOrNull(_database.areas)?.locationId,
+        locationId:
+            asset.locationId ??
+            row.readTableOrNull(_database.areas)?.locationId,
         areaId: asset.areaId,
         customerId: asset.customerId,
         categoryId: asset.categoryId,

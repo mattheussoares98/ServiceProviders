@@ -230,74 +230,112 @@ void main() {
       },
     );
 
-    test('should save and retrieve asset without area (location only)', () async {
-      await insertDependencies(
-        companyId: tAssetModel.companyId,
-        locationId: tLocationId,
-        areaId: null,
-        categoryId: tAssetModel.categoryId ?? faker.guid.guid(),
-      );
-
-      final assetWithoutArea = tAssetModel.copyWith(
-        locationId: tLocationId,
-        annulAreaId: true,
-      );
-
-      final saveResult = await dataSource.saveAsset(
-        AssetModel.fromEntity(assetWithoutArea),
-      );
-      expect(saveResult, isA<SuccessState<bool>>());
-
-      final getListResult = await dataSource.getAssets(tAssetModel.companyId);
-      expect(getListResult, isA<SuccessState<List<AssetModel>>>());
-      expect(getListResult.data, hasLength(1));
-      expect(getListResult.data!.first.locationId, equals(tLocationId));
-      expect(getListResult.data!.first.areaId, isNull);
-
-      final getSingleResult = await dataSource.getAssetById(assetWithoutArea.id);
-      expect(getSingleResult, isA<SuccessState<AssetModel>>());
-      expect(getSingleResult.data!.locationId, equals(tLocationId));
-      expect(getSingleResult.data!.areaId, isNull);
-    });
-
-    test('should save and retrieve customer asset without location or area', () async {
-      final customerId = faker.guid.guid();
-      await database.into(database.companies).insert(
-        CompaniesCompanion.insert(
-          id: tAssetModel.companyId,
-          name: faker.company.name(),
-          isActive: const Value(true),
-        ),
-      );
-      await database.into(database.customers).insert(
-        CustomersCompanion.insert(
-          id: customerId,
+    test(
+      'should save and retrieve asset without area (location only)',
+      () async {
+        await insertDependencies(
           companyId: tAssetModel.companyId,
-          name: 'Customer 1',
-        ),
-      );
+          locationId: tLocationId,
+          areaId: null,
+          categoryId: tAssetModel.categoryId ?? faker.guid.guid(),
+        );
 
-      final customerAsset = tAssetModel.copyWith(
-        customerId: customerId,
-        annulLocationId: true,
-        annulAreaId: true,
-      );
+        final assetWithoutArea = tAssetModel.copyWith(
+          locationId: tLocationId,
+          annulAreaId: true,
+        );
 
-      final saveResult = await dataSource.saveAsset(
-        AssetModel.fromEntity(customerAsset),
-      );
-      expect(saveResult, isA<SuccessState<bool>>());
+        final saveResult = await dataSource.saveAsset(
+          AssetModel.fromEntity(assetWithoutArea),
+        );
+        expect(saveResult, isA<SuccessState<bool>>());
 
-      final getListResult = await dataSource.getAssets(tAssetModel.companyId);
-      expect(getListResult, isA<SuccessState<List<AssetModel>>>());
-      expect(getListResult.data, hasLength(1));
-      expect(getListResult.data!.first.customerId, equals(customerId));
-      expect(getListResult.data!.first.locationId, isNull);
-      expect(getListResult.data!.first.areaId, isNull);
+        final getListResult = await dataSource.getAssets(tAssetModel.companyId);
+        expect(getListResult, isA<SuccessState<List<AssetModel>>>());
+        expect(getListResult.data, hasLength(1));
+        expect(getListResult.data!.first.locationId, equals(tLocationId));
+        expect(getListResult.data!.first.areaId, isNull);
 
-      final getSingleResult = await dataSource.getAssetById(customerAsset.id);
-      expect(getSingleResult, isA<SuccessState<AssetModel>>());
-      expect(getSingleResult.data!.customerId, equals(customerId));
+        final getSingleResult = await dataSource.getAssetById(
+          assetWithoutArea.id,
+        );
+        expect(getSingleResult, isA<SuccessState<AssetModel>>());
+        expect(getSingleResult.data!.locationId, equals(tLocationId));
+        expect(getSingleResult.data!.areaId, isNull);
+      },
+    );
+
+    test(
+      'should save and retrieve customer asset without location or area',
+      () async {
+        final customerId = faker.guid.guid();
+        await database
+            .into(database.companies)
+            .insert(
+              CompaniesCompanion.insert(
+                id: tAssetModel.companyId,
+                name: faker.company.name(),
+                isActive: const Value(true),
+              ),
+            );
+        await database
+            .into(database.customers)
+            .insert(
+              CustomersCompanion.insert(
+                id: customerId,
+                companyId: tAssetModel.companyId,
+                name: 'Customer 1',
+              ),
+            );
+
+        final customerAsset = tAssetModel.copyWith(
+          customerId: customerId,
+          annulLocationId: true,
+          annulAreaId: true,
+        );
+
+        final saveResult = await dataSource.saveAsset(
+          AssetModel.fromEntity(customerAsset),
+        );
+        expect(saveResult, isA<SuccessState<bool>>());
+
+        final getListResult = await dataSource.getAssets(tAssetModel.companyId);
+        expect(getListResult, isA<SuccessState<List<AssetModel>>>());
+        expect(getListResult.data, hasLength(1));
+        expect(getListResult.data!.first.customerId, equals(customerId));
+        expect(getListResult.data!.first.locationId, isNull);
+        expect(getListResult.data!.first.areaId, isNull);
+
+        final getSingleResult = await dataSource.getAssetById(customerAsset.id);
+        expect(getSingleResult, isA<SuccessState<AssetModel>>());
+        expect(getSingleResult.data!.customerId, equals(customerId));
+      },
+    );
+
+    group('hasNonDeletedAssets', () {
+      test('returns true when non-deleted asset exists locally', () async {
+        await insertDependencies(
+          companyId: tAssetModel.companyId,
+          locationId: tAssetModel.locationId!,
+          areaId: tAssetModel.areaId,
+          categoryId: tAssetModel.categoryId!,
+        );
+        await dataSource.saveAsset(tAssetModel);
+
+        final result = await dataSource.hasNonDeletedAssets(
+          tAssetModel.companyId,
+        );
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      });
+
+      test('returns false when no non-deleted asset exists locally', () async {
+        final result = await dataSource.hasNonDeletedAssets('other-company');
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+      });
     });
   });
 }

@@ -274,5 +274,43 @@ void main() {
         ),
       );
     });
+
+    group('hasNonDeletedAssets', () {
+      test('returns true when non-deleted assets exist', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'assets',
+            columns: 'id',
+            filters: any(named: 'filters'),
+            limit: 1,
+          ),
+        ).thenAnswer(
+          (_) async => [
+            {'id': 'asset-1'},
+          ],
+        );
+
+        final result = await dataSource.hasNonDeletedAssets(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+      });
+
+      test('returns false when no non-deleted assets exist', () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectList(
+            table: 'assets',
+            columns: 'id',
+            filters: any(named: 'filters'),
+            limit: 1,
+          ),
+        ).thenAnswer((_) async => []);
+
+        final result = await dataSource.hasNonDeletedAssets(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+      });
+    });
   });
 }
