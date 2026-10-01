@@ -86,6 +86,11 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       );
     }
 
+    final hasLocationsResult = await _useCases.hasLocations(targetCompanyId);
+    final hasAreasResult = await _useCases.hasAreas(targetCompanyId);
+    final hasLoc = hasLocationsResult.data ?? false;
+    final hasAr = hasAreasResult.data ?? false;
+
     final locationsResult = await _useCases.getLocations(targetCompanyId);
     final areasResult = await _useCases.getAreas(targetCompanyId);
 
@@ -93,6 +98,7 @@ class LocationsCubit extends BaseCubit<LocationsState> {
 
     if (locationsResult is SuccessState<List<LocationEntity>> &&
         areasResult is SuccessState<List<AreaEntity>>) {
+      final locs = locationsResult.data ?? [];
       final areas = areasResult.data ?? [];
       final Map<String, List<AreaEntity>> areasByLocation = {};
       for (final area in areas) {
@@ -100,9 +106,11 @@ class LocationsCubit extends BaseCubit<LocationsState> {
       }
       emit(
         state.copyWith(
-          locations: locationsResult.data,
+          locations: locs,
           areasByLocation: areasByLocation,
           allAreas: areas,
+          hasLocations: hasLoc || locs.isNotEmpty,
+          hasAreas: hasAr || areas.isNotEmpty,
           sections: withSection(BaseSections.load, SectionStatus.success),
         ),
       );
@@ -112,6 +120,8 @@ class LocationsCubit extends BaseCubit<LocationsState> {
           : areasResult.message;
       emit(
         state.copyWith(
+          hasLocations: hasLoc,
+          hasAreas: hasAr,
           sections: withSection(
             BaseSections.load,
             SectionStatus.error,

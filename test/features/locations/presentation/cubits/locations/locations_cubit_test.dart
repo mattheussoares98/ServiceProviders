@@ -82,6 +82,8 @@ void main() {
   late MockDeleteAreaUseCase mockDeleteArea;
   late MockWatchLocationsRealtimeUseCase mockWatchLocationsRealtime;
   late MockWatchAreasRealtimeUseCase mockWatchAreasRealtime;
+  late MockHasLocationsUseCase mockHasLocations;
+  late MockHasAreasUseCase mockHasAreas;
   late MockGetAddressByCepUseCase mockGetAddressByCep;
   late MockNavigationClient mockNavigationClient;
 
@@ -115,6 +117,8 @@ void main() {
     mockDeleteArea = MockDeleteAreaUseCase();
     mockWatchLocationsRealtime = MockWatchLocationsRealtimeUseCase();
     mockWatchAreasRealtime = MockWatchAreasRealtimeUseCase();
+    mockHasLocations = MockHasLocationsUseCase();
+    mockHasAreas = MockHasAreasUseCase();
     mockGetAddressByCep = MockGetAddressByCepUseCase();
     mockNavigationClient = MockNavigationClient();
 
@@ -133,6 +137,12 @@ void main() {
     when(
       () => mockWatchAreasRealtime(companyId: any(named: 'companyId')),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockHasLocations.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
+    when(
+      () => mockHasAreas.call(any()),
+    ).thenAnswer((_) async => const SuccessState(data: true));
 
     final useCases = LocationsCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
@@ -151,6 +161,8 @@ void main() {
       watchLocationsRealtime: mockWatchLocationsRealtime,
       watchAreasRealtime: mockWatchAreasRealtime,
       getAddressByCep: mockGetAddressByCep,
+      hasLocations: mockHasLocations,
+      hasAreas: mockHasAreas,
     );
 
     cubit = LocationsCubit(useCases: useCases);
@@ -284,11 +296,15 @@ void main() {
                 const SectionState.success(),
               )
               .having((s) => s.locations, 'locations', isNotEmpty)
-              .having((s) => s.allAreas, 'allAreas', tAreas),
+              .having((s) => s.allAreas, 'allAreas', tAreas)
+              .having((s) => s.hasLocations, 'hasLocations', true)
+              .having((s) => s.hasAreas, 'hasAreas', true),
         ],
         verify: (_) {
           verify(() => mockGetLocations.call(tUserProfile.companyId)).called(1);
           verify(() => mockGetAreas.call(tUserProfile.companyId)).called(1);
+          verify(() => mockHasLocations.call(tUserProfile.companyId)).called(1);
+          verify(() => mockHasAreas.call(tUserProfile.companyId)).called(1);
         },
       );
       blocTest<LocationsCubit, LocationsState>(
@@ -1434,6 +1450,8 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          hasLocations: mockHasLocations,
+          hasAreas: mockHasAreas,
           getAddressByCep: mockGetAddressByCep,
         );
 
@@ -1477,6 +1495,8 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          hasLocations: mockHasLocations,
+          hasAreas: mockHasAreas,
           getAddressByCep: mockGetAddressByCep,
         );
 
@@ -1526,6 +1546,8 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          hasLocations: mockHasLocations,
+          hasAreas: mockHasAreas,
           getAddressByCep: mockGetAddressByCep,
         );
 
@@ -1573,7 +1595,9 @@ void main() {
             deleteArea: mockDeleteArea,
             watchLocationsRealtime: mockWatchLocationsRealtime,
             watchAreasRealtime: mockWatchAreasRealtime,
-            getAddressByCep: mockGetAddressByCep,
+            hasLocations: mockHasLocations,
+          hasAreas: mockHasAreas,
+          getAddressByCep: mockGetAddressByCep,
           );
 
           final testCubit = LocationsCubit(useCases: useCases);
@@ -1625,7 +1649,9 @@ void main() {
             deleteArea: mockDeleteArea,
             watchLocationsRealtime: mockWatchLocationsRealtime,
             watchAreasRealtime: mockWatchAreasRealtime,
-            getAddressByCep: mockGetAddressByCep,
+            hasLocations: mockHasLocations,
+          hasAreas: mockHasAreas,
+          getAddressByCep: mockGetAddressByCep,
           );
 
           final testCubit = LocationsCubit(useCases: useCases);
@@ -1673,6 +1699,8 @@ void main() {
           deleteArea: mockDeleteArea,
           watchLocationsRealtime: mockWatchLocationsRealtime,
           watchAreasRealtime: mockWatchAreasRealtime,
+          hasLocations: mockHasLocations,
+          hasAreas: mockHasAreas,
           getAddressByCep: mockGetAddressByCep,
         );
 

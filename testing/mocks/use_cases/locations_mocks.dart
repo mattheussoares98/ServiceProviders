@@ -1,5 +1,7 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_address_by_cep_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/has_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/has_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_locations_realtime_use_case.dart';
 
@@ -11,3 +13,7 @@ class MockWatchAreasRealtimeUseCase extends Mock
 
 class MockGetAddressByCepUseCase extends Mock
     implements GetAddressByCepUseCase {}
+
+class MockHasLocationsUseCase extends Mock implements HasLocationsUseCase {}
+
+class MockHasAreasUseCase extends Mock implements HasAreasUseCase {}

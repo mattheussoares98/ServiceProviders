@@ -11,6 +11,8 @@ import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_areas_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/get_provider_locations_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/has_areas_use_case.dart';
+import 'package:o_jogo_da_obra/features/locations/domain/use_cases/has_locations_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_area_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/update_location_use_case.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/use_cases/watch_areas_realtime_use_case.dart';
@@ -35,6 +37,8 @@ class LocationsCubitUseCases {
     required this.watchLocationsRealtime,
     required this.watchAreasRealtime,
     required this.getAddressByCep,
+    required this.hasLocations,
+    required this.hasAreas,
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
@@ -53,5 +57,7 @@ class LocationsCubitUseCases {
   final WatchLocationsRealtimeUseCase watchLocationsRealtime;
   final WatchAreasRealtimeUseCase watchAreasRealtime;
   final GetAddressByCepUseCase getAddressByCep;
+  final HasLocationsUseCase hasLocations;
+  final HasAreasUseCase hasAreas;
 }
 
