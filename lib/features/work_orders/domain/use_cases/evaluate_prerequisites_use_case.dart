@@ -13,20 +13,31 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite
 class EvaluatePrerequisitesParams extends Equatable {
   const EvaluatePrerequisitesParams({
     required this.workType,
-    required this.locationsCount,
-    required this.areasCount,
-    required this.customersCount,
+    this.locationsCount = 0,
+    this.areasCount = 0,
+    this.customersCount = 0,
     this.assetsCount = 0,
+    bool? hasLocations,
+    bool? hasAreas,
+    bool? hasCustomers,
+    bool? hasAssets,
     this.hasLocationCreatePermission = true,
     this.hasCustomerCreatePermission = true,
     this.hasAssetCreatePermission = true,
-  });
+  }) : hasLocations = hasLocations ?? (locationsCount > 0),
+       hasAreas = hasAreas ?? (areasCount > 0),
+       hasCustomers = hasCustomers ?? (customersCount > 0),
+       hasAssets = hasAssets ?? (assetsCount > 0);
 
   final WorkType workType;
   final int locationsCount;
   final int areasCount;
   final int customersCount;
   final int assetsCount;
+  final bool hasLocations;
+  final bool hasAreas;
+  final bool hasCustomers;
+  final bool hasAssets;
   final bool hasLocationCreatePermission;
   final bool hasCustomerCreatePermission;
   final bool hasAssetCreatePermission;
@@ -38,6 +49,10 @@ class EvaluatePrerequisitesParams extends Equatable {
     areasCount,
     customersCount,
     assetsCount,
+    hasLocations,
+    hasAreas,
+    hasCustomers,
+    hasAssets,
     hasLocationCreatePermission,
     hasCustomerCreatePermission,
     hasAssetCreatePermission,
@@ -71,7 +86,7 @@ class EvaluatePrerequisitesUseCase
               resourceType: ResourceType.locations,
               permissionAction: PermissionAction.create,
             ),
-            isCompleted: params.locationsCount > 0,
+            isCompleted: params.hasLocations,
             canPerformAction: params.hasLocationCreatePermission,
           ),
           PrerequisiteStep(
@@ -84,7 +99,7 @@ class EvaluatePrerequisitesUseCase
               resourceType: ResourceType.locations,
               permissionAction: PermissionAction.create,
             ),
-            isCompleted: params.areasCount > 0,
+            isCompleted: params.hasAreas,
             isOptional: true,
             canPerformAction: params.hasLocationCreatePermission,
           ),
@@ -98,7 +113,7 @@ class EvaluatePrerequisitesUseCase
               resourceType: ResourceType.assets,
               permissionAction: PermissionAction.create,
             ),
-            isCompleted: params.assetsCount > 0,
+            isCompleted: params.hasAssets,
             isOptional: true,
             canPerformAction: params.hasAssetCreatePermission,
           ),
@@ -113,7 +128,7 @@ class EvaluatePrerequisitesUseCase
                 'Clientes externos que contratam seus serviços de manutenção.'
                     .hardcoded,
             actionLabel: 'Cadastrar Cliente'.hardcoded,
-            isCompleted: params.customersCount > 0,
+            isCompleted: params.hasCustomers,
             canPerformAction: params.hasCustomerCreatePermission,
           ),
           PrerequisiteStep(
@@ -126,7 +141,7 @@ class EvaluatePrerequisitesUseCase
               resourceType: ResourceType.assets,
               permissionAction: PermissionAction.create,
             ),
-            isCompleted: params.assetsCount > 0,
+            isCompleted: params.hasAssets,
             isOptional: true,
             canPerformAction: params.hasAssetCreatePermission,
           ),
@@ -134,7 +149,7 @@ class EvaluatePrerequisitesUseCase
 
       case WorkType.hybrid:
         final hasLocationOrCustomer =
-            params.locationsCount > 0 || params.customersCount > 0;
+            params.hasLocations || params.hasCustomers;
         steps = [
           PrerequisiteStep(
             type: PrerequisiteType.location,
@@ -154,7 +169,7 @@ class EvaluatePrerequisitesUseCase
             description:
                 'Empresas ou parceiros que solicitam serviços.'.hardcoded,
             actionLabel: 'Cadastrar Cliente'.hardcoded,
-            isCompleted: params.customersCount > 0,
+            isCompleted: params.hasCustomers,
             isOptional: true,
             canPerformAction: params.hasCustomerCreatePermission,
           ),
@@ -167,7 +182,7 @@ class EvaluatePrerequisitesUseCase
               resourceType: ResourceType.assets,
               permissionAction: PermissionAction.create,
             ),
-            isCompleted: params.assetsCount > 0,
+            isCompleted: params.hasAssets,
             isOptional: true,
             canPerformAction: params.hasAssetCreatePermission,
           ),

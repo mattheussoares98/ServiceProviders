@@ -7,6 +7,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provide
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_history_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_observations_batch_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/has_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/restore_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/resume_work_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/review_work_order_change_request_use_case.dart';
@@ -76,3 +77,5 @@ class MockCreateWorkOrderChangeRequestUseCase extends Mock
 
 class MockReviewWorkOrderChangeRequestUseCase extends Mock
     implements ReviewWorkOrderChangeRequestUseCase {}
+
+class MockHasWorkOrdersUseCase extends Mock implements HasWorkOrdersUseCase {}

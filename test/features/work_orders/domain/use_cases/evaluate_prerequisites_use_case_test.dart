@@ -176,5 +176,24 @@ void main() {
         expect(result.steps[2].canPerformAction, isFalse);
       });
     });
+
+    group('boolean flags override', () {
+      test('respects explicit boolean flags regardless of counts', () {
+        final result = useCase(
+          const EvaluatePrerequisitesParams(
+            workType: WorkType.internalOnly,
+            locationsCount: 0,
+            hasLocations: true,
+            hasAreas: true,
+            hasAssets: true,
+          ),
+        );
+
+        expect(result.steps[0].isCompleted, isTrue);
+        expect(result.steps[1].isCompleted, isTrue);
+        expect(result.steps[2].isCompleted, isTrue);
+        expect(result.allCompleted, isTrue);
+      });
+    });
   });
 }
