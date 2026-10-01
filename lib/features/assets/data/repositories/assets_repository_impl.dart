@@ -122,6 +122,14 @@ final class AssetsRepositoryImpl implements AssetsRepository {
       );
 
   @override
+  FutureBool hasNonDeletedAssets(String companyId) =>
+      RepositoryHandler.fetchWithFallback<bool>(
+        isInternetConnected: _internet.isConnected,
+        remoteCallback: () => _remoteDataSource.hasNonDeletedAssets(companyId),
+        localCallback: () => _localDataSource.hasNonDeletedAssets(companyId),
+      );
+
+  @override
   Stream<RealtimeEvent<AssetEntity>> watchAssetsRealtime({String? companyId}) {
     return RepositoryHandler.syncRealtimeStream(
       stream: _remoteDataSource.watchAssetsRealtime(companyId: companyId),

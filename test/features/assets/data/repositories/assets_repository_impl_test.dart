@@ -453,5 +453,35 @@ void main() {
         },
       );
     });
+
+    group('hasNonDeletedAssets', () {
+      test('fetches from remote when connected', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(true);
+        when(
+          () => mockRemoteDataSource.hasNonDeletedAssets(tCompanyId),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+
+        final result = await repository.hasNonDeletedAssets(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isTrue);
+        verify(() => mockRemoteDataSource.hasNonDeletedAssets(tCompanyId)).called(1);
+        verifyNever(() => mockLocalDataSource.hasNonDeletedAssets(any()));
+      });
+
+      test('falls back to local when offline', () async {
+        when(() => mockInternetClient.isConnected).thenReturn(false);
+        when(
+          () => mockLocalDataSource.hasNonDeletedAssets(tCompanyId),
+        ).thenAnswer((_) async => const SuccessState(data: false));
+
+        final result = await repository.hasNonDeletedAssets(tCompanyId);
+
+        expect(result, isA<SuccessState<bool>>());
+        expect((result as SuccessState<bool>).data, isFalse);
+        verify(() => mockLocalDataSource.hasNonDeletedAssets(tCompanyId)).called(1);
+        verifyNever(() => mockRemoteDataSource.hasNonDeletedAssets(any()));
+      });
+    });
   });
 }

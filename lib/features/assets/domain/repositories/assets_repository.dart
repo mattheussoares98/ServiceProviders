@@ -9,5 +9,6 @@ abstract interface class AssetsRepository {
   FutureBool createAsset(AssetEntity asset);
   FutureBool updateAsset(AssetEntity asset);
   FutureBool deleteAsset(String id);
+  FutureBool hasNonDeletedAssets(String companyId);
   Stream<RealtimeEvent<AssetEntity>> watchAssetsRealtime({String? companyId});
 }
