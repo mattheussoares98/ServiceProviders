@@ -303,6 +303,15 @@ class CompanyCubit extends BaseCubit<CompanyState> {
   Future<bool> updateWorkType(WorkType workType) async {
     final company = state.company;
     if (company == null) return false;
+    if (company.workType == workType) return false;
+
+    if (!company.canUpgradeTo(workType)) {
+      showErrorToast(
+        'Não é permitido alternar diretamente entre os modelos de operação. Apenas a migração para o modelo híbrido é permitida'
+            .hardcoded,
+      );
+      return false;
+    }
 
     emit(
       state.copyWith(

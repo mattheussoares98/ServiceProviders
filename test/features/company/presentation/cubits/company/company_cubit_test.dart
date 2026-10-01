@@ -844,10 +844,11 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should emit running and success when saveCompany succeeds',
       build: () {
-        when(() => mockSaveCompanyUseCase.call(any())).thenAnswer(
-          (_) async => const SuccessState(data: true),
-        );
-        return companyCubit..emit(CompanyState(company: tCompany, companies: [tCompany]));
+        when(
+          () => mockSaveCompanyUseCase.call(any()),
+        ).thenAnswer((_) async => const SuccessState(data: true));
+        return companyCubit
+          ..emit(CompanyState(company: tCompany, companies: [tCompany]));
       },
       act: (cubit) async {
         final res = await cubit.updateWorkType(WorkType.hybrid);
@@ -874,9 +875,28 @@ void main() {
       verify: (_) {
         verify(
           () => mockSaveCompanyUseCase.call(
-            any(that: isA<CompanyEntity>().having((c) => c.workType, 'workType', WorkType.hybrid)),
+            any(
+              that: isA<CompanyEntity>().having(
+                (c) => c.workType,
+                'workType',
+                WorkType.hybrid,
+              ),
+            ),
           ),
         ).called(1);
+      },
+    );
+
+    blocTest<CompanyCubit, CompanyState>(
+      'should return false and do not save when transition between work types is not allowed',
+      build: () => companyCubit..emit(CompanyState(company: tCompany)),
+      act: (cubit) async {
+        final res = await cubit.updateWorkType(WorkType.serviceProviderOnly);
+        expect(res, isFalse);
+      },
+      expect: () => <dynamic>[],
+      verify: (_) {
+        verifyNever(() => mockSaveCompanyUseCase.call(any()));
       },
     );
 
@@ -889,7 +909,7 @@ void main() {
         return companyCubit..emit(CompanyState(company: tCompany));
       },
       act: (cubit) async {
-        final res = await cubit.updateWorkType(WorkType.serviceProviderOnly);
+        final res = await cubit.updateWorkType(WorkType.hybrid);
         expect(res, isFalse);
       },
       expect: () => [
@@ -984,9 +1004,7 @@ void main() {
     blocTest<CompanyCubit, CompanyState>(
       'should emit running and error when saveCompanyParameters fails',
       build: () {
-        when(
-          () => mockSaveCompanyParametersUseCase.call(any()),
-        ).thenAnswer(
+        when(() => mockSaveCompanyParametersUseCase.call(any())).thenAnswer(
           (_) async => FailureState(message: 'Failed to save parameters'),
         );
         return companyCubit..emit(CompanyState(parameters: tParams));
