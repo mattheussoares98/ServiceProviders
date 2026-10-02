@@ -43,7 +43,7 @@ class AssetsPage extends HookWidget {
             (c) => c.state.hasAssets,
           );
 
-          if (!hasAssets && assets.isEmpty) {
+          if (!hasAssets) {
             return const AssetsEmptyView();
           }
 

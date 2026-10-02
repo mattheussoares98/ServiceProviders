@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
@@ -12,7 +13,6 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resourc
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 class AssetsEmptyView extends StatelessWidget {
   const AssetsEmptyView({super.key});
@@ -71,8 +71,17 @@ class AssetsEmptyView extends StatelessWidget {
       );
     }
 
-    return Center(
-      child: BaseText.error('Nenhum equipamento cadastrado'.hardcoded),
+    return BaseEmptyState(
+      title: 'Cadastrar equipamento'.hardcoded,
+      description:
+          'Cadastre equipamentos para poder vincular a ${needsCustomer ? 'locais' : 'clientes'}'
+              .hardcoded,
+      actionLabel: 'Cadastrar Equipamento'.hardcoded,
+      onAction: () => context.read<AssetsCubit>().navigateToCreateUpdateAsset(),
+      icon: const PlatformIcon(
+        materialIcon: Icons.build_outlined,
+        cupertinoIcon: CupertinoIcons.wrench,
+      ),
     );
   }
 }
