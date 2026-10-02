@@ -42,7 +42,7 @@ class _OrdersEmptyView extends StatelessWidget {
       ),
     );
 
-    final eval = const EvaluatePrerequisitesUseCase()(
+    final eval = context.read<WorkOrdersCubit>().evaluatePrerequisites(
       EvaluatePrerequisitesParams(
         workType: workType,
         hasLocations: hasLocations,

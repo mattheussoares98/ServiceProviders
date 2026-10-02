@@ -16,10 +16,12 @@ import 'package:o_jogo_da_obra/features/company/domain/use_cases/can_provider_cr
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_profile_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_evaluation_result.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_type.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/evaluate_prerequisites_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
@@ -910,6 +912,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
 
   Future<void> navigateToCreateSlaPolicy() async {
     await pushRoute(CreateUpdateSlaPolicyRoute());
+  }
+
+  PrerequisiteEvaluationResult evaluatePrerequisites(
+    EvaluatePrerequisitesParams params,
+  ) {
+    return _useCases.evaluatePrerequisites(params);
   }
 
   @override

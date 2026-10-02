@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/evaluate_prerequisites_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/value_objects/work_order_filter.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/cubits/work_orders/work_orders_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/presentation/pages/widgets/orders_items.dart';
@@ -34,11 +35,9 @@ class MockCompanyCubit extends MockCubit<CompanyState>
 class MockCustomersCubit extends MockCubit<CustomersState>
     implements CustomersCubit {}
 
-class MockAssetsCubit extends MockCubit<AssetsState>
-    implements AssetsCubit {}
+class MockAssetsCubit extends MockCubit<AssetsState> implements AssetsCubit {}
 
-class MockUsersCubit extends MockCubit<UsersState>
-    implements UsersCubit {}
+class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
 
 class MockSessionCubit extends MockCubit<SessionState>
     implements SessionCubit {}
@@ -50,6 +49,9 @@ void main() {
         resourceType: ResourceType.locations,
         permissionAction: PermissionAction.create,
       ),
+    );
+    registerFallbackValue(
+      const EvaluatePrerequisitesParams(workType: WorkType.hybrid),
     );
   });
 
@@ -70,6 +72,14 @@ void main() {
     mockUsersCubit = MockUsersCubit();
     mockSessionCubit = MockSessionCubit();
 
+    when(() => mockWorkOrdersCubit.evaluatePrerequisites(any())).thenAnswer((
+      invocation,
+    ) {
+      final params =
+          invocation.positionalArguments.first as EvaluatePrerequisitesParams;
+      return const EvaluatePrerequisitesUseCase()(params);
+    });
+
     when(() => mockWorkOrdersCubit.state).thenReturn(
       const WorkOrdersState(
         workOrders: [],
@@ -77,18 +87,18 @@ void main() {
         sections: {BaseSections.load: SectionState.success()},
       ),
     );
-    when(() => mockWorkOrdersCubit.loadWorkOrdersAndChangeRequests())
-        .thenAnswer((_) async => true);
-    when(() => mockLocationsCubit.state)
-        .thenReturn(const LocationsState.initial());
-    when(() => mockCompanyCubit.state)
-        .thenReturn(const CompanyState.initial());
-    when(() => mockCustomersCubit.state)
-        .thenReturn(const CustomersState.initial());
-    when(() => mockAssetsCubit.state)
-        .thenReturn(const AssetsState.initial());
-    when(() => mockUsersCubit.state)
-        .thenReturn(const UsersState.initial());
+    when(
+      () => mockWorkOrdersCubit.loadWorkOrdersAndChangeRequests(),
+    ).thenAnswer((_) async => true);
+    when(
+      () => mockLocationsCubit.state,
+    ).thenReturn(const LocationsState.initial());
+    when(() => mockCompanyCubit.state).thenReturn(const CompanyState.initial());
+    when(
+      () => mockCustomersCubit.state,
+    ).thenReturn(const CustomersState.initial());
+    when(() => mockAssetsCubit.state).thenReturn(const AssetsState.initial());
+    when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
     when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
     when(() => mockSessionCubit.state).thenReturn(SessionState.initial());
   });
@@ -118,9 +128,9 @@ void main() {
       final company = UserFactory.makeCompanyEntity().copyWith(
         workType: WorkType.internalOnly,
       );
-      when(() => mockCompanyCubit.state).thenReturn(
-        CompanyState(company: company),
-      );
+      when(
+        () => mockCompanyCubit.state,
+      ).thenReturn(CompanyState(company: company));
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
@@ -136,9 +146,9 @@ void main() {
       final company = UserFactory.makeCompanyEntity().copyWith(
         workType: WorkType.serviceProviderOnly,
       );
-      when(() => mockCompanyCubit.state).thenReturn(
-        CompanyState(company: company),
-      );
+      when(
+        () => mockCompanyCubit.state,
+      ).thenReturn(CompanyState(company: company));
 
       await tester.pumpWidget(buildTestWidget());
       await tester.pumpAndSettle();
@@ -154,9 +164,9 @@ void main() {
       final company = UserFactory.makeCompanyEntity().copyWith(
         workType: WorkType.internalOnly,
       );
-      when(() => mockCompanyCubit.state).thenReturn(
-        CompanyState(company: company),
-      );
+      when(
+        () => mockCompanyCubit.state,
+      ).thenReturn(CompanyState(company: company));
       final loc = AssetFactory.makeLocationEntity();
       when(() => mockLocationsCubit.state).thenReturn(
         LocationsState(

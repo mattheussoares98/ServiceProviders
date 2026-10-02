@@ -24,6 +24,7 @@ import 'package:o_jogo_da_obra/features/work_orders/data/models/requests/pauses/
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/change_request_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/change_requests/work_order_change_request_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/pauses/pause_request_status.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_evaluation_result.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
@@ -31,6 +32,7 @@ import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_t
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/evaluate_prerequisites_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_change_requests_use_case.dart';
@@ -136,6 +138,7 @@ void main() {
   mockWatchChangeRequestsRealtime;
   late MockCanProviderCreateWorkOrderUseCase mockCanProviderCreateWorkOrder;
   late MockHasWorkOrdersUseCase mockHasWorkOrders;
+  late MockEvaluatePrerequisitesUseCase mockEvaluatePrerequisites;
   late MockNavigationClient mockNavigationClient;
 
   late WorkOrdersCubit cubit;
@@ -209,6 +212,7 @@ void main() {
         MockWatchWorkOrderChangeRequestsRealtimeUseCase();
     mockCanProviderCreateWorkOrder = MockCanProviderCreateWorkOrderUseCase();
     mockHasWorkOrders = MockHasWorkOrdersUseCase();
+    mockEvaluatePrerequisites = MockEvaluatePrerequisitesUseCase();
 
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
@@ -269,6 +273,7 @@ void main() {
       getSelectedMode: mockGetSelectedMode,
       canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
       hasWorkOrders: mockHasWorkOrders,
+      evaluatePrerequisites: mockEvaluatePrerequisites,
     );
 
     cubit = WorkOrdersCubit(useCases: useCases);
@@ -1942,6 +1947,7 @@ void main() {
               getSelectedMode: mockGetSelectedMode,
               canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
               hasWorkOrders: mockHasWorkOrders,
+              evaluatePrerequisites: mockEvaluatePrerequisites,
             );
 
             final testCubit = WorkOrdersCubit(useCases: useCases);
@@ -1990,6 +1996,22 @@ void main() {
         );
       });
     });
+
+    test(
+      'evaluatePrerequisites delegates to evaluatePrerequisites use case',
+      () {
+        const params = EvaluatePrerequisitesParams(workType: WorkType.hybrid);
+        const expectedResult = PrerequisiteEvaluationResult(steps: []);
+        when(
+          () => mockEvaluatePrerequisites(params),
+        ).thenReturn(expectedResult);
+
+        final result = cubit.evaluatePrerequisites(params);
+
+        expect(result, equals(expectedResult));
+        verify(() => mockEvaluatePrerequisites(params)).called(1);
+      },
+    );
 
     providerModeTests();
   });
@@ -2044,6 +2066,7 @@ void providerModeTests() {
       getSelectedMode: mockGetSelectedMode,
       canProviderCreateWorkOrder: mockCanProviderCreateWorkOrder,
       hasWorkOrders: mockHasWorkOrders,
+      evaluatePrerequisites: MockEvaluatePrerequisitesUseCase(),
     ),
   );
 

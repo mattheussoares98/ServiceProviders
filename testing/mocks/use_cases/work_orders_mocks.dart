@@ -2,6 +2,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/calculate_work_order_kpis_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/create_work_order_change_request_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/delete_work_order_use_case.dart';
+import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/evaluate_prerequisites_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_pause_requests_batch_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_provider_work_orders_use_case.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/get_work_order_by_id_use_case.dart';
@@ -79,3 +80,6 @@ class MockReviewWorkOrderChangeRequestUseCase extends Mock
     implements ReviewWorkOrderChangeRequestUseCase {}
 
 class MockHasWorkOrdersUseCase extends Mock implements HasWorkOrdersUseCase {}
+
+class MockEvaluatePrerequisitesUseCase extends Mock
+    implements EvaluatePrerequisitesUseCase {}
