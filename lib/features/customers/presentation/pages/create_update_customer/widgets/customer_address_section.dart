@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/address_form_section.dart';
 
 class CustomerAddressSection extends StatelessWidget {
   const CustomerAddressSection({
@@ -17,6 +15,12 @@ class CustomerAddressSection extends StatelessWidget {
     required this.cityController,
     required this.stateController,
     this.postalCodeFocusNode,
+    this.addressFocusNode,
+    this.numberFocusNode,
+    this.complementFocusNode,
+    this.neighborhoodFocusNode,
+    this.cityFocusNode,
+    this.stateFocusNode,
   });
 
   final TextEditingController postalCodeController;
@@ -27,95 +31,39 @@ class CustomerAddressSection extends StatelessWidget {
   final TextEditingController cityController;
   final TextEditingController stateController;
   final FocusNode? postalCodeFocusNode;
-
-  Future<void> _onCepChanged(BuildContext context, String value) async {
-    final cleanCep = value.replaceAll(RegExp(r'\D'), '');
-    if (cleanCep.length == 8) {
-      final address = await context.read<CustomersCubit>().getAddressByCep(
-        cleanCep,
-      );
-      if (address != null) {
-        addressController.text = address.street;
-        neighborhoodController.text = address.neighborhood;
-        cityController.text = address.city;
-        stateController.text = address.state;
-      }
-    }
-  }
+  final FocusNode? addressFocusNode;
+  final FocusNode? numberFocusNode;
+  final FocusNode? complementFocusNode;
+  final FocusNode? neighborhoodFocusNode;
+  final FocusNode? cityFocusNode;
+  final FocusNode? stateFocusNode;
 
   @override
   Widget build(BuildContext context) {
-    //TODO change focus automatically to number when searching succeeds and disable street, city, neighborhood and state
-    //TODO use a default widget to mount this AddressEntity
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        BaseText.titleMedium('Endereço'.hardcoded),
-        gapH12,
-        BaseTextFormField(
-          controller: postalCodeController,
-          labelText: 'CEP'.hardcoded,
-          keyboardType: TextInputType.number,
-          focusNode: postalCodeFocusNode,
-          onChanged: (val) => _onCepChanged(context, val),
-        ),
-        gapH12,
-        Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: BaseTextFormField(
-                controller: addressController,
-                labelText: 'Logradouro / Rua'.hardcoded,
-              ),
-            ),
-            gapW12,
-            Expanded(
-              child: BaseTextFormField(
-                controller: numberController,
-                labelText: 'Número'.hardcoded,
-              ),
-            ),
-          ],
-        ),
-        gapH12,
-        Row(
-          children: [
-            Expanded(
-              child: BaseTextFormField(
-                controller: complementController,
-                labelText: 'Complemento'.hardcoded,
-              ),
-            ),
-            gapW12,
-            Expanded(
-              child: BaseTextFormField(
-                controller: neighborhoodController,
-                labelText: 'Bairro'.hardcoded,
-              ),
-            ),
-          ],
-        ),
-        gapH12,
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: BaseTextFormField(
-                controller: cityController,
-                labelText: 'Cidade'.hardcoded,
-              ),
-            ),
-            gapW12,
-            Expanded(
-              child: BaseTextFormField(
-                controller: stateController,
-                labelText: 'UF / Estado'.hardcoded,
-              ),
-            ),
-          ],
-        ),
-      ],
+    final isSearchingCep = context.select<CustomersCubit, bool>(
+      (c) =>
+          c.state.sections[CustomersSections.loadAddressByCep] ==
+          const SectionState.running(),
+    );
+
+    return AddressFormSection(
+      requirePostalCode: false,
+      postalCodeController: postalCodeController,
+      addressController: addressController,
+      numberController: numberController,
+      complementController: complementController,
+      neighborhoodController: neighborhoodController,
+      cityController: cityController,
+      stateController: stateController,
+      postalCodeFocusNode: postalCodeFocusNode,
+      addressFocusNode: addressFocusNode,
+      numberFocusNode: numberFocusNode,
+      complementFocusNode: complementFocusNode,
+      neighborhoodFocusNode: neighborhoodFocusNode,
+      cityFocusNode: cityFocusNode,
+      stateFocusNode: stateFocusNode,
+      isSearchingCep: isSearchingCep,
+      onSearchCep: (cep) => context.read<CustomersCubit>().getAddressByCep(cep),
     );
   }
 }

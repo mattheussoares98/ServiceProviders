@@ -38,6 +38,12 @@ class CustomerForm extends HookWidget {
       text: customer?.postalCode,
     );
     final postalCodeFocusNode = useFocusNode();
+    final addressFocusNode = useFocusNode();
+    final numberFocusNode = useFocusNode();
+    final complementFocusNode = useFocusNode();
+    final neighborhoodFocusNode = useFocusNode();
+    final cityFocusNode = useFocusNode();
+    final stateFocusNode = useFocusNode();
     final addressController = useTextEditingController(text: customer?.address);
     final numberController = useTextEditingController(text: customer?.number);
     final complementController = useTextEditingController(
@@ -111,6 +117,12 @@ class CustomerForm extends HookWidget {
             cityController: cityController,
             stateController: stateController,
             postalCodeFocusNode: postalCodeFocusNode,
+            addressFocusNode: addressFocusNode,
+            numberFocusNode: numberFocusNode,
+            complementFocusNode: complementFocusNode,
+            neighborhoodFocusNode: neighborhoodFocusNode,
+            cityFocusNode: cityFocusNode,
+            stateFocusNode: stateFocusNode,
           ),
           gapH24,
           BaseButton(text: 'Salvar'.hardcoded, onTap: submit),

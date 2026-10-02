@@ -41,6 +41,7 @@ void main() {
 
     when(() => cubit.state).thenReturn(const LocationsState.initial());
     when(() => cubit.stream).thenAnswer((_) => const Stream.empty());
+    when(() => cubit.getAddressByCep(any())).thenAnswer((_) async => null);
   });
 
   tearDown(() async {
@@ -151,28 +152,26 @@ void main() {
     expect(find.text('Open form'), findsOneWidget);
   });
 
-  formTest('manual address edit survives a pending postal code lookup', (
-    tester,
-  ) async {
-    final lookup = Completer<AddressEntity?>();
-    when(
-      () => cubit.getAddressByCep('01001000'),
-    ).thenAnswer((_) => lookup.future);
-    await openForm(tester);
-    await tester.enterText(find.byType(TextFormField).at(1), '01001000');
-    await tester.enterText(
-      find.byType(TextFormField).at(2),
-      'Manually corrected street',
-    );
-    lookup.complete(
-      AssetFactory.makeAddressEntity().copyWith(
-        street: 'Postal service street',
-      ),
-    );
-    await tester.pumpAndSettle();
-    final field = tester.widget<TextFormField>(
-      find.byType(TextFormField).at(2),
-    );
-    expect(field.controller!.text, 'Manually corrected street');
-  });
+  formTest(
+    'locks address fields and populates them on successful postal code lookup',
+    (tester) async {
+      final lookup = Completer<AddressEntity?>();
+      when(
+        () => cubit.getAddressByCep('01001000'),
+      ).thenAnswer((_) => lookup.future);
+      await openForm(tester);
+      await tester.enterText(find.byType(TextFormField).at(1), '01001000');
+      lookup.complete(
+        AssetFactory.makeAddressEntity().copyWith(
+          street: 'Postal service street',
+        ),
+      );
+      await tester.pumpAndSettle();
+      final streetField = tester.widget<TextFormField>(
+        find.byType(TextFormField).at(2),
+      );
+      expect(streetField.controller!.text, 'Postal service street');
+      expect(streetField.enabled, isFalse);
+    },
+  );
 }

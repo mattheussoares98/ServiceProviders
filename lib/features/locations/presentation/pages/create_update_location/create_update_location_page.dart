@@ -6,15 +6,10 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/pages/create_update_location/delete_location_button.dart';
+import 'package:o_jogo_da_obra/features/locations/presentation/pages/create_update_location/widgets/location_form.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_button.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/form_field/base_text_form_field.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/validators/form_validators.dart';
-import 'package:o_jogo_da_obra/shared_ui/utils/validators/non_empty_validator.dart';
 
 @RoutePage()
 class CreateUpdateLocationPage extends HookWidget {
@@ -65,36 +60,6 @@ class CreateUpdateLocationPage extends HookWidget {
     final cityFocusNode = useFocusNode();
     final stateFocusNode = useFocusNode();
 
-    final isSearchingCep = context.select<LocationsCubit, bool>(
-      (c) => c.state.section(LocationsSections.loadAddressByCep).isRunning,
-    );
-
-    Future<void> onCepChanged(String value) async {
-      final clean = value.replaceAll(RegExp(r'\D'), '');
-      if (clean.length == 8) {
-        final address = await context.read<LocationsCubit>().getAddressByCep(
-          clean,
-        );
-        if (address != null) {
-          if (address.street.isNotEmpty &&
-              addressController.text.trim().isEmpty) {
-            addressController.text = address.street;
-          }
-          if (address.neighborhood.isNotEmpty &&
-              neighborhoodController.text.trim().isEmpty) {
-            neighborhoodController.text = address.neighborhood;
-          }
-          if (address.city.isNotEmpty && cityController.text.trim().isEmpty) {
-            cityController.text = address.city;
-          }
-          if (address.state.isNotEmpty && stateController.text.trim().isEmpty) {
-            stateController.text = address.state;
-          }
-          numberFocusNode.requestFocus();
-        }
-      }
-    }
-
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
 
@@ -123,139 +88,25 @@ class CreateUpdateLocationPage extends HookWidget {
             : 'Editando local'.hardcoded,
         actions: [DeleteLocationButton(locationId: existingLocation?.id)],
       ),
-      body: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              BaseTextFormField(
-                labelText: 'Nome do Local *'.hardcoded,
-                hintText: 'Ex: Sede Central'.hardcoded,
-                controller: nameController,
-                validator: FormValidators.compose([NonEmptyValidator()]),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (_) => cepFocusNode.requestFocus(),
-              ),
-              gapH16,
-              BaseTextFormField(
-                labelText: 'CEP (Opcional)'.hardcoded,
-                hintText: 'Ex: 01001-000'.hardcoded,
-                controller: cepController,
-                keyboardType: TextInputType.number,
-                textInputAction: TextInputAction.next,
-                focusNode: cepFocusNode,
-                maxLength: 9,
-                suffixIcon: isSearchingCep
-                    ? Padding(
-                        padding: const EdgeInsets.all(Sizes.p12),
-                        child: LoadingCircle.small(),
-                      )
-                    : null,
-                onChanged: onCepChanged,
-                onFieldSubmitted: (_) {
-                  onCepChanged(cepController.text);
-                  addressFocusNode.requestFocus();
-                },
-              ),
-              gapH16,
-              BaseTextFormField(
-                labelText: 'Endereço (Opcional)'.hardcoded,
-                hintText: 'Ex: Avenida Paulista'.hardcoded,
-                controller: addressController,
-                textInputAction: TextInputAction.next,
-                focusNode: addressFocusNode,
-                onFieldSubmitted: (_) => numberFocusNode.requestFocus(),
-              ),
-              gapH16,
-              Row(
-                children: [
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'Número (Opcional)'.hardcoded,
-                      hintText: 'Ex: 1000'.hardcoded,
-                      controller: numberController,
-                      textInputAction: TextInputAction.next,
-                      focusNode: numberFocusNode,
-                      onFieldSubmitted: (_) =>
-                          complementFocusNode.requestFocus(),
-                    ),
-                  ),
-                  gapW16,
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'Complemento (Opcional)'.hardcoded,
-                      hintText: 'Ex: Bloco A'.hardcoded,
-                      controller: complementController,
-                      textInputAction: TextInputAction.next,
-                      focusNode: complementFocusNode,
-                      onFieldSubmitted: (_) =>
-                          neighborhoodFocusNode.requestFocus(),
-                    ),
-                  ),
-                ],
-              ),
-              gapH16,
-              BaseTextFormField(
-                labelText: 'Bairro (Opcional)'.hardcoded,
-                hintText: 'Ex: Bela Vista'.hardcoded,
-                controller: neighborhoodController,
-                textInputAction: TextInputAction.next,
-                focusNode: neighborhoodFocusNode,
-                onFieldSubmitted: (_) => cityFocusNode.requestFocus(),
-              ),
-              gapH16,
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: BaseTextFormField(
-                      labelText: 'Cidade (Opcional)'.hardcoded,
-                      hintText: 'Ex: São Paulo'.hardcoded,
-                      controller: cityController,
-                      textInputAction: TextInputAction.next,
-                      focusNode: cityFocusNode,
-                      onFieldSubmitted: (_) => stateFocusNode.requestFocus(),
-                    ),
-                  ),
-                  gapW16,
-                  Expanded(
-                    child: BaseTextFormField(
-                      labelText: 'UF (Opcional)'.hardcoded,
-                      hintText: 'Ex: SP'.hardcoded,
-                      controller: stateController,
-                      textInputAction: TextInputAction.done,
-                      focusNode: stateFocusNode,
-                      onFieldSubmitted: (_) => submit(),
-                    ),
-                  ),
-                ],
-              ),
-              gapH24,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: BaseButton.text(
-                      onPressed: () => Navigator.of(context).pop(),
-                      text: 'Cancelar'.hardcoded,
-                      color: Colors.red,
-                    ),
-                  ),
-                  Expanded(
-                    child: BaseButton(
-                      onTap: submit,
-                      width: Sizes.p120,
-                      text: 'Salvar'.hardcoded,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+      body: LocationForm(
+        formKey: formKey,
+        existingLocation: existingLocation,
+        nameController: nameController,
+        cepController: cepController,
+        addressController: addressController,
+        numberController: numberController,
+        complementController: complementController,
+        neighborhoodController: neighborhoodController,
+        cityController: cityController,
+        stateController: stateController,
+        cepFocusNode: cepFocusNode,
+        addressFocusNode: addressFocusNode,
+        numberFocusNode: numberFocusNode,
+        complementFocusNode: complementFocusNode,
+        neighborhoodFocusNode: neighborhoodFocusNode,
+        cityFocusNode: cityFocusNode,
+        stateFocusNode: stateFocusNode,
+        onSubmit: submit,
       ),
     );
   }
