@@ -10,7 +10,6 @@ import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/comp
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission.dart';
-import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_entity.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/work_order_status.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/use_cases/evaluate_prerequisites_use_case.dart';
@@ -30,6 +29,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 
 part '../work_orders/widgets/oders_items/active_filters.dart';
+part '../work_orders/widgets/oders_items/orders_empty_view.dart';
 part '../work_orders/widgets/oders_items/pending_conclusion_banner.dart';
 
 class OrdersItems extends StatefulWidget {
@@ -81,108 +81,7 @@ class _OrdersItemsState extends State<OrdersItems> {
                     .loadWorkOrdersAndChangeRequests,
                 builder: (context, workOrders) {
                   if (workOrders.isEmpty) {
-                    final hasFilter = context.select<WorkOrdersCubit, bool>(
-                      (c) => c.state.activeFilter != const WorkOrderFilter(),
-                    );
-                    final hasWorkOrders = context.select<WorkOrdersCubit, bool>(
-                      (c) => c.state.hasWorkOrders,
-                    );
-                    if (hasFilter || hasWorkOrders) {
-                      return CustomScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        slivers: [
-                          SliverFillRemaining(
-                            hasScrollBody: false,
-                            child: Center(
-                              child: BaseText.error(
-                                'Nenhuma ordem foi encontrada'.hardcoded,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-
-                    WorkType workType = WorkType.hybrid;
-                    bool hasLocations = false;
-                    bool hasAreas = false;
-                    bool hasCustomers = false;
-                    bool hasAssets = false;
-                    bool hasLocationCreate = true;
-                    bool hasAssetCreate = true;
-
-                    try {
-                      final company =
-                          context.watch<CompanyCubit>().state.company;
-                      if (company != null) workType = company.workType;
-                    } catch (_) {}
-
-                    try {
-                      hasLocations = context.select<LocationsCubit, bool>(
-                        (c) => c.state.hasLocations,
-                      );
-                      hasAreas = context.select<LocationsCubit, bool>(
-                        (c) => c.state.hasAreas,
-                      );
-                    } catch (_) {}
-
-                    try {
-                      hasCustomers = context.select<CustomersCubit, bool>(
-                        (c) => c.state.hasCustomers,
-                      );
-                    } catch (_) {}
-
-                    try {
-                      hasAssets = context.select<AssetsCubit, bool>(
-                        (c) => c.state.hasAssets,
-                      );
-                    } catch (_) {}
-
-                    try {
-                      final userCubit = context.watch<UsersCubit>();
-                      hasLocationCreate = userCubit.hasPermission(
-                        const ActionPermission.resource(
-                          resourceType: ResourceType.locations,
-                          permissionAction: PermissionAction.create,
-                        ),
-                      );
-                      hasAssetCreate = userCubit.hasPermission(
-                        const ActionPermission.resource(
-                          resourceType: ResourceType.assets,
-                          permissionAction: PermissionAction.create,
-                        ),
-                      );
-                    } catch (_) {}
-
-                    final eval = const EvaluatePrerequisitesUseCase()(
-                      EvaluatePrerequisitesParams(
-                        workType: workType,
-                        hasLocations: hasLocations,
-                        hasAreas: hasAreas,
-                        hasCustomers: hasCustomers,
-                        hasAssets: hasAssets,
-                        hasLocationCreatePermission: hasLocationCreate,
-                        hasAssetCreatePermission: hasAssetCreate,
-                      ),
-                    );
-
-                    if (eval.hasPendingRequiredPrerequisites) {
-                      return PrerequisiteGuideCard(steps: eval.steps);
-                    }
-
-                    return CustomScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: Center(
-                            child: BaseText.error(
-                              'Nenhuma ordem foi encontrada'.hardcoded,
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
+                    return const _OrdersEmptyView();
                   }
                   return BlocBuilder<WorkOrdersCubit, WorkOrdersState>(
                     buildWhen: (prev, curr) =>
