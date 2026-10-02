@@ -140,9 +140,9 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
     final changeRequestsResult = results[1];
     final hasWorkOrdersResult = results[2];
 
-    final hasWorkOrders = hasWorkOrdersResult is SuccessState<bool>
-        ? (hasWorkOrdersResult.data ?? false)
-        : false;
+    final hasWorkOrders =
+        hasWorkOrdersResult is SuccessState<bool> &&
+        (hasWorkOrdersResult.data ?? false);
 
     if (workOrdersResult is SuccessState<List<WorkOrderEntity>> &&
         changeRequestsResult

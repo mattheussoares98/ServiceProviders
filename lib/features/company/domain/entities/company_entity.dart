@@ -6,8 +6,7 @@ class CompanyEntity extends Equatable {
   const CompanyEntity({
     required this.id,
     required this.name,
-    String? document,
-    String? cnpj,
+    this.document,
     required this.logoUrl,
     required this.isActive,
     this.planType = PlanType.free,
@@ -15,7 +14,7 @@ class CompanyEntity extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
-  }) : document = document ?? cnpj;
+  });
 
   final String id;
   final String name;
@@ -27,9 +26,6 @@ class CompanyEntity extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? deletedAt;
-
-  @Deprecated('Use document instead')
-  String? get cnpj => document;
 
   bool get requiresCustomer => workType.requiresCustomer;
   bool get requiresLocation => workType.requiresLocation;
@@ -59,7 +55,6 @@ class CompanyEntity extends Equatable {
     String? id,
     String? name,
     String? document,
-    String? cnpj,
     String? logoUrl,
     bool? isActive,
     PlanType? planType,
@@ -69,15 +64,12 @@ class CompanyEntity extends Equatable {
     DateTime? deletedAt,
     bool? annulDeletedAt,
     bool? annulDocument,
-    bool? annulCnpj,
     bool? annulLogoUrl,
   }) {
-    final effectiveDoc = document ?? cnpj;
-    final shouldAnnulDoc = (annulDocument == true) || (annulCnpj == true);
     return CompanyEntity(
       id: id ?? this.id,
       name: name ?? this.name,
-      document: shouldAnnulDoc ? null : (effectiveDoc ?? this.document),
+      document: annulDocument == true ? null : (document ?? this.document),
       logoUrl: annulLogoUrl == true ? null : (logoUrl ?? this.logoUrl),
       isActive: isActive ?? this.isActive,
       planType: planType ?? this.planType,

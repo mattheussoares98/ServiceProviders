@@ -177,8 +177,6 @@ void main() {
               as CompanyEntity;
       expect(captured.name, 'Empresa Teste');
       expect(captured.document, '12345678000199');
-      // ignore: deprecated_member_use_from_same_package
-      expect(captured.cnpj, '12345678000199');
       verify(() => mockNavigationClient.maybePop()).called(1);
     },
   );

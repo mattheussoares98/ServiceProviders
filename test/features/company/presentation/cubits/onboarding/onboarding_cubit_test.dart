@@ -112,8 +112,6 @@ void main() {
       );
       expect(cubit.state.companyName, 'Minha Empresa');
       expect(cubit.state.document, '12.345.678/0001-90');
-      // ignore: deprecated_member_use_from_same_package
-      expect(cubit.state.cnpj, '12.345.678/0001-90');
     });
 
     test('updateCompanyInfo with legacy cnpj updates document in state', () {

@@ -11,7 +11,6 @@ class CompanyModel extends CompanyEntity
     required super.id,
     required super.name,
     super.document,
-    super.cnpj,
     super.logoUrl,
     required super.isActive,
     super.planType = PlanType.free,

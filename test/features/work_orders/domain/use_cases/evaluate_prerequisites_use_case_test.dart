@@ -10,12 +10,7 @@ void main() {
     group('internalOnly workType', () {
       test('when zero locations, requires location step as pending', () {
         final result = useCase(
-          const EvaluatePrerequisitesParams(
-            workType: WorkType.internalOnly,
-            locationsCount: 0,
-            areasCount: 0,
-            customersCount: 0,
-          ),
+          const EvaluatePrerequisitesParams(workType: WorkType.internalOnly),
         );
 
         expect(result.steps.length, 3);
@@ -41,8 +36,6 @@ void main() {
           const EvaluatePrerequisitesParams(
             workType: WorkType.internalOnly,
             locationsCount: 1,
-            areasCount: 0,
-            customersCount: 0,
           ),
         );
 
@@ -57,7 +50,6 @@ void main() {
             workType: WorkType.internalOnly,
             locationsCount: 2,
             areasCount: 3,
-            customersCount: 0,
             assetsCount: 5,
           ),
         );
@@ -74,9 +66,6 @@ void main() {
         final result = useCase(
           const EvaluatePrerequisitesParams(
             workType: WorkType.serviceProviderOnly,
-            locationsCount: 0,
-            areasCount: 0,
-            customersCount: 0,
           ),
         );
 
@@ -96,8 +85,6 @@ void main() {
         final result = useCase(
           const EvaluatePrerequisitesParams(
             workType: WorkType.serviceProviderOnly,
-            locationsCount: 0,
-            areasCount: 0,
             customersCount: 1,
           ),
         );
@@ -111,12 +98,7 @@ void main() {
     group('hybrid workType', () {
       test('when neither location nor customer exists, step 1 is pending', () {
         final result = useCase(
-          const EvaluatePrerequisitesParams(
-            workType: WorkType.hybrid,
-            locationsCount: 0,
-            areasCount: 0,
-            customersCount: 0,
-          ),
+          const EvaluatePrerequisitesParams(workType: WorkType.hybrid),
         );
 
         expect(result.steps.length, 3);
@@ -130,8 +112,6 @@ void main() {
           const EvaluatePrerequisitesParams(
             workType: WorkType.hybrid,
             locationsCount: 1,
-            areasCount: 0,
-            customersCount: 0,
           ),
         );
 
@@ -145,8 +125,6 @@ void main() {
           final result = useCase(
             const EvaluatePrerequisitesParams(
               workType: WorkType.hybrid,
-              locationsCount: 0,
-              areasCount: 0,
               customersCount: 1,
             ),
           );
@@ -163,9 +141,6 @@ void main() {
         final result = useCase(
           const EvaluatePrerequisitesParams(
             workType: WorkType.internalOnly,
-            locationsCount: 0,
-            areasCount: 0,
-            customersCount: 0,
             hasLocationCreatePermission: false,
             hasAssetCreatePermission: false,
           ),
@@ -182,7 +157,6 @@ void main() {
         final result = useCase(
           const EvaluatePrerequisitesParams(
             workType: WorkType.internalOnly,
-            locationsCount: 0,
             hasLocations: true,
             hasAreas: true,
             hasAssets: true,

@@ -15,17 +15,14 @@ class ConfirmationStep extends StatelessWidget {
     super.key,
     required this.cubit,
     required this.companyName,
-    String? document,
-    String? cnpj,
+    this.document = '',
     required this.workType,
     required this.isLoading,
-  }) : document = document ?? cnpj ?? '';
+  });
 
   final OnboardingCubit cubit;
   final String companyName;
   final String document;
-  @Deprecated('Use document instead')
-  String get cnpj => document;
   final WorkType workType;
   final bool isLoading;
 
@@ -70,14 +67,12 @@ class ConfirmationStep extends StatelessWidget {
                   ),
                 ),
                 gapH4,
-                BaseText(
-                  () {
-                    final clean = document.replaceAll(RegExp(r'\D'), '');
-                    return clean.length <= 11
-                        ? CPFValidator.format(clean)
-                        : CNPJValidator.format(clean);
-                  }(),
-                ),
+                BaseText(() {
+                  final clean = document.replaceAll(RegExp(r'\D'), '');
+                  return clean.length <= 11
+                      ? CPFValidator.format(clean)
+                      : CNPJValidator.format(clean);
+                }()),
                 gapH16,
               ],
               BaseText(

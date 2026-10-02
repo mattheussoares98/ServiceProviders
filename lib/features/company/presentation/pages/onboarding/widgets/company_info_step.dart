@@ -15,15 +15,12 @@ class CompanyInfoStep extends HookWidget {
     super.key,
     required this.cubit,
     required this.initialName,
-    String? initialDocument,
-    String? initialCnpj,
-  }) : initialDocument = initialDocument ?? initialCnpj ?? '';
+    this.initialDocument = '',
+  });
 
   final OnboardingCubit cubit;
   final String initialName;
   final String initialDocument;
-  @Deprecated('Use initialDocument instead')
-  String get initialCnpj => initialDocument;
 
   @override
   Widget build(BuildContext context) {
