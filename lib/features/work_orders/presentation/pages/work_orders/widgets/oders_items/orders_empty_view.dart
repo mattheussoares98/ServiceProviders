@@ -58,6 +58,23 @@ class _OrdersEmptyView extends StatelessWidget {
       return PrerequisiteGuideCard(steps: eval.steps);
     }
 
+    if (!hasWorkOrders) {
+      return BaseEmptyState(
+        title: 'Criar ordem de serviço'.hardcoded,
+        description:
+            'Crie sua primeira ordem de serviço para começar a gerenciar suas tarefas'
+                .hardcoded,
+        actionLabel: 'Criar ordem de serviço'.hardcoded,
+        onAction: () => context
+            .read<WorkOrdersCubit>()
+            .navigateToCreateUpdateWorkOrder(null),
+        icon: const PlatformIcon(
+          materialIcon: Icons.assignment_outlined,
+          cupertinoIcon: CupertinoIcons.doc_text,
+        ),
+      );
+    }
+
     return const _NoOrdersFoundView();
   }
 }
