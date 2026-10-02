@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
@@ -9,10 +10,9 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/action_
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/permission_action.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resource_type.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_step.dart';
-import 'package:o_jogo_da_obra/features/work_orders/domain/entities/prerequisite/prerequisite_type.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/prerequisites/prerequisite_guide_card.dart';
 
 class AssetsEmptyView extends StatelessWidget {
   const AssetsEmptyView({super.key});
@@ -41,40 +41,33 @@ class AssetsEmptyView extends StatelessWidget {
     final bool needsCustomer = workType.requiresCustomer && !hasCustomers;
 
     if (needsLocation) {
-      return PrerequisiteGuideCard(
-        title: 'Pré-requisitos para equipamentos'.hardcoded,
-        subtitle: 'Cadastre um local para poder vincular seus equipamentos:'
-            .hardcoded,
-        steps: [
-          PrerequisiteStep(
-            type: PrerequisiteType.location,
-            title: 'Cadastrar local'.hardcoded,
-            description: 'Locais físicos onde os equipamentos estão instalados.'
-                .hardcoded,
-            actionLabel: 'Cadastrar Local'.hardcoded,
-            isCompleted: false,
-            canPerformAction: hasLocationCreate,
-          ),
-        ],
+      return BaseEmptyState(
+        title: 'Cadastrar local'.hardcoded,
+        description:
+            'Cadastre um local para poder vincular seus equipamentos'.hardcoded,
+        actionLabel: 'Cadastrar Local'.hardcoded,
+        canPerformAction: hasLocationCreate,
+        onAction: () =>
+            context.read<LocationsCubit>().navigateToCreateUpdateLocation(),
+        icon: const PlatformIcon(
+          materialIcon: Icons.location_on_rounded,
+          cupertinoIcon: CupertinoIcons.location_solid,
+        ),
       );
     }
 
     if (needsCustomer) {
-      return PrerequisiteGuideCard(
-        title: 'Pré-requisitos para equipamentos'.hardcoded,
-        subtitle: 'Cadastre um cliente para poder vincular seus equipamentos:'
+      return BaseEmptyState(
+        title: 'Cadastrar cliente'.hardcoded,
+        description: 'Cadastre um cliente para poder vincular seus equipamentos'
             .hardcoded,
-        steps: [
-          PrerequisiteStep(
-            type: PrerequisiteType.customer,
-            title: 'Cadastrar cliente'.hardcoded,
-            description:
-                'Clientes externos que possuem equipamentos sob atendimento.'
-                    .hardcoded,
-            actionLabel: 'Cadastrar Cliente'.hardcoded,
-            isCompleted: false,
-          ),
-        ],
+        actionLabel: 'Cadastrar Cliente'.hardcoded,
+        onAction: () =>
+            context.read<CustomersCubit>().navigateToCreateUpdateCustomer(),
+        icon: const PlatformIcon(
+          materialIcon: Icons.person_add_alt_1_rounded,
+          cupertinoIcon: CupertinoIcons.person_badge_plus,
+        ),
       );
     }
 

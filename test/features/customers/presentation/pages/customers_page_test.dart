@@ -38,9 +38,11 @@ void main() {
   Widget buildTestWidget({
     List<CustomerEntity> customers = const [],
     SectionState loadSection = const SectionState.success(),
+    bool? hasCustomers,
   }) {
     final state = CustomersState(
       customers: customers,
+      hasCustomers: hasCustomers ?? customers.isNotEmpty,
       sections: {BaseSections.load: loadSection},
     );
 
@@ -57,7 +59,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(buildTestWidget(customers: []));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Nenhum cliente cadastrado'), findsOneWidget);
     expect(find.byType(CustomerCard), findsNothing);
@@ -72,7 +74,7 @@ void main() {
     ];
 
     await tester.pumpWidget(buildTestWidget(customers: customers));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Alpha Corp'), findsOneWidget);
     expect(find.text('Beta Services'), findsOneWidget);
@@ -83,7 +85,7 @@ void main() {
     'calls navigateToCreateUpdateCustomer when add button is tapped',
     (tester) async {
       await tester.pumpWidget(buildTestWidget(customers: []));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       final addIcon = find.byWidgetPredicate(
         (w) =>
@@ -92,7 +94,7 @@ void main() {
       expect(addIcon, findsOneWidget);
 
       await tester.tap(addIcon);
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       verify(() => mockCubit.navigateToCreateUpdateCustomer()).called(1);
     },
@@ -106,10 +108,10 @@ void main() {
       );
 
       await tester.pumpWidget(buildTestWidget(customers: [customer]));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       await tester.tap(find.text('Alpha Corp'));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       verify(
         () => mockCubit.navigateToCreateUpdateCustomer(customer: customer),
@@ -121,7 +123,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(buildTestWidget(customers: []));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.byType(OpenDrawerIconButton), findsOneWidget);
   });

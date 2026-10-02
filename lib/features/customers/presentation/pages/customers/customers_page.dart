@@ -8,6 +8,7 @@ import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/
 import 'package:o_jogo_da_obra/features/customers/presentation/pages/customers/widgets/customer_card.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
@@ -42,6 +43,25 @@ class CustomersPage extends StatelessWidget {
         dataSelector: (state) => state.customers,
         onRetry: () => context.read<CustomersCubit>().loadCustomers(),
         builder: (context, customers) {
+          final hasCustomers = context.select<CustomersCubit, bool>(
+            (value) => value.state.hasCustomers,
+          );
+          if (!hasCustomers) {
+            return BaseEmptyState(
+              title: 'Nenhum cliente cadastrado'.hardcoded,
+              description:
+                  'Cadastre seu primeiro cliente para começar a gerenciar seus atendimentos'
+                      .hardcoded,
+              actionLabel: 'Adicionar cliente'.hardcoded,
+              onAction: context
+                  .read<CustomersCubit>()
+                  .navigateToCreateUpdateCustomer,
+              icon: const PlatformIcon(
+                materialIcon: Icons.person_add_alt_1_rounded,
+                cupertinoIcon: CupertinoIcons.person_badge_plus,
+              ),
+            );
+          }
           if (customers.isEmpty) {
             return Center(
               child: BaseText.bodyMedium('Nenhum cliente cadastrado'.hardcoded),

@@ -16,17 +16,28 @@ import 'package:o_jogo_da_obra/features/users/domain/entities/permission/resourc
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/base/base_cubit.dart';
 import 'package:o_jogo_da_obra/shared_ui/cubits/session/session_cubit.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/prerequisites/prerequisite_guide_card.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 
 import '../../../../../../testing/mocks/factories/user_factory.dart';
 
 class MockAssetsCubit extends MockCubit<AssetsState> implements AssetsCubit {}
-class MockLocationsCubit extends MockCubit<LocationsState> implements LocationsCubit {}
-class MockCompanyCubit extends MockCubit<CompanyState> implements CompanyCubit {}
-class MockCustomersCubit extends MockCubit<CustomersState> implements CustomersCubit {}
+
+class MockLocationsCubit extends MockCubit<LocationsState>
+    implements LocationsCubit {}
+
+class MockCompanyCubit extends MockCubit<CompanyState>
+    implements CompanyCubit {}
+
+class MockCustomersCubit extends MockCubit<CustomersState>
+    implements CustomersCubit {}
+
 class MockUsersCubit extends MockCubit<UsersState> implements UsersCubit {}
-class MockCategoriesCubit extends MockCubit<CategoriesState> implements CategoriesCubit {}
-class MockSessionCubit extends MockCubit<SessionState> implements SessionCubit {}
+
+class MockCategoriesCubit extends MockCubit<CategoriesState>
+    implements CategoriesCubit {}
+
+class MockSessionCubit extends MockCubit<SessionState>
+    implements SessionCubit {}
 
 void main() {
   setUpAll(() {
@@ -62,11 +73,17 @@ void main() {
         sections: {BaseSections.load: SectionState.success()},
       ),
     );
-    when(() => mockLocationsCubit.state).thenReturn(const LocationsState.initial());
-    when(() => mockCustomersCubit.state).thenReturn(const CustomersState.initial());
+    when(
+      () => mockLocationsCubit.state,
+    ).thenReturn(const LocationsState.initial());
+    when(
+      () => mockCustomersCubit.state,
+    ).thenReturn(const CustomersState.initial());
     when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
     when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
-    when(() => mockCategoriesCubit.state).thenReturn(const CategoriesState.initial());
+    when(
+      () => mockCategoriesCubit.state,
+    ).thenReturn(const CategoriesState.initial());
     when(() => mockSessionCubit.state).thenReturn(SessionState.initial());
   });
 
@@ -87,56 +104,58 @@ void main() {
     );
   }
 
-  testWidgets('shows PrerequisiteGuideCard when internalOnly and zero locations', (
+  testWidgets('shows BaseEmptyState when internalOnly and zero locations', (
     tester,
   ) async {
     final company = UserFactory.makeCompanyEntity().copyWith(
       workType: WorkType.internalOnly,
     );
-    when(() => mockCompanyCubit.state).thenReturn(
-      CompanyState(company: company),
-    );
+    when(
+      () => mockCompanyCubit.state,
+    ).thenReturn(CompanyState(company: company));
 
     await tester.pumpWidget(buildTestWidget());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    expect(find.byType(PrerequisiteGuideCard), findsOneWidget);
-    expect(find.text('Pré-requisitos para equipamentos'), findsOneWidget);
+    expect(find.byType(BaseEmptyState), findsOneWidget);
+    expect(find.text('Cadastrar local'), findsOneWidget);
     expect(find.text('Cadastrar Local'), findsOneWidget);
   });
 
-  testWidgets('shows PrerequisiteGuideCard when serviceProviderOnly and zero customers', (
-    tester,
-  ) async {
-    final company = UserFactory.makeCompanyEntity().copyWith(
-      workType: WorkType.serviceProviderOnly,
-    );
-    when(() => mockCompanyCubit.state).thenReturn(
-      CompanyState(company: company),
-    );
+  testWidgets(
+    'shows BaseEmptyState when serviceProviderOnly and zero customers',
+    (tester) async {
+      final company = UserFactory.makeCompanyEntity().copyWith(
+        workType: WorkType.serviceProviderOnly,
+      );
+      when(
+        () => mockCompanyCubit.state,
+      ).thenReturn(CompanyState(company: company));
 
-    await tester.pumpWidget(buildTestWidget());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
 
-    expect(find.byType(PrerequisiteGuideCard), findsOneWidget);
-    expect(find.text('Pré-requisitos para equipamentos'), findsOneWidget);
-    expect(find.text('Cadastrar Cliente'), findsOneWidget);
-  });
+      expect(find.byType(BaseEmptyState), findsOneWidget);
+      expect(find.text('Cadastrar cliente'), findsOneWidget);
+      expect(find.text('Cadastrar Cliente'), findsOneWidget);
+    },
+  );
 
-  testWidgets('shows normal empty text when hybrid and zero locations/customers', (
-    tester,
-  ) async {
-    final company = UserFactory.makeCompanyEntity().copyWith(
-      workType: WorkType.hybrid,
-    );
-    when(() => mockCompanyCubit.state).thenReturn(
-      CompanyState(company: company),
-    );
+  testWidgets(
+    'shows normal empty text when hybrid and zero locations/customers',
+    (tester) async {
+      final company = UserFactory.makeCompanyEntity().copyWith(
+        workType: WorkType.hybrid,
+      );
+      when(
+        () => mockCompanyCubit.state,
+      ).thenReturn(CompanyState(company: company));
 
-    await tester.pumpWidget(buildTestWidget());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(buildTestWidget());
+      await tester.pump();
 
-    expect(find.byType(PrerequisiteGuideCard), findsNothing);
-    expect(find.text('Nenhum equipamento cadastrado'), findsOneWidget);
-  });
+      expect(find.byType(BaseEmptyState), findsNothing);
+      expect(find.text('Nenhum equipamento cadastrado'), findsOneWidget);
+    },
+  );
 }
