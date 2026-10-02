@@ -108,7 +108,7 @@ class EvaluatePrerequisitesUseCase
             title: 'Cadastrar equipamento'.hardcoded,
             description: 'Máquinas ou aparelhos que recebem ordens de serviço.'
                 .hardcoded,
-            actionLabel: 'Cadastrar Equipamento'.hardcoded,
+            actionLabel: 'Cadastrar equipamento'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.assets,
               permissionAction: PermissionAction.create,
@@ -136,7 +136,7 @@ class EvaluatePrerequisitesUseCase
             title: 'Cadastrar equipamento do cliente'.hardcoded,
             description:
                 'Equipamentos atendidos ou ferramentas de trabalho.'.hardcoded,
-            actionLabel: 'Cadastrar Equipamento'.hardcoded,
+            actionLabel: 'Cadastrar equipamento'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.assets,
               permissionAction: PermissionAction.create,
@@ -177,7 +177,7 @@ class EvaluatePrerequisitesUseCase
             type: PrerequisiteType.asset,
             title: 'Cadastrar equipamento'.hardcoded,
             description: 'Equipamentos ou máquinas sob manutenção.'.hardcoded,
-            actionLabel: 'Cadastrar Equipamento'.hardcoded,
+            actionLabel: 'Cadastrar equipamento'.hardcoded,
             permissionRequired: const ActionPermission.resource(
               resourceType: ResourceType.assets,
               permissionAction: PermissionAction.create,

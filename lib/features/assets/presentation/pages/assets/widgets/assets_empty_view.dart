@@ -76,7 +76,7 @@ class AssetsEmptyView extends StatelessWidget {
       description:
           'Cadastre equipamentos para poder vincular a ${needsCustomer ? 'locais' : 'clientes'}'
               .hardcoded,
-      actionLabel: 'Cadastrar Equipamento'.hardcoded,
+      actionLabel: 'Cadastrar equipamento'.hardcoded,
       onAction: () => context.read<AssetsCubit>().navigateToCreateUpdateAsset(),
       icon: const PlatformIcon(
         materialIcon: Icons.build_outlined,
