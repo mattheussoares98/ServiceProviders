@@ -7,13 +7,14 @@ class _CustomerDropdown extends StatelessWidget {
   });
 
   final String? selectedId;
-  final ValueChanged<String?> onChanged;
+  final ValueChanged<String?>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     final customers = context.select(
-      (CustomersCubit cubit) =>
-          cubit.state.customers.where((c) => c.isActive).toList(),
+      (CustomersCubit cubit) => cubit.state.customers
+          .where((c) => c.isActive || c.id == selectedId)
+          .toList(),
     );
     final items = customers.map(
       (e) => DropdownMenuItem(value: e.id, child: BaseText(e.name)),
@@ -28,8 +29,10 @@ class _CustomerDropdown extends StatelessWidget {
           ? BaseText('Sem clientes cadastrados'.hardcoded)
           : BaseText('Ativo geral / Reutilizável'.hardcoded),
       items: items.toList(),
-      onChanged: onChanged,
-      onClear: selectedId != null ? () => onChanged(null) : null,
+      onChanged: onChanged != null ? (val) => onChanged!(val) : null,
+      onClear: selectedId != null && onChanged != null
+          ? () => onChanged!(null)
+          : null,
     );
   }
 }

@@ -34,14 +34,13 @@ class AreaDropdown extends StatelessWidget {
 
     return BaseDropDown<String>(
       key: const ValueKey('Area'),
-      label: 'Área *'.hardcoded,
+      label: 'Área (opcional)'.hardcoded,
       selectedItem: selectedAreaId,
       hint: selectedLocationId == null
           ? BaseText('Selecione primeiro o local'.hardcoded)
           : (filteredAreas.isEmpty
                 ? BaseText('Sem áreas cadastradas'.hardcoded)
                 : BaseText('Nenhuma área selecionada'.hardcoded)),
-      validator: (val) => val == null ? 'Selecione uma área'.hardcoded : null,
       items: areasItems,
       onChanged: onChanged,
       onClear: selectedAreaId != null ? () => onChanged(null) : null,

@@ -12,10 +12,12 @@ class LocationDropdown extends StatelessWidget {
     required this.selectedLocationId,
     required this.onChangeArea,
     required this.onChangeLocation,
+    this.isRequired = true,
   });
   final String? selectedLocationId;
   final ValueChanged<String?> onChangeArea;
   final ValueChanged<String?> onChangeLocation;
+  final bool isRequired;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +30,11 @@ class LocationDropdown extends StatelessWidget {
 
     return BaseDropDown<String>(
       key: const ValueKey('Location'),
-      label: 'Local *'.hardcoded,
+      label: isRequired ? 'Local *'.hardcoded : 'Local (opcional)'.hardcoded,
       selectedItem: selectedLocationId,
-      validator: (val) => val == null ? 'Selecione um local'.hardcoded : null,
+      validator: isRequired
+          ? (val) => val == null ? 'Selecione um local'.hardcoded : null
+          : null,
       items: locationDropdownItems,
       onChanged: (val) {
         onChangeLocation(val);

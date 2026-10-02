@@ -31,6 +31,7 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/loading_circle.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/loading/observe_running.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
+import 'package:o_jogo_da_obra/shared_ui/utils/extensions/build_context_extension.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/toast_util.dart';
 
 part 'widgets/customer_dropdown.dart';
@@ -54,7 +55,8 @@ class CreateUpdateAssetPage extends HookWidget {
     final workType = context.select<CompanyCubit, WorkType>(
       (cubit) => cubit.state.company?.workType ?? WorkType.internalOnly,
     );
-    final requireLocation = workType.requiresLocation;
+    final showLocations = workType.supportsOwnLocations;
+    final showCustomers = workType.supportsCustomers;
 
     //* the same for locations and areas
     final (loadingLocations, locationsError) = context
@@ -74,12 +76,12 @@ class CreateUpdateAssetPage extends HookWidget {
         });
 
     if (loadingCategories ||
-        (requireLocation && loadingLocations) ||
+        (showLocations && loadingLocations) ||
         loadingAssets) {
       return const Center(child: LoadingCircle());
     }
     final hasError =
-        (requireLocation && (locationsError?.isNotEmpty ?? false)) ||
+        (showLocations && (locationsError?.isNotEmpty ?? false)) ||
         (categoriesError?.isNotEmpty ?? false) ||
         (assetsError?.isNotEmpty ?? false);
 
@@ -90,7 +92,7 @@ class CreateUpdateAssetPage extends HookWidget {
           children: [
             BaseText.error(
               [
-                if (requireLocation) ?locationsError,
+                if (showLocations) ?locationsError,
                 ?categoriesError,
                 ?assetsError,
               ].join('\n'),
@@ -98,7 +100,7 @@ class CreateUpdateAssetPage extends HookWidget {
             gapH8,
             BaseButton(
               onTap: () {
-                if (requireLocation && (locationsError?.isNotEmpty ?? false)) {
+                if (showLocations && (locationsError?.isNotEmpty ?? false)) {
                   context.read<LocationsCubit>().loadLocationsAndAreas();
                 }
                 if (categoriesError?.isNotEmpty ?? false) {
@@ -137,6 +139,7 @@ class CreateUpdateAssetPage extends HookWidget {
     final selectedLocationId = useState<String?>(locationId);
     final selectedAreaId = useState<String?>(asset?.areaId);
     final selectedCustomerId = useState<String?>(asset?.customerId);
+
     final selectedCategoryId = useState<String?>(asset?.categoryId);
     final selectedParentAssetId = useState<String?>(asset?.parentAssetId);
     final selectedStatus = useState<AssetStatus>(
@@ -145,6 +148,10 @@ class CreateUpdateAssetPage extends HookWidget {
     final selectedCriticality = useState<AssetCriticality>(
       asset?.criticality ?? AssetCriticality.medium,
     );
+
+    final isGenericAsset =
+        workType.isServiceProviderOnly && selectedCustomerId.value == null;
+    final canEditUnitIdentifiers = !isGenericAsset;
 
     final nameFocusNode = useFocusNode();
     final codeFocusNode = useFocusNode();
@@ -155,23 +162,26 @@ class CreateUpdateAssetPage extends HookWidget {
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
+      final requireLocation =
+          workType.requiresLocation ||
+          (workType.isHybrid && selectedCustomerId.value == null);
       if (requireLocation && selectedLocationId.value == null) {
         ToastUtil.showError('Selecione um local para o equipamento'.hardcoded);
         return;
       }
 
       final updated = await context.read<AssetsCubit>().saveAsset(
-        id: asset?.id,
-        locationId: selectedLocationId.value,
-        areaId: selectedAreaId.value,
-        customerId: selectedCustomerId.value,
+        id: (asset?.id.isNotEmpty ?? false) ? asset?.id : null,
+        locationId: showLocations ? selectedLocationId.value : null,
+        areaId: showLocations ? selectedAreaId.value : null,
+        customerId: showCustomers ? selectedCustomerId.value : null,
         categoryId: selectedCategoryId.value,
         parentAssetId: selectedParentAssetId.value,
         name: nameController.text,
-        code: codeController.text,
+        code: isGenericAsset ? null : codeController.text,
         manufacturer: manufacturerController.text,
         model: modelController.text,
-        serialNumber: serialNumberController.text,
+        serialNumber: isGenericAsset ? null : serialNumberController.text,
         status: selectedStatus.value,
         criticality: selectedCriticality.value,
         notes: notesController.text,
@@ -183,12 +193,14 @@ class CreateUpdateAssetPage extends HookWidget {
       }
     }
 
+    final isEditing = asset?.id.isNotEmpty ?? false;
+
     return BaseScaffold(
       appBar: BaseAppBar(
-        title: asset == null
-            ? 'Criando equipamento'.hardcoded
-            : 'Editando equipamento'.hardcoded,
-        actions: [DeleteAssetButton(assetId: asset?.id)],
+        title: isEditing
+            ? 'Editando equipamento'.hardcoded
+            : 'Criando equipamento'.hardcoded,
+        actions: [if (isEditing) DeleteAssetButton(assetId: asset?.id)],
       ),
       body:
           errorWidget ??
@@ -204,12 +216,16 @@ class CreateUpdateAssetPage extends HookWidget {
                     nameFocusNode: nameFocusNode,
                     codeFocusNode: codeFocusNode,
                   ),
-                  if (requireLocation) ...[
+                  if (showLocations) ...[
                     gapH16,
                     LocationDropdown(
                       selectedLocationId: selectedLocationId.value,
                       onChangeArea: (val) => selectedAreaId.value = val,
                       onChangeLocation: (val) => selectedLocationId.value = val,
+                      isRequired:
+                          workType.isInternalOnly ||
+                          (workType.isHybrid &&
+                              selectedCustomerId.value == null),
                     ),
                     gapH16,
                     AreaDropdown(
@@ -218,13 +234,20 @@ class CreateUpdateAssetPage extends HookWidget {
                       onChanged: (value) => selectedAreaId.value = value,
                     ),
                   ],
-                  if (requireLocation) ...[
+                  if (showCustomers) ...[
                     gapH16,
                     _CustomerDropdown(
                       selectedId: selectedCustomerId.value,
-                      onChanged: (val) => selectedCustomerId.value = val,
+                      onChanged: (val) {
+                        selectedCustomerId.value = val;
+                        if (val == null) {
+                          codeController.clear();
+                          serialNumberController.clear();
+                        }
+                      },
                     ),
                   ],
+
                   gapH16,
                   CategoryDropdown(
                     selectedCategoryId: selectedCategoryId.value,
@@ -262,9 +285,12 @@ class CreateUpdateAssetPage extends HookWidget {
                       Expanded(
                         child: BaseTextFormField(
                           labelText: 'Código (opcional)'.hardcoded,
-                          hintText: 'Ex: AC-001'.hardcoded,
+                          hintText: canEditUnitIdentifiers
+                              ? 'Ex: AC-001'.hardcoded
+                              : 'Requer cliente'.hardcoded,
                           controller: codeController,
                           focusNode: codeFocusNode,
+                          enabled: canEditUnitIdentifiers,
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) =>
                               manufacturerFocusNode.requestFocus(),
@@ -302,9 +328,12 @@ class CreateUpdateAssetPage extends HookWidget {
                       Expanded(
                         child: BaseTextFormField(
                           labelText: 'Nº série (opcional)'.hardcoded,
-                          hintText: 'Ex: 12345678X'.hardcoded,
+                          hintText: canEditUnitIdentifiers
+                              ? 'Ex: 12345678X'.hardcoded
+                              : 'Requer cliente'.hardcoded,
                           controller: serialNumberController,
                           focusNode: serialNumberFocusNode,
+                          enabled: canEditUnitIdentifiers,
                           textInputAction: TextInputAction.next,
                           onFieldSubmitted: (_) =>
                               notesFocusNode.requestFocus(),
@@ -312,6 +341,16 @@ class CreateUpdateAssetPage extends HookWidget {
                       ),
                     ],
                   ),
+                  if (isGenericAsset) ...[
+                    gapH8,
+                    BaseText.caption(
+                      'Código e número de série requerem um cliente vinculado'
+                          .hardcoded,
+                      color: context.colorScheme.onSurface.withValues(
+                        alpha: 0.6,
+                      ),
+                    ),
+                  ],
                   gapH16,
                   BaseTextFormField(
                     labelText: 'Observações (opcional)'.hardcoded,
