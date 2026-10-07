@@ -10,82 +10,31 @@ class _AssetsDropdown extends StatelessWidget {
     required this.applyAssociatedAreaId,
     this.isServiceProviderOnly = false,
   });
+
   final String? selectedAssetId;
   final String? selectedLocationId;
   final String? selectedCustomerId;
   final String? selectedAreaId;
-  final ValueChanged<String>? onChanged;
+  final ValueChanged<String?>? onChanged;
   final ValueChanged<String?> applyAssociatedAreaId;
   final bool isServiceProviderOnly;
 
   @override
   Widget build(BuildContext context) {
     if (isServiceProviderOnly) {
-      final filteredAssets = context.select<AssetsCubit, List<AssetEntity>>((
-        cubit,
-      ) {
-        return cubit.state.assets;
-      });
-
-      final assetDropdownItems = filteredAssets.map((a) {
-        return DropdownMenuItem<String>(value: a.id, child: BaseText(a.name));
-      }).toList();
-
-      return BaseDropDown<String>(
-        key: const ValueKey('Asset'),
-        showLabelAtTopLeft: true,
-        label: 'Equipamento (opcional)'.hardcoded,
-        selectedItem: selectedAssetId,
-        hint: filteredAssets.isEmpty
-            ? BaseText('Sem equipamentos cadastrados'.hardcoded)
-            : null,
-        items: assetDropdownItems,
-        onChanged: onChanged == null ? null : (value) => onChanged!.call(value),
+      return _ServiceProviderAssetsDropdown(
+        selectedAssetId: selectedAssetId,
+        selectedCustomerId: selectedCustomerId,
+        onChanged: onChanged,
       );
     }
 
-    final areasIds = context
-        .select<LocationsCubit, List<AreaEntity>?>((cubit) {
-          final areas = cubit.state.areasByLocation[selectedLocationId];
-          if (selectedAreaId == null) {
-            return areas;
-          } else {
-            return [?areas?.firstWhereOrNull((e) => e.id == selectedAreaId)];
-          }
-        })
-        ?.map((e) => e.id);
-    final filteredAssets = context.select<AssetsCubit, List<AssetEntity>>((
-      cubit,
-    ) {
-      return cubit.state.assets
-          .where((asset) => areasIds?.contains(asset.areaId) == true)
-          .toList();
-    });
-    final assetDropdownItems = filteredAssets.map((a) {
-      return DropdownMenuItem<String>(value: a.id, child: BaseText(a.name));
-    }).toList();
-
-    return BaseDropDown<String>(
-      key: const ValueKey('Asset'),
-      showLabelAtTopLeft: true,
-      label: 'Equipamento (opcional)'.hardcoded,
-      selectedItem: selectedAssetId,
-      hint: selectedLocationId == null
-          ? BaseText('Selecione primeiro o local'.hardcoded)
-          : (filteredAssets.isEmpty
-                ? BaseText('Sem equipamentos cadastrados'.hardcoded)
-                : null),
-      items: selectedLocationId == null ? null : assetDropdownItems,
-      onChanged: onChanged == null
-          ? null
-          : (value) {
-              onChanged!.call(value);
-
-              final respectiveAsset = filteredAssets.firstWhereOrNull(
-                (e) => e.id == value,
-              );
-              applyAssociatedAreaId.call(respectiveAsset?.areaId);
-            },
+    return _InternalAssetsDropdown(
+      selectedAssetId: selectedAssetId,
+      selectedLocationId: selectedLocationId,
+      selectedAreaId: selectedAreaId,
+      onChanged: onChanged,
+      applyAssociatedAreaId: applyAssociatedAreaId,
     );
   }
 }

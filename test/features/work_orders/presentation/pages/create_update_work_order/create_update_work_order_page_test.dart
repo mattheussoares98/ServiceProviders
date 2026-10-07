@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/widgets/searchable_asset/searchable_asset_picker_modal.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/entities/app_mode.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_use_case.dart';
@@ -132,26 +133,42 @@ void main() {
     );
     ScreenUtil.I.configureScreen(screenDetails);
 
-    when(() => mockWorkOrdersCubit.state)
-        .thenReturn(const WorkOrdersState.initial());
-    when(() => mockWorkOrdersCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockWorkOrdersCubit.realtimeEvents)
-        .thenAnswer((_) => const Stream<RealtimeEvent<WorkOrderEntity>>.empty());
+    when(
+      () => mockWorkOrdersCubit.state,
+    ).thenReturn(const WorkOrdersState.initial());
+    when(
+      () => mockWorkOrdersCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockWorkOrdersCubit.realtimeEvents,
+    ).thenAnswer((_) => const Stream<RealtimeEvent<WorkOrderEntity>>.empty());
 
     when(() => mockCompanyCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockCustomersCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockLocationsCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockCustomersCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockLocationsCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
     when(() => mockAssetsCubit.stream).thenAnswer((_) => const Stream.empty());
     when(() => mockUsersCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockServiceProvidersCubit.stream)
-        .thenAnswer((_) => const Stream.empty());
-    when(() => mockChecklistCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockSlaPoliciesCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockServiceProvidersCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockChecklistCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockSlaPoliciesCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
-    when(() => mockAttachmentsCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockAttachmentsCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
 
-    when(() => mockCustomersCubit.state)
-        .thenReturn(CustomersState(customers: [tCustomer]));
+    when(
+      () => mockCustomersCubit.state,
+    ).thenReturn(CustomersState(customers: [tCustomer]));
     when(() => mockLocationsCubit.state).thenReturn(
       LocationsState(
         locations: [tLocation],
@@ -162,12 +179,15 @@ void main() {
     when(() => mockAssetsCubit.state).thenReturn(const AssetsState.initial());
     when(() => mockUsersCubit.state).thenReturn(const UsersState.initial());
     when(() => mockUsersCubit.hasPermission(any())).thenReturn(true);
-    when(() => mockServiceProvidersCubit.state)
-        .thenReturn(const ServiceProvidersState.initial());
-    when(() => mockChecklistCubit.state)
-        .thenReturn(const ChecklistTemplatesState.initial());
-    when(() => mockSlaPoliciesCubit.state)
-        .thenReturn(const SlaPoliciesState.initial());
+    when(
+      () => mockServiceProvidersCubit.state,
+    ).thenReturn(const ServiceProvidersState.initial());
+    when(
+      () => mockChecklistCubit.state,
+    ).thenReturn(const ChecklistTemplatesState.initial());
+    when(
+      () => mockSlaPoliciesCubit.state,
+    ).thenReturn(const SlaPoliciesState.initial());
     when(() => mockSessionCubit.state).thenReturn(
       SessionState(user: UserFactory.makeUserProfileEntity(), isLoggedIn: true),
     );
@@ -253,8 +273,8 @@ void main() {
   }
 
   Finder findDropdown(String key) => find.byWidgetPredicate(
-        (w) => w is BaseDropDown<String> && w.key == ValueKey(key),
-      );
+    (w) => w is BaseDropDown<String> && w.key == ValueKey(key),
+  );
 
   Finder findSaveButton() => find.byType(BaseIconButton).last;
 
@@ -300,7 +320,9 @@ void main() {
     testWidgets(
       'when in providerMode: always behaves as internal facility mode regardless of company workType',
       (tester) async {
-        when(() => mockGetSelectedMode.call()).thenReturn(AppMode.provider.name);
+        when(
+          () => mockGetSelectedMode.call(),
+        ).thenReturn(AppMode.provider.name);
 
         await tester.pumpWidget(
           buildWidget(workType: WorkType.serviceProviderOnly),
@@ -372,7 +394,9 @@ void main() {
             assetId: any(named: 'assetId'),
             assignedToId: any(named: 'assignedToId'),
             createdById: any(named: 'createdById'),
-            createdByProviderProfileId: any(named: 'createdByProviderProfileId'),
+            createdByProviderProfileId: any(
+              named: 'createdByProviderProfileId',
+            ),
             openedBy: any(named: 'openedBy'),
             title: 'Ordem Prestador',
             description: any(named: 'description'),
@@ -460,7 +484,9 @@ void main() {
             assetId: any(named: 'assetId'),
             assignedToId: any(named: 'assignedToId'),
             createdById: any(named: 'createdById'),
-            createdByProviderProfileId: any(named: 'createdByProviderProfileId'),
+            createdByProviderProfileId: any(
+              named: 'createdByProviderProfileId',
+            ),
             openedBy: any(named: 'openedBy'),
             title: 'Ordem Interna',
             description: any(named: 'description'),
@@ -487,6 +513,128 @@ void main() {
             checklistTemplateId: any(named: 'checklistTemplateId'),
           ),
         ).called(1);
+      },
+    );
+
+    testWidgets(
+      'when serviceProviderOnly and customer selected, opens SearchableAssetPickerModal with customer and generic equipment',
+      (tester) async {
+        final custAsset = AssetFactory.makeAssetEntity().copyWith(
+          id: 'asset-cust-1',
+          name: 'Torno CNC Cliente',
+          customerId: 'customer-1',
+        );
+        final genAsset = AssetFactory.makeAssetEntity().copyWith(
+          id: 'asset-gen-1',
+          name: 'Gerador Portátil',
+          annulCustomerId: true,
+        );
+        final otherCustAsset = AssetFactory.makeAssetEntity().copyWith(
+          id: 'asset-cust-2',
+          name: 'Equipamento Outro Cliente',
+          customerId: 'customer-other',
+        );
+
+        when(() => mockAssetsCubit.state).thenReturn(
+          AssetsState(assets: [custAsset, genAsset, otherCustAsset]),
+        );
+
+        await tester.pumpWidget(
+          buildWidget(workType: WorkType.serviceProviderOnly),
+        );
+        await tester.pumpAndSettle();
+
+        // Initially no customer is selected
+        expect(find.byKey(const ValueKey('Asset')), findsOneWidget);
+
+        // Select customer
+        await tester.tap(findDropdown('Customer'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Cliente Teste').last);
+        await tester.pumpAndSettle();
+
+        // Tap asset picker
+        await tester.tap(find.byKey(const ValueKey('Asset')));
+        await tester.pumpAndSettle();
+
+        // Modal should display customer equipment and generic equipment
+        expect(find.text('Equipamentos do Cliente'), findsOneWidget);
+        expect(find.text('Torno CNC Cliente'), findsOneWidget);
+        expect(find.text('Equipamentos Gerais'), findsOneWidget);
+        expect(find.text('Gerador Portátil'), findsOneWidget);
+        // Other customer's asset should NOT be in the picker
+        expect(find.text('Equipamento Outro Cliente'), findsNothing);
+
+        // Select the customer asset
+        await tester.tap(find.text('Torno CNC Cliente'));
+        await tester.pumpAndSettle();
+
+        // Form now displays selected asset name
+        expect(find.text('Torno CNC Cliente'), findsOneWidget);
+        expect(find.byKey(const ValueKey('AssetClearButton')), findsOneWidget);
+
+        // Clear selection
+        await tester.tap(find.byKey(const ValueKey('AssetClearButton')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Torno CNC Cliente'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'when serviceProviderOnly and no customer selected, modal only shows generic equipment',
+      (tester) async {
+        final custAsset = AssetFactory.makeAssetEntity().copyWith(
+          id: 'asset-cust-1',
+          name: 'Torno CNC Cliente',
+          customerId: 'customer-1',
+        );
+        final genAsset = AssetFactory.makeAssetEntity().copyWith(
+          id: 'asset-gen-1',
+          name: 'Gerador Geral',
+          annulCustomerId: true,
+        );
+
+        when(
+          () => mockAssetsCubit.state,
+        ).thenReturn(AssetsState(assets: [custAsset, genAsset]));
+
+        await tester.pumpWidget(
+          buildWidget(workType: WorkType.serviceProviderOnly),
+        );
+        await tester.pumpAndSettle();
+
+        // Tap asset picker without selecting a customer
+        await tester.tap(find.byKey(const ValueKey('Asset')));
+        await tester.pumpAndSettle();
+
+        // Should show generic equipment, but not customer equipment
+        expect(find.text('Equipamentos Gerais'), findsOneWidget);
+        expect(find.text('Gerador Geral'), findsOneWidget);
+        expect(find.text('Torno CNC Cliente'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'when serviceProviderOnly and no assets exist, asset picker is disabled and tapping does not open modal',
+      (tester) async {
+        when(
+          () => mockAssetsCubit.state,
+        ).thenReturn(const AssetsState(assets: []));
+
+        await tester.pumpWidget(
+          buildWidget(workType: WorkType.serviceProviderOnly),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('Sem equipamentos cadastrados'), findsOneWidget);
+
+        // Tap asset picker
+        await tester.tap(find.byKey(const ValueKey('Asset')));
+        await tester.pumpAndSettle();
+
+        // Modal should NOT open
+        expect(find.byType(SearchableAssetPickerModal), findsNothing);
       },
     );
   });

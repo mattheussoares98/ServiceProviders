@@ -12,6 +12,7 @@ import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/assets/presentation/widgets/searchable_asset/searchable_asset_picker_modal.dart';
 import 'package:o_jogo_da_obra/features/attachments/domain/entities/upload_status.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/widgets/attachments.dart';
@@ -60,6 +61,8 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart'
 import 'package:uuid/uuid.dart';
 
 part './widgets/area_dropdown.dart';
+part './widgets/assets/internal_assets_dropdown.dart';
+part './widgets/assets/service_provider_assets_dropdown.dart';
 part './widgets/assets_dropdown.dart';
 part './widgets/checklist_template_dropdown.dart';
 part './widgets/customer_dropdown.dart';
