@@ -54,11 +54,33 @@ class _OrdersEmptyView extends StatelessWidget {
       ),
     );
 
-    if (eval.hasPendingRequiredPrerequisites) {
-      return PrerequisiteGuideCard(steps: eval.steps);
-    }
+    final isPrerequisitesLoading =
+        context.select<CompanyCubit, bool>(
+          (c) =>
+              c.state.sections[BaseSections.load]?.status ==
+              SectionStatus.running,
+        ) ||
+        context.select<LocationsCubit, bool>(
+          (c) =>
+              c.state.sections[BaseSections.load]?.status ==
+              SectionStatus.running,
+        ) ||
+        context.select<CustomersCubit, bool>(
+          (c) =>
+              c.state.sections[BaseSections.load]?.status ==
+              SectionStatus.running,
+        ) ||
+        context.select<AssetsCubit, bool>(
+          (c) =>
+              c.state.sections[BaseSections.load]?.status ==
+              SectionStatus.running,
+        );
 
-    if (!hasWorkOrders) {
+    if (isPrerequisitesLoading) {
+      return const LoadingCircle();
+    } else if (eval.hasPendingRequiredPrerequisites) {
+      return PrerequisiteGuideCard(steps: eval.steps);
+    } else if (!hasWorkOrders) {
       return BaseEmptyState(
         title: 'Criar ordem de serviço'.hardcoded,
         description:
