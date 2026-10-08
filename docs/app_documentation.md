@@ -86,7 +86,9 @@ SQLite. All local tables live in a single `AppDatabase` class backed by one
 - **Real-time subscriptions** — live updates via Supabase Realtime channels across lookups and work orders
 - **KPI Dashboard & History Consultation** — delivery rate, MTTR, SLA breach metrics, and date-range history filtering
 - **Access Logs** — authentication event tracking and consultation
+- **Preventive maintenance plans** — calendar-based recurrence with automatic work order generation via `pg_cron`
+- **Contact support** — email contact with copyable contact/message fallback
 
 ## 5. Roadmap & Pending Work
 
-See the [Remaining Product Work](cmms/internal_app_mode_plan.md) roadmap for maintenance-generator deployment/validation, contact support, company currency settings, and deferred inventory and meter-based maintenance.
+See the [Remaining Product Work](cmms/internal_app_mode_plan.md) roadmap for open decisions and deferred modules (inventory, company currency, meter-based maintenance).
