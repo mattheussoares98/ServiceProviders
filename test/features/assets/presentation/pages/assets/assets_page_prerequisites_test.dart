@@ -142,7 +142,7 @@ void main() {
   );
 
   testWidgets(
-    'shows normal empty text when hybrid and zero locations/customers',
+    'shows BaseEmptyState to create asset when hybrid and zero locations/customers',
     (tester) async {
       final company = UserFactory.makeCompanyEntity().copyWith(
         workType: WorkType.hybrid,
@@ -154,8 +154,8 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.byType(BaseEmptyState), findsNothing);
-      expect(find.text('Nenhum equipamento cadastrado'), findsOneWidget);
+      expect(find.byType(BaseEmptyState), findsOneWidget);
+      expect(find.text('Cadastrar equipamento'), findsWidgets);
     },
   );
 }

@@ -63,13 +63,9 @@ void main() {
         verify(
           () => mockSupabaseDatabaseClient.selectList(
             table: 'assets',
-            columns:
-                '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
             filters: [
               SupabaseFilter.eq('company_id', tCompanyId),
               SupabaseFilter.isFilter('deleted_at', null),
-              SupabaseFilter.isFilter('areas.deleted_at', null),
-              SupabaseFilter.isFilter('areas.locations.deleted_at', null),
             ],
           ),
         ).called(1);
@@ -125,33 +121,32 @@ void main() {
       expect(result, isA<FailureState<List<AssetModel>>>());
     });
 
-    test('should return SuccessState<AssetModel> on selectOne success', () async {
-      when(
-        () => mockSupabaseDatabaseClient.selectOne(
-          table: any(named: 'table'),
-          columns: any(named: 'columns'),
-          filters: any(named: 'filters'),
-        ),
-      ).thenAnswer((_) async => tAssetModel.toJson());
+    test(
+      'should return SuccessState<AssetModel> on selectOne success',
+      () async {
+        when(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: any(named: 'table'),
+            columns: any(named: 'columns'),
+            filters: any(named: 'filters'),
+          ),
+        ).thenAnswer((_) async => tAssetModel.toJson());
 
-      final result = await dataSource.getAssetById(tId);
+        final result = await dataSource.getAssetById(tId);
 
-      expect(result, isA<SuccessState<AssetModel>>());
-      expect(result.data!.id, tAssetModel.id);
-      verify(
-        () => mockSupabaseDatabaseClient.selectOne(
-          table: 'assets',
-          columns:
-              '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
-          filters: [
-            SupabaseFilter.eq('id', tId),
-            SupabaseFilter.isFilter('deleted_at', null),
-            SupabaseFilter.isFilter('areas.deleted_at', null),
-            SupabaseFilter.isFilter('areas.locations.deleted_at', null),
-          ],
-        ),
-      ).called(1);
-    });
+        expect(result, isA<SuccessState<AssetModel>>());
+        expect(result.data!.id, tAssetModel.id);
+        verify(
+          () => mockSupabaseDatabaseClient.selectOne(
+            table: 'assets',
+            filters: [
+              SupabaseFilter.eq('id', tId),
+              SupabaseFilter.isFilter('deleted_at', null),
+            ],
+          ),
+        ).called(1);
+      },
+    );
 
     test('should return FailureState when selectOne returns null', () async {
       when(
@@ -168,13 +163,9 @@ void main() {
       verify(
         () => mockSupabaseDatabaseClient.selectOne(
           table: 'assets',
-          columns:
-              '*, areas!inner(location_id, deleted_at, locations!inner(deleted_at))',
           filters: [
             SupabaseFilter.eq('id', tId),
             SupabaseFilter.isFilter('deleted_at', null),
-            SupabaseFilter.isFilter('areas.deleted_at', null),
-            SupabaseFilter.isFilter('areas.locations.deleted_at', null),
           ],
         ),
       ).called(1);

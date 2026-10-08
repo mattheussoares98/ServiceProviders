@@ -75,7 +75,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 41;
+  int get schemaVersion => 42;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -349,9 +349,7 @@ class AppDatabase extends _$AppDatabase {
         );
       }
       if (from < 41) {
-        final info = await customSelect(
-          "PRAGMA table_info('companies')",
-        ).get();
+        final info = await customSelect("PRAGMA table_info('companies')").get();
         final names = info.map((r) => r.read<String>('name')).toSet();
         if (names.contains('cnpj') && !names.contains('document')) {
           await customStatement(
@@ -361,7 +359,13 @@ class AppDatabase extends _$AppDatabase {
           await addColumnIfNotExists(companies, companies.document);
         }
       }
+      if (from < 42) {
+        // area_id in assets was made nullable in Drift table definition, but SQLite
+        // cannot drop a NOT NULL constraint without recreating the table. The rows
+        // are a read-through cache and refetch from Supabase on the next load.
+        await m.deleteTable('assets');
+        await m.createTable(assets);
+      }
     },
   );
 }
-
