@@ -4,6 +4,7 @@ Schedules defining automated work order generation.
 
 | Column | Type | Null | Default | Description |
 |---|---|---|---|---|
+| `customer_id` | UUID | YES | - | FK → `customers.id` (Set Null) |
 | `location_id` | UUID | YES | - | FK → `locations.id` (Set Null) |
 | `asset_id` | UUID | YES | - | FK → `assets.id` (Set Null) |
 | `area_id` | UUID | YES | - | FK → `areas.id` (Set Null) |
@@ -30,5 +31,9 @@ Schedules defining automated work order generation.
 
 ### Constraints
 - `chk_maintenance_plans_title_not_empty`: `CHECK (length(trim(title)) > 0)`
+- `chk_mp_target`: `CHECK (num_nonnulls(location_id, customer_id) >= 1)`
 - `chk_mp_interval_value`: `CHECK (interval_value > 0)`
 - `chk_mp_lead_time`: `CHECK (lead_time_days >= 0 AND lead_time_days <= 30)`
+
+### Triggers
+- `tr_enforce_maintenance_plan_work_type_rules`: `BEFORE INSERT OR UPDATE` — validates location/customer presence and service provider company mutual exclusion against `companies.work_type`.

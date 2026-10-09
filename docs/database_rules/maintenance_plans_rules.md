@@ -62,4 +62,12 @@ $$ LANGUAGE plpgsql;
 - `last_generated_work_order_id`: `REFERENCES public.work_orders(id) ON DELETE SET NULL`
 - `work_orders.maintenance_plan_id`: `REFERENCES public.maintenance_plans(id) ON DELETE SET NULL`
 
+## Company WorkType Integrity Protection
+
+The `tr_enforce_maintenance_plan_work_type_rules` trigger (`BEFORE INSERT OR UPDATE`) validates business constraints against `companies.work_type`:
+- `internal_only`: Requires `location_id IS NOT NULL`.
+- `service_provider_only`: Requires `customer_id IS NOT NULL`.
+- `hybrid`: Requires at least one target (`location_id IS NOT NULL OR customer_id IS NOT NULL`), and rejects concurrent selection of customer and service provider company (`NOT (customer_id IS NOT NULL AND service_provider_company_id IS NOT NULL)`).
+- Fallback: Requires at least one target (`location_id` or `customer_id`).
+
 
