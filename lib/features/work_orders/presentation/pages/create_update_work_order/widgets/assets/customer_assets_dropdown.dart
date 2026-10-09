@@ -1,15 +1,17 @@
 part of '../../create_update_work_order_page.dart';
 
-class _ServiceProviderAssetsDropdown extends StatelessWidget {
-  const _ServiceProviderAssetsDropdown({
+class _CustomerAssetsDropdown extends StatelessWidget {
+  const _CustomerAssetsDropdown({
     required this.selectedAssetId,
     required this.selectedCustomerId,
     required this.onChanged,
+    this.isServiceProviderOnly = true,
   });
 
   final String? selectedAssetId;
   final String? selectedCustomerId;
   final ValueChanged<String?>? onChanged;
+  final bool isServiceProviderOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +27,18 @@ class _ServiceProviderAssetsDropdown extends StatelessWidget {
         ? allAssets
               .where(
                 (a) =>
-                    a.customerId == selectedCustomerId || a.customerId == null,
+                    a.customerId == selectedCustomerId ||
+                    (a.customerId == null &&
+                        (isServiceProviderOnly || a.locationId == null)),
               )
               .toList()
-        : allAssets.where((a) => a.customerId == null).toList();
+        : allAssets
+              .where(
+                (a) =>
+                    a.customerId == null &&
+                    (isServiceProviderOnly || a.locationId == null),
+              )
+              .toList();
 
     final String hintText;
     if (allAssets.isEmpty) {

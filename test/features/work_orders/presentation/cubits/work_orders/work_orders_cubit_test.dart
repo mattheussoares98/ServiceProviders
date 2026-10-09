@@ -1361,7 +1361,51 @@ void main() {
         );
 
         blocTest<WorkOrdersCubit, WorkOrdersState>(
-          'should reject work order when both locationId and customerId are missing',
+          'should allow creation when workType is hybrid and neither customerId nor serviceProviderCompanyId nor locationId is provided',
+          build: () {
+            when(
+              () => mockCreateWorkOrder.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: true));
+            when(
+              () => mockGetWorkOrders.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            when(
+              () => mockGetChangeRequests.call(any()),
+            ).thenAnswer((_) async => const SuccessState(data: []));
+            return cubit;
+          },
+          act: (cubit) async {
+            final result = await cubit.saveWorkOrder(
+              id: tWorkOrder.id,
+              isEditing: false,
+              workType: WorkType.hybrid,
+              title: 'Ordem híbrida sem cliente nem prestador',
+              priority: tWorkOrder.priority,
+              status: tWorkOrder.status,
+              type: tWorkOrder.type,
+            );
+            expect(result, isTrue);
+          },
+          verify: (_) {
+            verify(
+              () => mockCreateWorkOrder.call(
+                any(
+                  that: isA<WorkOrderEntity>()
+                      .having((wo) => wo.customerId, 'customerId', isNull)
+                      .having((wo) => wo.locationId, 'locationId', isNull)
+                      .having(
+                        (wo) => wo.serviceProviderCompanyId,
+                        'serviceProviderCompanyId',
+                        isNull,
+                      ),
+                ),
+              ),
+            ).called(1);
+          },
+        );
+
+        blocTest<WorkOrdersCubit, WorkOrdersState>(
+          'should reject when workType is hybrid and both customerId and serviceProviderCompanyId are provided',
           build: () {
             when(
               () => mockCreateWorkOrder.call(any()),
@@ -1372,7 +1416,10 @@ void main() {
             final result = await cubit.saveWorkOrder(
               id: tWorkOrder.id,
               isEditing: false,
-              title: 'Ordem sem local e cliente',
+              workType: WorkType.hybrid,
+              customerId: 'cust-123',
+              serviceProviderCompanyId: 'sp-company-123',
+              title: 'Ordem com cliente e prestador',
               priority: tWorkOrder.priority,
               status: tWorkOrder.status,
               type: tWorkOrder.type,
@@ -1384,7 +1431,7 @@ void main() {
               (s) => s.sections[WorkOrdersSections.saveWorkOrder],
               'sections[saveWorkOrder]',
               const SectionState.error(
-                'Ordem de serviço deve ter um local ou um cliente',
+                'Não é permitido selecionar o cliente e o prestador de serviços',
               ),
             ),
           ],

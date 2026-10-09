@@ -61,8 +61,8 @@ import 'package:o_jogo_da_obra/shared_ui/utils/validators/number_validator.dart'
 import 'package:uuid/uuid.dart';
 
 part './widgets/area_dropdown.dart';
+part './widgets/assets/customer_assets_dropdown.dart';
 part './widgets/assets/internal_assets_dropdown.dart';
-part './widgets/assets/service_provider_assets_dropdown.dart';
 part './widgets/assets_dropdown.dart';
 part './widgets/checklist_template_dropdown.dart';
 part './widgets/customer_dropdown.dart';
@@ -150,7 +150,8 @@ class _CreateUpdatePage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedModeName = GetIt.I<GetSelectedModeUseCase>().call();
+    final selectedModeName = GetIt.I<GetSelectedModeUseCase>()
+        .call(); //TODO remove this usecase from UI
     final isProviderMode =
         AppMode.fromName(selectedModeName) == AppMode.provider;
     final workType = isProviderMode
@@ -478,6 +479,9 @@ class _CreateUpdatePage extends HookWidget {
             selectedServiceProviderCompanyId.value = val;
             selectedProviderProfileId.value = null;
             if (val != null) {
+              if (workType.isHybrid) {
+                selectedCustomerId.value = null;
+              }
               context.read<ServiceProvidersCubit>().ensureProfilesLoaded(val);
             }
           },
@@ -534,6 +538,10 @@ class _CreateUpdatePage extends HookWidget {
                 ? (val) {
                     selectedCustomerId.value = val;
                     selectedAssetId.value = null;
+                    if (val != null && workType.isHybrid) {
+                      selectedServiceProviderCompanyId.value = null;
+                      selectedProviderProfileId.value = null;
+                    }
                   }
                 : null,
           ),

@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/date_time_extension.dart';
 import 'package:o_jogo_da_obra/features/assets/domain/entities/asset_entity.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/domain/entities/customer_entity.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/location_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
@@ -53,6 +55,11 @@ class InfoItems extends StatelessWidget {
     final user = context.select<UsersCubit, UserProfileEntity?>(
       (cubit) => cubit.state.users.firstWhereOrNull(
         (e) => e.id == workOrder.assignedToId,
+      ),
+    );
+    final customer = context.select<CustomersCubit, CustomerEntity?>(
+      (cubit) => cubit.state.customers.firstWhereOrNull(
+        (e) => e.id == workOrder.customerId,
       ),
     );
     final location = context.select<LocationsCubit, LocationEntity?>(
@@ -191,6 +198,16 @@ class InfoItems extends StatelessWidget {
           icon: const PlatformIcon(
             materialIcon: Icons.person_pin_outlined,
             cupertinoIcon: CupertinoIcons.person_badge_plus,
+          ),
+        ),
+      if (customer != null)
+        TitleAndSubtitle(
+          title: 'Cliente'.hardcoded,
+          subtitle: customer.name,
+          messageIfSubtitleIsNull: 'Sem cliente definido'.hardcoded,
+          icon: const PlatformIcon(
+            materialIcon: Icons.person_outline,
+            cupertinoIcon: CupertinoIcons.person_2,
           ),
         ),
       if (location != null)

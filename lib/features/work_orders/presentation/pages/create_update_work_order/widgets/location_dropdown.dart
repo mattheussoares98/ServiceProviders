@@ -27,6 +27,7 @@ class _LocationDropdown extends StatelessWidget {
           ? (val) => val == null ? 'Selecione um local'.hardcoded : null
           : null,
       items: items.toList(),
+      onClear: isRequired ? null : () => onChanged?.call(null),
       onChanged: onChanged,
     );
   }

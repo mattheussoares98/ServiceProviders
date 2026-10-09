@@ -523,9 +523,12 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       return false;
     }
 
-    if (trimmedLocationId == null && trimmedCustomerId == null) {
+    if (workType?.isHybrid == true &&
+        trimmedCustomerId != null &&
+        serviceProviderCompanyId?.trimToNull() != null) {
       final message =
-          'Ordem de serviço deve ter um local ou um cliente'.hardcoded;
+          'Não é permitido selecionar o cliente e o prestador de serviços'
+              .hardcoded;
       emit(
         state.copyWith(
           sections: withSection(
@@ -630,8 +633,14 @@ class WorkOrdersCubit extends BaseCubit<WorkOrdersState> {
       createdAt: createdAt ?? now,
       updatedAt: now,
       deletedAt: null,
-      serviceProviderCompanyId: serviceProviderCompanyId?.trimToNull(),
-      providerProfileId: providerProfileId?.trimToNull(),
+      serviceProviderCompanyId:
+          (workType?.isHybrid == true && trimmedCustomerId != null)
+          ? null
+          : serviceProviderCompanyId?.trimToNull(),
+      providerProfileId:
+          (workType?.isHybrid == true && trimmedCustomerId != null)
+          ? null
+          : providerProfileId?.trimToNull(),
       checklistTemplateId: checklistTemplateId ?? existing?.checklistTemplateId,
       slaPolicyId: slaPolicyId,
       slaDeadlineAt: existing?.slaDeadlineAt,

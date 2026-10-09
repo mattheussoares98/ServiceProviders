@@ -21,10 +21,11 @@ class _AssetsDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isServiceProviderOnly) {
-      return _ServiceProviderAssetsDropdown(
+    if (isServiceProviderOnly || selectedCustomerId != null) {
+      return _CustomerAssetsDropdown(
         selectedAssetId: selectedAssetId,
         selectedCustomerId: selectedCustomerId,
+        isServiceProviderOnly: isServiceProviderOnly,
         onChanged: onChanged,
       );
     }

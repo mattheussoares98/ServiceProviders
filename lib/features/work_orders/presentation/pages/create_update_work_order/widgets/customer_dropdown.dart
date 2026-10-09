@@ -33,6 +33,7 @@ class _CustomerDropdown extends StatelessWidget {
           ? (val) => val == null ? 'Selecione um cliente'.hardcoded : null
           : null,
       items: items.toList(),
+      onClear: isRequired ? null : () => onChanged?.call(null),
       onChanged: onChanged,
     );
   }

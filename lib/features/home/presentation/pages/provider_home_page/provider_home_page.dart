@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/auth/presentation/cubits/mode_switcher/mode_switcher_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/cubits/provider_home/provider_home_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
@@ -62,6 +63,9 @@ class ProviderHomePage extends HookWidget {
         // widgets reading it render without a label.
         BlocProvider<LocationsCubit>(
           create: (context) => GetIt.I<LocationsCubit>(),
+        ),
+        BlocProvider<CustomersCubit>(
+          create: (context) => GetIt.I<CustomersCubit>(),
         ),
         BlocProvider<AssetsCubit>(create: (context) => GetIt.I<AssetsCubit>()),
         BlocProvider<UsersCubit>(create: (context) => GetIt.I<UsersCubit>()),
