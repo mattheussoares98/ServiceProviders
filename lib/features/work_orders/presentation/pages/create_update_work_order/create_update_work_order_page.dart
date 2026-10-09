@@ -21,7 +21,7 @@ import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_selected_mode_
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
-import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/widgets/searchable_customer/customer_picker_dropdown.dart';
 import 'package:o_jogo_da_obra/features/locations/domain/entities/area_entity.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/domain/entities/service_provider_company_entity.dart';
@@ -65,7 +65,6 @@ part './widgets/assets/customer_assets_dropdown.dart';
 part './widgets/assets/internal_assets_dropdown.dart';
 part './widgets/assets_dropdown.dart';
 part './widgets/checklist_template_dropdown.dart';
-part './widgets/customer_dropdown.dart';
 part './widgets/description_field.dart';
 part './widgets/duration_field.dart';
 part './widgets/location_dropdown.dart';
@@ -531,8 +530,9 @@ class _CreateUpdatePage extends HookWidget {
       if (workType.supportsCustomers)
         Padding(
           padding: const EdgeInsets.only(top: Sizes.p8),
-          child: _CustomerDropdown(
-            selectedId: selectedCustomerId.value,
+          child: CustomerPickerDropdown(
+            key: const ValueKey('Customer'),
+            selectedCustomerId: selectedCustomerId.value,
             isRequired: workType.requiresCustomer,
             onChanged: canEditCoreFields
                 ? (val) {
