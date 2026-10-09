@@ -6,6 +6,7 @@ class MaintenancePlanEntity extends Equatable {
   const MaintenancePlanEntity({
     required this.id,
     required this.companyId,
+    this.customerId,
     required this.locationId,
     required this.assetId,
     required this.areaId,
@@ -36,6 +37,7 @@ class MaintenancePlanEntity extends Equatable {
 
   final String id;
   final String companyId;
+  final String? customerId;
   final String? locationId;
   final String? assetId;
   final String? areaId;
@@ -67,6 +69,7 @@ class MaintenancePlanEntity extends Equatable {
   List<Object?> get props => [
     id,
     companyId,
+    customerId,
     locationId,
     assetId,
     areaId,
@@ -98,6 +101,7 @@ class MaintenancePlanEntity extends Equatable {
   MaintenancePlanEntity copyWith({
     String? id,
     String? companyId,
+    String? customerId,
     String? locationId,
     String? assetId,
     String? areaId,
@@ -124,6 +128,7 @@ class MaintenancePlanEntity extends Equatable {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? deletedAt,
+    bool? annulCustomerId,
     bool? annulLocationId,
     bool? annulAssetId,
     bool? annulAreaId,
@@ -144,6 +149,9 @@ class MaintenancePlanEntity extends Equatable {
     return MaintenancePlanEntity(
       id: id ?? this.id,
       companyId: companyId ?? this.companyId,
+      customerId: annulCustomerId == true
+          ? null
+          : customerId ?? this.customerId,
       locationId: annulLocationId == true
           ? null
           : locationId ?? this.locationId,
