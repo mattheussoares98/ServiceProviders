@@ -15,6 +15,7 @@ import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist
 import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/widgets/searchable_customer/customer_picker_dropdown.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_policies/sla_policies_cubit.dart';
@@ -273,7 +274,9 @@ void main() {
   }
 
   Finder findDropdown(String key) => find.byWidgetPredicate(
-    (w) => w is BaseDropDown<String> && w.key == ValueKey(key),
+    (w) =>
+        (w is BaseDropDown<String> || w is CustomerPickerDropdown) &&
+        w.key == ValueKey(key),
   );
 
   Finder findSaveButton() => find.byType(BaseIconButton).last;
