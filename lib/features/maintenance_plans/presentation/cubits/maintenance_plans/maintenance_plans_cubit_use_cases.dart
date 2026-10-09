@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:o_jogo_da_obra/features/auth/domain/use_cases/get_active_company_id_use_case.dart';
+import 'package:o_jogo_da_obra/features/company/domain/use_cases/get_company_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/calculate_next_due_date_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/create_maintenance_plan_use_case.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/delete_maintenance_plan_use_case.dart';
@@ -12,6 +13,7 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/domain/use_cases/updat
 class MaintenancePlansCubitUseCases {
   const MaintenancePlansCubitUseCases({
     required this.getActiveCompanyId,
+    required this.getCompany,
     required this.getMaintenancePlans,
     required this.getMaintenancePlanById,
     required this.createMaintenancePlan,
@@ -22,6 +24,7 @@ class MaintenancePlansCubitUseCases {
   });
 
   final GetActiveCompanyIdUseCase getActiveCompanyId;
+  final GetCompanyUseCase getCompany;
   final GetMaintenancePlansUseCase getMaintenancePlans;
   final GetMaintenancePlanByIdUseCase getMaintenancePlanById;
   final CreateMaintenancePlanUseCase createMaintenancePlan;

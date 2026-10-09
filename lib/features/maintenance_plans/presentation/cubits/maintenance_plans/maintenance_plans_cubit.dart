@@ -111,7 +111,84 @@ class MaintenancePlansCubit extends BaseCubit<MaintenancePlansState> {
       return false;
     }
 
-    if (plan.locationId == null) {
+    final trimmedLocationId = plan.locationId?.trimToNull();
+    final trimmedCustomerId = plan.customerId?.trimToNull();
+    final trimmedServiceProviderId = plan.serviceProviderCompanyId
+        ?.trimToNull();
+
+    final workType = (await _useCases.getCompany(
+      plan.companyId,
+    )).data?.workType;
+
+    if (workType?.requiresLocation == true && trimmedLocationId == null) {
+      final message = 'Selecione um LOCAL para o plano'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (workType?.requiresCustomer == true && trimmedCustomerId == null) {
+      final message = 'Selecione um cliente para o plano'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (workType?.isHybrid == true &&
+        trimmedLocationId == null &&
+        trimmedCustomerId == null) {
+      final message = 'Selecione um local ou cliente para o plano'.hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (workType?.isHybrid == true &&
+        trimmedCustomerId != null &&
+        trimmedServiceProviderId != null) {
+      final message =
+          'Não é permitido selecionar o cliente e o prestador de serviços'
+              .hardcoded;
+      emit(
+        state.copyWith(
+          sections: withSection(
+            MaintenancePlansSections.save,
+            SectionStatus.error,
+            errorMessage: message,
+          ),
+        ),
+      );
+      showErrorToast(message);
+      return false;
+    }
+
+    if (workType == null &&
+        trimmedLocationId == null &&
+        trimmedCustomerId == null) {
       final message = 'Selecione um LOCAL para o plano'.hardcoded;
       emit(
         state.copyWith(
