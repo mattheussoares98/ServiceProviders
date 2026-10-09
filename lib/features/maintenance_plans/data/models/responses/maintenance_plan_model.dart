@@ -10,6 +10,7 @@ class MaintenancePlanModel extends MaintenancePlanEntity
   const MaintenancePlanModel({
     required super.id,
     required super.companyId,
+    super.customerId,
     super.locationId,
     super.assetId,
     super.areaId,
@@ -42,6 +43,7 @@ class MaintenancePlanModel extends MaintenancePlanEntity
       MaintenancePlanModel(
         id: entity.id,
         companyId: entity.companyId,
+        customerId: entity.customerId,
         locationId: entity.locationId,
         assetId: entity.assetId,
         areaId: entity.areaId,
@@ -75,6 +77,7 @@ class MaintenancePlanModel extends MaintenancePlanEntity
   ) => MaintenancePlanModel(
     id: json['id'] as String? ?? '',
     companyId: json['company_id'] as String? ?? '',
+    customerId: json['customer_id'] as String?,
     locationId: json['location_id'] as String?,
     assetId: json['asset_id'] as String?,
     areaId: json['area_id'] as String?,
@@ -113,6 +116,7 @@ class MaintenancePlanModel extends MaintenancePlanEntity
   MapDynamic toJson() => {
     'id': id,
     'company_id': companyId,
+    'customer_id': customerId,
     'location_id': locationId,
     'asset_id': assetId,
     'area_id': areaId,
@@ -145,6 +149,7 @@ class MaintenancePlanModel extends MaintenancePlanEntity
   MaintenancePlanEntity toEntity() => MaintenancePlanEntity(
     id: id,
     companyId: companyId,
+    customerId: customerId,
     locationId: locationId,
     assetId: assetId,
     areaId: areaId,
