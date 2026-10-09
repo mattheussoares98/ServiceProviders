@@ -3,6 +3,7 @@ import 'package:o_jogo_da_obra/core/clients/local/drift/tables/areas_table.dart'
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/assets_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/checklist_templates_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/companies_table.dart';
+import 'package:o_jogo_da_obra/core/clients/local/drift/tables/customers_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/locations_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/service_provider_companies_table.dart';
 import 'package:o_jogo_da_obra/core/clients/local/drift/tables/user_profiles_table.dart';
@@ -13,6 +14,11 @@ class MaintenancePlans extends Table {
   TextColumn get id => text()();
   TextColumn get companyId =>
       text().references(Companies, #id, onDelete: KeyAction.cascade)();
+  TextColumn get customerId => text().nullable().references(
+    Customers,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
   TextColumn get locationId => text().nullable().references(
     Locations,
     #id,
