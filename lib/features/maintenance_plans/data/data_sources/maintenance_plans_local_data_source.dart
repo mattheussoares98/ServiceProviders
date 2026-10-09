@@ -40,6 +40,7 @@ final class MaintenancePlansLocalDataSourceImpl
               (t) => MaintenancePlanModel(
                 id: t.id,
                 companyId: t.companyId,
+                customerId: t.customerId,
                 locationId: t.locationId,
                 assetId: t.assetId,
                 areaId: t.areaId,
@@ -86,6 +87,7 @@ final class MaintenancePlansLocalDataSourceImpl
           data: MaintenancePlanModel(
             id: t.id,
             companyId: t.companyId,
+            customerId: t.customerId,
             locationId: t.locationId,
             assetId: t.assetId,
             areaId: t.areaId,
@@ -131,6 +133,7 @@ final class MaintenancePlansLocalDataSourceImpl
             MaintenancePlansCompanion(
               id: Value(plan.id),
               companyId: Value(plan.companyId),
+              customerId: Value(plan.customerId),
               locationId: Value(plan.locationId),
               assetId: Value(plan.assetId),
               areaId: Value(plan.areaId),
@@ -173,6 +176,7 @@ final class MaintenancePlansLocalDataSourceImpl
             (plan) => MaintenancePlansCompanion(
               id: Value(plan.id),
               companyId: Value(plan.companyId),
+              customerId: Value(plan.customerId),
               locationId: Value(plan.locationId),
               assetId: Value(plan.assetId),
               areaId: Value(plan.areaId),
