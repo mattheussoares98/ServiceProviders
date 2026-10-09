@@ -5,6 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
+import 'package:o_jogo_da_obra/features/customers/presentation/cubits/customers/customers_cubit.dart';
 import 'package:o_jogo_da_obra/features/locations/presentation/cubits/locations/locations_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
@@ -40,6 +43,12 @@ class MockSessionCubit extends MockCubit<SessionState>
 class MockScreenObserverCubit extends MockCubit<ScreenObserverState>
     implements ScreenObserverCubit {}
 
+class MockCompanyCubit extends MockCubit<CompanyState>
+    implements CompanyCubit {}
+
+class MockCustomersCubit extends MockCubit<CustomersState>
+    implements CustomersCubit {}
+
 void main() {
   late MockMaintenancePlansCubit mockCubit;
   late MockLocationsCubit mockLocationsCubit;
@@ -49,6 +58,8 @@ void main() {
   late MockUsersCubit mockUsersCubit;
   late MockSessionCubit mockSessionCubit;
   late MockScreenObserverCubit mockScreenObserverCubit;
+  late MockCompanyCubit mockCompanyCubit;
+  late MockCustomersCubit mockCustomersCubit;
 
   setUpAll(() {
     registerFallbackValue(
@@ -58,6 +69,7 @@ void main() {
       ),
     );
     registerFallbackValue(MaintenancePlanFactory.makeMaintenancePlanEntity());
+    registerFallbackValue(WorkType.internalOnly);
   });
 
   setUp(() {
@@ -69,6 +81,8 @@ void main() {
     mockUsersCubit = MockUsersCubit();
     mockSessionCubit = MockSessionCubit();
     mockScreenObserverCubit = MockScreenObserverCubit();
+    mockCompanyCubit = MockCompanyCubit();
+    mockCustomersCubit = MockCustomersCubit();
 
     when(() => mockCubit.stream).thenAnswer((_) => const Stream.empty());
     when(
@@ -85,6 +99,10 @@ void main() {
     when(() => mockSessionCubit.stream).thenAnswer((_) => const Stream.empty());
     when(
       () => mockScreenObserverCubit.stream,
+    ).thenAnswer((_) => const Stream.empty());
+    when(() => mockCompanyCubit.stream).thenAnswer((_) => const Stream.empty());
+    when(
+      () => mockCustomersCubit.stream,
     ).thenAnswer((_) => const Stream.empty());
 
     when(
@@ -108,6 +126,10 @@ void main() {
     when(() => mockSessionCubit.state).thenReturn(
       SessionState(user: UserFactory.makeUserProfileEntity(), isLoggedIn: true),
     );
+    when(() => mockCompanyCubit.state).thenReturn(const CompanyState.initial());
+    when(
+      () => mockCustomersCubit.state,
+    ).thenReturn(const CustomersState.initial());
     when(
       () => mockCubit.saveMaintenancePlan(any()),
     ).thenAnswer((_) async => true);
@@ -134,6 +156,8 @@ void main() {
           BlocProvider<ScreenObserverCubit>.value(
             value: mockScreenObserverCubit,
           ),
+          BlocProvider<CompanyCubit>.value(value: mockCompanyCubit),
+          BlocProvider<CustomersCubit>.value(value: mockCustomersCubit),
         ],
         child: CreateUpdateMaintenancePlanPage(
           maintenancePlan: maintenancePlan,

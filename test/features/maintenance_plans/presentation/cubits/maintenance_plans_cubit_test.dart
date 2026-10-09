@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/data/states/data_state.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/company_entity.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/maintenance_plans/maintenance_plans_cubit_use_cases.dart';
@@ -18,6 +20,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockGetActiveCompanyIdUseCase mockGetActiveCompanyId;
+  late MockGetCompanyUseCase mockGetCompany;
   late MockGetMaintenancePlansUseCase mockGetMaintenancePlans;
   late MockGetMaintenancePlanByIdUseCase mockGetMaintenancePlanById;
   late MockCreateMaintenancePlanUseCase mockCreateMaintenancePlan;
@@ -40,6 +43,7 @@ void main() {
 
   setUp(() {
     mockGetActiveCompanyId = MockGetActiveCompanyIdUseCase();
+    mockGetCompany = MockGetCompanyUseCase();
     mockGetMaintenancePlans = MockGetMaintenancePlansUseCase();
     mockGetMaintenancePlanById = MockGetMaintenancePlanByIdUseCase();
     mockCreateMaintenancePlan = MockCreateMaintenancePlanUseCase();
@@ -53,9 +57,23 @@ void main() {
     GetIt.I.registerSingleton<NavigationClient>(mockNavigationClient);
 
     when(() => mockGetActiveCompanyId.call()).thenReturn(tCompanyId);
+    when(() => mockGetCompany.call(any())).thenAnswer(
+      (_) async => SuccessState(
+        data: CompanyEntity(
+          id: tCompanyId,
+          name: 'Test Co',
+          logoUrl: null,
+          isActive: true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+          deletedAt: null,
+        ),
+      ),
+    );
 
     useCases = MaintenancePlansCubitUseCases(
       getActiveCompanyId: mockGetActiveCompanyId,
+      getCompany: mockGetCompany,
       getMaintenancePlans: mockGetMaintenancePlans,
       getMaintenancePlanById: mockGetMaintenancePlanById,
       createMaintenancePlan: mockCreateMaintenancePlan,
@@ -273,6 +291,117 @@ void main() {
             (s) => s.sections[MaintenancePlansSections.save],
             'sections[save]',
             const SectionState.error('Selecione um LOCAL para o plano'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateMaintenancePlan.call(any()));
+          verifyNever(() => mockUpdateMaintenancePlan.call(any()));
+        },
+      );
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'should emit error when workType is serviceProviderOnly and customerId is null',
+        build: () {
+          when(() => mockGetCompany.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: CompanyEntity(
+                id: tCompanyId,
+                name: 'Test Co',
+                logoUrl: null,
+                isActive: true,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+                deletedAt: null,
+                workType: WorkType.serviceProviderOnly,
+              ),
+            ),
+          );
+          return cubit;
+        },
+        act: (c) =>
+            c.saveMaintenancePlan(tPlan.copyWith(annulCustomerId: true)),
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.save],
+            'sections[save]',
+            const SectionState.error('Selecione um cliente para o plano'),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateMaintenancePlan.call(any()));
+          verifyNever(() => mockUpdateMaintenancePlan.call(any()));
+        },
+      );
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'should emit error when workType is hybrid and both location and customer are null',
+        build: () {
+          when(() => mockGetCompany.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: CompanyEntity(
+                id: tCompanyId,
+                name: 'Test Co',
+                logoUrl: null,
+                isActive: true,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+                deletedAt: null,
+                workType: WorkType.hybrid,
+              ),
+            ),
+          );
+          return cubit;
+        },
+        act: (c) => c.saveMaintenancePlan(
+          tPlan.copyWith(annulLocationId: true, annulCustomerId: true),
+        ),
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.save],
+            'sections[save]',
+            const SectionState.error(
+              'Selecione um local ou cliente para o plano',
+            ),
+          ),
+        ],
+        verify: (_) {
+          verifyNever(() => mockCreateMaintenancePlan.call(any()));
+          verifyNever(() => mockUpdateMaintenancePlan.call(any()));
+        },
+      );
+
+      blocTest<MaintenancePlansCubit, MaintenancePlansState>(
+        'should emit error when workType is hybrid and both customer and serviceProvider are set',
+        build: () {
+          when(() => mockGetCompany.call(any())).thenAnswer(
+            (_) async => SuccessState(
+              data: CompanyEntity(
+                id: tCompanyId,
+                name: 'Test Co',
+                logoUrl: null,
+                isActive: true,
+                createdAt: DateTime.now(),
+                updatedAt: DateTime.now(),
+                deletedAt: null,
+                workType: WorkType.hybrid,
+              ),
+            ),
+          );
+          return cubit;
+        },
+        act: (c) => c.saveMaintenancePlan(
+          tPlan.copyWith(
+            customerId: 'cust-1',
+            serviceProviderCompanyId: 'sp-1',
+          ),
+        ),
+        expect: () => [
+          isA<MaintenancePlansState>().having(
+            (s) => s.sections[MaintenancePlansSections.save],
+            'sections[save]',
+            const SectionState.error(
+              'Não é permitido selecionar o cliente e o prestador de serviços',
+            ),
           ),
         ],
         verify: (_) {
@@ -564,7 +693,9 @@ void main() {
           isA<MaintenancePlansState>().having(
             (s) => s.sections[MaintenancePlansSections.save],
             'save section',
-            const SectionState.error('Intervalo ou tempo de antecedência inválido'),
+            const SectionState.error(
+              'Intervalo ou tempo de antecedência inválido',
+            ),
           ),
         ],
         verify: (_) {
