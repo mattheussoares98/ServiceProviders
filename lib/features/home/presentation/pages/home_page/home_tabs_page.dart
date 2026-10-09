@@ -24,8 +24,8 @@ class HomeTabsPage extends StatelessWidget {
         const DashboardRoute(),
         const WorkOrdersRoute(),
         const AssetsRoute(),
-        if (workType.requiresLocation) const LocationsRoute(),
-        if (workType.requiresCustomer) const CustomersRoute(),
+        if (workType.supportsOwnLocations) const LocationsRoute(),
+        if (workType.supportsCustomers) const CustomersRoute(),
       ],
       drawer: const HomeDrawer(),
       bottomNavigationBuilder: (context, tabsRouter) {
@@ -69,7 +69,7 @@ class HomeTabsPage extends StatelessWidget {
               ),
               label: 'Equipamentos'.hardcoded,
             ),
-            if (workType.requiresLocation)
+            if (workType.supportsOwnLocations)
               NavigationDestination(
                 icon: const PlatformIcon(
                   materialIcon: Icons.location_on_outlined,
@@ -82,7 +82,7 @@ class HomeTabsPage extends StatelessWidget {
                 ),
                 label: 'Locais'.hardcoded,
               ),
-            if (workType.requiresCustomer)
+            if (workType.supportsCustomers)
               NavigationDestination(
                 icon: const PlatformIcon(
                   materialIcon: Icons.people_outline,

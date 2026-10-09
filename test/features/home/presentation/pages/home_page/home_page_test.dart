@@ -636,4 +636,61 @@ void main() {
       }
     },
   );
+
+  patrolWidgetTest(
+    'HomeTabsPage shows both Locais and Clientes tabs when company is hybrid',
+    ($) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        final mockScreenObserverCubit = MockScreenObserverCubit();
+        when(
+          () => mockScreenObserverCubit.state,
+        ).thenReturn(ScreenObserverState.initial());
+        when(
+          () => mockScreenObserverCubit.stream,
+        ).thenAnswer((_) => const Stream.empty());
+
+        when(() => mockCompanyCubit.state).thenReturn(
+          CompanyState(
+            company: UserFactory.makeCompanyEntity().copyWith(
+              workType: WorkType.hybrid,
+            ),
+          ),
+        );
+
+        await $.tester.binding.setSurfaceSize(const Size(1920, 1280));
+        final appRouter = AppRouter();
+
+        await $.pumpWidget(
+          MultiBlocProvider(
+            providers: [
+              BlocProvider<ScreenObserverCubit>(
+                create: (_) => mockScreenObserverCubit,
+              ),
+              BlocProvider<UsersCubit>(create: (_) => mockUsersCubit),
+              BlocProvider<SessionCubit>(create: (_) => mockSessionCubit),
+            ],
+            child: MaterialApp.router(
+              theme: lightTheme,
+              routerConfig: appRouter.config(
+                deepLinkBuilder: (_) => const DeepLink.path('/home'),
+              ),
+            ),
+          ),
+        );
+
+        await $.pumpAndSettle();
+
+        expect(find.text('Início'), findsOneWidget);
+        expect(find.text('Ordens'), findsOneWidget);
+        expect(find.text('Equipamentos'), findsOneWidget);
+        expect(find.text('Locais'), findsOneWidget);
+        expect(find.text('Clientes'), findsOneWidget);
+
+        await $.tester.pump(const Duration(seconds: 1));
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+    },
+  );
 }
