@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
+import 'package:o_jogo_da_obra/features/company/domain/entities/work_type.dart';
 import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/interval_unit.dart';
 import 'package:o_jogo_da_obra/features/maintenance_plans/domain/entities/maintenance_plan_entity.dart';
@@ -24,6 +25,10 @@ class PlanForm extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final formKey = useMemoized(GlobalKey<FormState>.new);
+    final workType = context.select(
+      (CompanyCubit cubit) =>
+          cubit.state.company?.workType ?? WorkType.internalOnly,
+    );
     final titleCtrl = useTextEditingController(text: maintenancePlan?.title);
     final descCtrl = useTextEditingController(
       text: maintenancePlan?.description,
@@ -56,6 +61,7 @@ class PlanForm extends HookWidget {
     );
     final durationUnit = useState(initialDurationInfo.$1);
     final priority = useState(maintenancePlan?.priority ?? Priority.medium);
+    final customerId = useState(maintenancePlan?.customerId);
     final locationId = useState(maintenancePlan?.locationId);
     final areaId = useState(maintenancePlan?.areaId);
     final assetId = useState(maintenancePlan?.assetId);
@@ -64,6 +70,21 @@ class PlanForm extends HookWidget {
     final spCompanyId = useState(maintenancePlan?.serviceProviderCompanyId);
     final isActive = useState(maintenancePlan?.isActive ?? true);
     final cubit = context.read<MaintenancePlansCubit>();
+
+    void onCustomerChanged(String? val) {
+      customerId.value = val;
+      assetId.value = null;
+      if (val != null && workType.isHybrid) {
+        spCompanyId.value = null;
+      }
+    }
+
+    void onServiceProviderCompanyChanged(String? val) {
+      spCompanyId.value = val;
+      if (val != null && workType.isHybrid) {
+        customerId.value = null;
+      }
+    }
 
     Future<void> submit() async {
       if (formKey.currentState?.validate() != true) return;
@@ -78,6 +99,7 @@ class PlanForm extends HookWidget {
       final plan = MaintenancePlanEntity(
         id: maintenancePlan?.id ?? const Uuid().v4(),
         companyId: maintenancePlan?.companyId ?? session.companyId,
+        customerId: customerId.value,
         locationId: locationId.value,
         areaId: areaId.value,
         assetId: assetId.value,
@@ -88,10 +110,15 @@ class PlanForm extends HookWidget {
         description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
         priority: priority.value,
         price: double.tryParse(priceCtrl.text.trim().replaceAll(',', '.')),
-        currency: maintenancePlan?.currency ??
+        currency:
+            maintenancePlan?.currency ??
             (() {
               try {
-                return context.read<CompanyCubit>().state.parameters?.currency ??
+                return context
+                        .read<CompanyCubit>()
+                        .state
+                        .parameters
+                        ?.currency ??
                     'BRL';
               } catch (_) {
                 return 'BRL';
@@ -132,11 +159,20 @@ class PlanForm extends HookWidget {
           ),
           gapH24,
           PlanLocationSelectors(
+            selectedCustomerId: customerId.value,
             selectedLocationId: locationId.value,
             selectedAreaId: areaId.value,
             selectedAssetId: assetId.value,
-            onLocationChanged: (val) => locationId.value = val,
-            onAreaChanged: (val) => areaId.value = val,
+            onCustomerChanged: onCustomerChanged,
+            onLocationChanged: (val) {
+              locationId.value = val;
+              areaId.value = null;
+              assetId.value = null;
+            },
+            onAreaChanged: (val) {
+              areaId.value = val;
+              assetId.value = null;
+            },
             onAssetChanged: (val) => assetId.value = val,
           ),
           gapH24,
@@ -148,7 +184,7 @@ class PlanForm extends HookWidget {
             onPriorityChanged: (val) => priority.value = val ?? Priority.medium,
             onChecklistChanged: (val) => checklistId.value = val,
             onAssignedToChanged: (val) => assignedToId.value = val,
-            onServiceProviderCompanyChanged: (val) => spCompanyId.value = val,
+            onServiceProviderCompanyChanged: onServiceProviderCompanyChanged,
           ),
           gapH24,
           PlanScheduleSelectors(

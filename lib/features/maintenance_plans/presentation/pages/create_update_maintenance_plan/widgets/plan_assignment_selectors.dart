@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
+import 'package:o_jogo_da_obra/features/company/presentation/cubits/company/company_cubit.dart';
 import 'package:o_jogo_da_obra/features/service_providers/presentation/cubits/service_providers/service_providers_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/presentation/cubits/users/users_cubit.dart';
 import 'package:o_jogo_da_obra/features/work_orders/domain/entities/priority.dart';
@@ -34,13 +35,17 @@ class PlanAssignmentSelectors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canHireServiceProviders = context.select(
+      (CompanyCubit cubit) =>
+          cubit.state.company?.workType.canHireServiceProviders ?? true,
+    );
     final templates = context.select(
       (ChecklistTemplatesCubit cubit) => cubit.state.templates,
     );
     final users = context.select((UsersCubit cubit) => cubit.state.users);
-    final spCompanies = context.select(
-      (ServiceProvidersCubit cubit) => cubit.state.companies,
-    );
+    final spCompanies = canHireServiceProviders
+        ? context.select((ServiceProvidersCubit cubit) => cubit.state.companies)
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -85,24 +90,23 @@ class PlanAssignmentSelectors extends StatelessWidget {
           onClear: () => onAssignedToChanged(null),
           onChanged: onAssignedToChanged,
         ),
-        gapH16,
-        BaseDropDown<String>(
-          key: const ValueKey('PlanServiceProvider'),
-          showLabelAtTopLeft: selectedServiceProviderCompanyId != null,
-          label: 'Empresa prestadora'.hardcoded,
-          hint: BaseText('Selecione a prestadora'.hardcoded),
-          selectedItem: selectedServiceProviderCompanyId,
-          items: spCompanies
-              .map(
-                (c) => DropdownMenuItem(
-                  value: c.id,
-                  child: BaseText(c.name),
-                ),
-              )
-              .toList(),
-          onClear: () => onServiceProviderCompanyChanged(null),
-          onChanged: onServiceProviderCompanyChanged,
-        ),
+        if (canHireServiceProviders) ...[
+          gapH16,
+          BaseDropDown<String>(
+            key: const ValueKey('PlanServiceProvider'),
+            showLabelAtTopLeft: selectedServiceProviderCompanyId != null,
+            label: 'Empresa prestadora'.hardcoded,
+            hint: BaseText('Selecione a prestadora'.hardcoded),
+            selectedItem: selectedServiceProviderCompanyId,
+            items: (spCompanies ?? [])
+                .map(
+                  (c) => DropdownMenuItem(value: c.id, child: BaseText(c.name)),
+                )
+                .toList(),
+            onClear: () => onServiceProviderCompanyChanged(null),
+            onChanged: onServiceProviderCompanyChanged,
+          ),
+        ],
       ],
     );
   }
