@@ -1,7 +1,5 @@
 import 'dart:developer';
 
-import 'package:alice/alice.dart';
-import 'package:alice_dio/alice_dio_adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
@@ -90,9 +88,6 @@ abstract interface class HttpClient {
 abstract class HttpClientModule {
   @lazySingleton
   Dio get dio => Dio();
-
-  @injectable
-  bool get addInterceptors => false;
 }
 
 @LazySingleton(as: HttpClient)
@@ -101,8 +96,6 @@ final class HttpClientImpl implements HttpClient {
     required Dio dio,
     required AppConfig appConfig,
     required HttpAuthInterceptor authInterceptor,
-    required NavigationClient navigationClient,
-    bool addInterceptors = false,
   }) : _dio = dio {
     _dio.options = BaseOptions(
       baseUrl: appConfig.apiBaseUrl,
@@ -111,18 +104,7 @@ final class HttpClientImpl implements HttpClient {
       sendTimeout: const Duration(seconds: 15),
       headers: {'Content-Type': 'application/json'},
     );
-
-    if (addInterceptors) {
-      /// Alice Configuration
-      final alice = Alice(
-        configuration: AliceConfiguration(
-          navigatorKey: navigationClient.navigatorKey,
-        ),
-      );
-      final aliceDioAdapter = AliceDioAdapter();
-      alice.addAdapter(aliceDioAdapter);
-      _dio.interceptors.addAll([authInterceptor, aliceDioAdapter]);
-    }
+    _dio.interceptors.add(authInterceptor);
   }
   final Dio _dio;
 

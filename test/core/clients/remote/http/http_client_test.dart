@@ -12,7 +12,6 @@ import '../../../../../testing/mocks/external/external_mocks.dart';
 void main() {
   late MockDio mockDio;
   late MockAuthInterceptor mockAuthInterceptor;
-  late MockNavigationClient mockNavigationClient;
   late HttpClientImpl httpClient;
   late AppConfig appConfig;
 
@@ -21,16 +20,15 @@ void main() {
 
     mockDio = MockDio();
     mockAuthInterceptor = MockAuthInterceptor();
-    mockNavigationClient = MockNavigationClient();
     appConfig = AppConfigDev();
   });
 
   setUp(() {
+    when(() => mockDio.interceptors).thenReturn(Interceptors());
     httpClient = HttpClientImpl(
       appConfig: appConfig,
       authInterceptor: mockAuthInterceptor,
       dio: mockDio,
-      navigationClient: mockNavigationClient,
     );
   });
 

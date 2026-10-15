@@ -8,13 +8,11 @@ environment:
   sdk: ">=3.10.0 <4.0.0"
 
 dependencies:
-  alice: ^1.0.0
-  alice_dio: ^1.0.6
   auto_route: ^11.1.0
   cached_network_image: ^4.0.0
   collection: ^1.19.1
   cpf_cnpj_validator: ^2.0.0
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
   dio: ^5.8.0+1
   drift: ^2.22.0
   encrypt: ^5.0.3
