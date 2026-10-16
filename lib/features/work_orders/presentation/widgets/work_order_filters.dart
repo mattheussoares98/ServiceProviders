@@ -96,179 +96,190 @@ class WorkOrderFilters extends HookWidget {
 
     return Padding(
       padding: const .all(Sizes.p8),
-      child: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            automaticallyImplyLeading: false,
-            titleSpacing: Sizes.p16,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                BaseText.titleMedium('Filtros'.hardcoded),
-                TextButton(
-                  onPressed: clear,
-                  child: BaseText.bodyMedium(
-                    'Limpar tudo'.hardcoded,
-                    color: context.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SliverToBoxAdapter(child: Divider(height: 1)),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                gapH16,
-                // Search by title
-                BaseText('Buscar por título'.hardcoded),
-                gapH8,
-                TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Ex: Revisão bomba'.hardcoded,
-                    prefixIcon: const Icon(Icons.search),
-                    border: const OutlineInputBorder(),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: Sizes.p12,
-                      vertical: Sizes.p8,
-                    ),
-                  ),
-                ),
-                gapH20,
-                // Status filter
-                BaseText('Status'.hardcoded),
-                gapH8,
-                Wrap(
-                  spacing: Sizes.p8,
-                  runSpacing: Sizes.p4,
-                  children: [
-                    BaseChoiceChip(
-                      items: WorkOrderStatus.values,
-                      onChanged: toggleStatus,
-                      itemLabelBuilder: (e) => e.label,
-                      selections: statuses.value,
-                      allowNullSelection: true,
-                    ),
-                  ],
-                ),
-                gapH20,
-                // Priority filter
-                BaseText('Prioridade'.hardcoded),
-                gapH8,
-                Wrap(
-                  spacing: Sizes.p8,
-                  runSpacing: Sizes.p4,
-                  children: [
-                    BaseChoiceChip(
-                      items: Priority.values,
-                      onChanged: togglePriority,
-                      itemLabelBuilder: (e) => e.label,
-                      selections: priorities.value,
-                      allowNullSelection: true,
-                    ),
-                  ],
-                ),
-                gapH20,
-                // Type filter
-                BaseDropDown<WorkOrderType?>(
-                  label: 'Tipo'.hardcoded,
-                  showLabelAtTopLeft: true,
-                  selectedItem: type.value,
-                  items: [
-                    ...WorkOrderType.values.map(
-                      (t) => DropdownMenuItem(value: t, child: Text(t.label)),
-                    ),
-                  ],
-                  onChanged: (v) => type.value = v,
-                ),
-                gapH20,
-                // Responsible user filter
-                if (users.isNotEmpty) ...[
-                  BaseDropDown<String?>(
-                    label: 'Responsável'.hardcoded,
-                    showLabelAtTopLeft: true,
-                    selectedItem: assignedToId.value,
-                    items: [
-                      ...users.map(
-                        (u) =>
-                            DropdownMenuItem(value: u.id, child: Text(u.name)),
+      child: Column(
+        children: [
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  pinned: true,
+                  automaticallyImplyLeading: false,
+                  titleSpacing: Sizes.p16,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      BaseText.titleMedium('Filtros'.hardcoded),
+                      TextButton(
+                        onPressed: clear,
+                        child: BaseText.bodyMedium(
+                          'Limpar tudo'.hardcoded,
+                          color: context.colorScheme.primary,
+                        ),
                       ),
                     ],
-                    onChanged: (v) => assignedToId.value = v,
                   ),
-                  gapH20,
-                ],
-                // Date range
-                BaseText('Data programada'.hardcoded),
-                gapH8,
-                Row(
-                  children: [
-                    Expanded(
-                      child: _DatePickerField(
-                        label: 'De'.hardcoded,
-                        value: scheduledDateFrom.value,
-                        onPicked: (d) => scheduledDateFrom.value = d,
+                ),
+
+                const SliverToBoxAdapter(child: Divider(height: 1)),
+                SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      gapH16,
+                      // Search by title
+                      BaseText('Buscar por título'.hardcoded),
+                      gapH8,
+                      TextField(
+                        controller: searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Ex: Revisão bomba'.hardcoded,
+                          prefixIcon: const Icon(Icons.search),
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: Sizes.p12,
+                            vertical: Sizes.p8,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: Sizes.p8),
-                    Expanded(
-                      child: _DatePickerField(
-                        label: 'Até'.hardcoded,
-                        value: scheduledDateTo.value,
-                        onPicked: (d) => scheduledDateTo.value = d,
+                      gapH20,
+                      // Status filter
+                      BaseText('Status'.hardcoded),
+                      gapH8,
+                      Wrap(
+                        spacing: Sizes.p8,
+                        runSpacing: Sizes.p4,
+                        children: [
+                          BaseChoiceChip(
+                            items: WorkOrderStatus.values,
+                            onChanged: toggleStatus,
+                            itemLabelBuilder: (e) => e.label,
+                            selections: statuses.value,
+                            allowNullSelection: true,
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                gapH20,
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: BaseText('Apenas ordens atrasadas'.hardcoded),
-                  subtitle: BaseText.bodySmall(
-                    'Filtrar ordens não concluídas com SLA vencido'.hardcoded,
+                      gapH20,
+                      // Priority filter
+                      BaseText('Prioridade'.hardcoded),
+                      gapH8,
+                      Wrap(
+                        spacing: Sizes.p8,
+                        runSpacing: Sizes.p4,
+                        children: [
+                          BaseChoiceChip(
+                            items: Priority.values,
+                            onChanged: togglePriority,
+                            itemLabelBuilder: (e) => e.label,
+                            selections: priorities.value,
+                            allowNullSelection: true,
+                          ),
+                        ],
+                      ),
+                      gapH20,
+                      // Type filter
+                      BaseDropDown<WorkOrderType?>(
+                        label: 'Tipo'.hardcoded,
+                        showLabelAtTopLeft: true,
+                        selectedItem: type.value,
+                        items: [
+                          ...WorkOrderType.values.map(
+                            (t) => DropdownMenuItem(
+                              value: t,
+                              child: Text(t.label),
+                            ),
+                          ),
+                        ],
+                        onChanged: (v) => type.value = v,
+                      ),
+                      gapH20,
+                      // Responsible user filter
+                      if (users.isNotEmpty) ...[
+                        BaseDropDown<String?>(
+                          label: 'Responsável'.hardcoded,
+                          showLabelAtTopLeft: true,
+                          selectedItem: assignedToId.value,
+                          items: [
+                            ...users.map(
+                              (u) => DropdownMenuItem(
+                                value: u.id,
+                                child: Text(u.name),
+                              ),
+                            ),
+                          ],
+                          onChanged: (v) => assignedToId.value = v,
+                        ),
+                        gapH20,
+                      ],
+                      // Date range
+                      BaseText('Data programada'.hardcoded),
+                      gapH8,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _DatePickerField(
+                              label: 'De'.hardcoded,
+                              value: scheduledDateFrom.value,
+                              onPicked: (d) => scheduledDateFrom.value = d,
+                            ),
+                          ),
+                          const SizedBox(width: Sizes.p8),
+                          Expanded(
+                            child: _DatePickerField(
+                              label: 'Até'.hardcoded,
+                              value: scheduledDateTo.value,
+                              onPicked: (d) => scheduledDateTo.value = d,
+                            ),
+                          ),
+                        ],
+                      ),
+                      gapH20,
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: BaseText('Apenas ordens atrasadas'.hardcoded),
+                        subtitle: BaseText.bodySmall(
+                          'Filtrar ordens não concluídas com SLA vencido'
+                              .hardcoded,
+                        ),
+                        value: isDelayed.value,
+                        onChanged: (val) => isDelayed.value = val,
+                      ),
+                      gapH8,
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: BaseText('Apenas ordens excluídas'.hardcoded),
+                        subtitle: BaseText.bodySmall(
+                          'Exibir ordens de serviço que foram excluídas'
+                              .hardcoded,
+                        ),
+                        value: onlyDeleted.value,
+                        onChanged: (val) => onlyDeleted.value = val,
+                      ),
+                      gapH24,
+                    ],
                   ),
-                  value: isDelayed.value,
-                  onChanged: (val) => isDelayed.value = val,
                 ),
-                gapH8,
-                SwitchListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: BaseText('Apenas ordens excluídas'.hardcoded),
-                  subtitle: BaseText.bodySmall(
-                    'Exibir ordens de serviço que foram excluídas'.hardcoded,
-                  ),
-                  value: onlyDeleted.value,
-                  onChanged: (val) => onlyDeleted.value = val,
-                ),
-                gapH24,
               ],
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                Sizes.p16,
-                Sizes.p8,
-                Sizes.p16,
-                Sizes.p16 + MediaQuery.viewInsetsOf(context).bottom,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: BaseButton.secondary(
-                      onTap: () => Navigator.of(context).pop(),
-                      text: 'Cancelar'.hardcoded,
-                    ),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              Sizes.p16,
+              Sizes.p8,
+              Sizes.p16,
+              Sizes.p16 + MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: BaseButton.secondary(
+                    onTap: () => Navigator.of(context).pop(),
+                    text: 'Cancelar'.hardcoded,
                   ),
-                  const SizedBox(width: Sizes.p12),
-                  Expanded(
-                    child: BaseButton(onTap: apply, text: 'Aplicar'.hardcoded),
-                  ),
-                ],
-              ),
+                ),
+                const SizedBox(width: Sizes.p12),
+                Expanded(
+                  child: BaseButton(onTap: apply, text: 'Aplicar'.hardcoded),
+                ),
+              ],
             ),
           ),
         ],
