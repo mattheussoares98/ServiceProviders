@@ -18,13 +18,19 @@ import 'package:supabase_flutter/supabase_flutter.dart' show HttpMethod;
 /// self-authenticating and must not carry the backend JWT.
 @LazySingleton(as: StorageClient)
 final class R2StorageClient implements StorageClient {
+  @factoryMethod
   R2StorageClient({
     required FileService fileService,
     required SupabaseDatabaseClient database,
-    required Dio? dio,
+  }) : this.test(fileService: fileService, database: database, dio: Dio());
+
+  R2StorageClient.test({
+    required FileService fileService,
+    required SupabaseDatabaseClient database,
+    required Dio dio,
   }) : _fileService = fileService,
        _database = database,
-       _dio = dio ?? Dio();
+       _dio = dio;
 
   // A fresh Dio without any interceptors — presigned URLs are self-authenticating.
   final Dio _dio;

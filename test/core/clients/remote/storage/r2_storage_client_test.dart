@@ -45,7 +45,7 @@ void main() {
     mockDio = MockDio();
     mockFileService = MockFileService();
     mockDatabase = MockSupabaseDatabaseClient();
-    client = R2StorageClient(
+    client = R2StorageClient.test(
       fileService: mockFileService,
       database: mockDatabase,
       dio: mockDio,
