@@ -7,13 +7,13 @@ import 'package:o_jogo_da_obra/features/categories/domain/entities/category_enti
 import 'package:o_jogo_da_obra/features/categories/presentation/cubits/categories/categories_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 
 @RoutePage()
@@ -48,10 +48,8 @@ class CategoriesPage extends StatelessWidget {
             onRetry: () => context.read<CategoriesCubit>().loadCategories(),
             builder: (context, categories) {
               if (categories.isEmpty) {
-                return Center(
-                  child: BaseText.bodyMedium(
-                    'Nenhuma categoria cadastrada'.hardcoded,
-                  ),
+                return BaseEmptyState.text(
+                  title: 'Nenhuma categoria cadastrada'.hardcoded,
                 );
               }
 

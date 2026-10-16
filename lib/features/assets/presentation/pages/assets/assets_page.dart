@@ -11,10 +11,10 @@ import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets
 import 'package:o_jogo_da_obra/features/assets/presentation/pages/assets/widgets/create_asset_button.dart';
 import 'package:o_jogo_da_obra/features/home/presentation/widgets/open_drawer_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 @RoutePage()
 class AssetsPage extends HookWidget {
@@ -48,8 +48,8 @@ class AssetsPage extends HookWidget {
           }
 
           if (assets.isEmpty) {
-            return Center(
-              child: BaseText.error('Nenhum equipamento encontrado'.hardcoded),
+            return BaseEmptyState.text(
+              title: 'Nenhum equipamento encontrado'.hardcoded,
             );
           }
 

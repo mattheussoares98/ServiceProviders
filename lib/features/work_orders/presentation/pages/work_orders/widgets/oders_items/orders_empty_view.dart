@@ -106,16 +106,6 @@ class _NoOrdersFoundView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: Center(
-            child: BaseText.error('Nenhuma ordem foi encontrada'.hardcoded),
-          ),
-        ),
-      ],
-    );
+    return BaseEmptyState.text(title: 'Nenhuma ordem foi encontrada'.hardcoded);
   }
 }

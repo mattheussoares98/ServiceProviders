@@ -19,7 +19,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 @RoutePage()
 class LocationsPage extends StatelessWidget {
@@ -100,8 +99,8 @@ class LocationsPage extends StatelessWidget {
 
               final state = context.watch<LocationsCubit>().state;
               if (locations.isEmpty) {
-                return Center(
-                  child: BaseText.error('Nenhum local cadastrado'.hardcoded),
+                return BaseEmptyState.text(
+                  title: 'Nenhum local cadastrado'.hardcoded,
                 );
               }
 

@@ -8,13 +8,13 @@ import 'package:o_jogo_da_obra/features/sla_policies/presentation/cubits/sla_pol
 import 'package:o_jogo_da_obra/features/sla_policies/presentation/extensions/sla_applies_to_ui_extension.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 @RoutePage()
 class SlaPoliciesPage extends StatelessWidget {
@@ -53,10 +53,8 @@ class SlaPoliciesPage extends StatelessWidget {
             onRetry: () => context.read<SlaPoliciesCubit>().loadSlaPolicies(),
             builder: (context, policies) {
               if (policies.isEmpty) {
-                return Center(
-                  child: BaseText.bodyMedium(
-                    'Nenhuma política de SLA cadastrada'.hardcoded,
-                  ),
+                return BaseEmptyState.text(
+                  title: 'Nenhuma política de SLA cadastrada'.hardcoded,
                 );
               }
 

@@ -14,7 +14,6 @@ import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 @RoutePage()
 class CustomersPage extends StatelessWidget {
@@ -63,8 +62,8 @@ class CustomersPage extends StatelessWidget {
             );
           }
           if (customers.isEmpty) {
-            return Center(
-              child: BaseText.bodyMedium('Nenhum cliente cadastrado'.hardcoded),
+            return BaseEmptyState.text(
+              title: 'Nenhum cliente cadastrado'.hardcoded,
             );
           }
 

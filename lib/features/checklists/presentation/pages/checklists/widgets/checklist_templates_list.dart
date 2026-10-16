@@ -5,11 +5,11 @@ import 'package:o_jogo_da_obra/core/utils/extensions/string_extension.dart';
 import 'package:o_jogo_da_obra/features/checklists/domain/entities/checklist_template_entity.dart';
 import 'package:o_jogo_da_obra/features/checklists/presentation/cubits/checklist_templates/checklist_templates_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 /// Renders the company's checklist templates, alphabetically sorted.
 class ChecklistTemplatesList extends StatelessWidget {
@@ -20,8 +20,8 @@ class ChecklistTemplatesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (templates.isEmpty) {
-      return Center(
-        child: BaseText.bodyMedium('Nenhum checklist cadastrado'.hardcoded),
+      return BaseEmptyState.text(
+        title: 'Nenhum checklist cadastrado'.hardcoded,
       );
     }
 

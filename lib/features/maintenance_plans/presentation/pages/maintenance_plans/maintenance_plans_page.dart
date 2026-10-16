@@ -8,12 +8,12 @@ import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/cubits/ma
 import 'package:o_jogo_da_obra/features/maintenance_plans/presentation/pages/maintenance_plans/widgets/maintenance_plan_card.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 @RoutePage()
 class MaintenancePlansPage extends StatelessWidget {
@@ -52,10 +52,8 @@ class MaintenancePlansPage extends StatelessWidget {
             onRetry: cubit.loadMaintenancePlans,
             builder: (context, plans) {
               if (plans.isEmpty) {
-                return Center(
-                  child: BaseText.bodyMedium(
-                    'Nenhum plano de manutenção cadastrado'.hardcoded,
-                  ),
+                return BaseEmptyState.text(
+                  title: 'Nenhum plano de manutenção cadastrado'.hardcoded,
                 );
               }
 

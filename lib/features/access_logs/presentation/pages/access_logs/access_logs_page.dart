@@ -9,9 +9,9 @@ import 'package:o_jogo_da_obra/features/access_logs/presentation/cubits/access_l
 import 'package:o_jogo_da_obra/features/access_logs/presentation/pages/access_logs/widgets/access_log_item_card.dart';
 import 'package:o_jogo_da_obra/features/access_logs/presentation/pages/access_logs/widgets/access_logs_filter_bar.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/app_sizes.dart';
 import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 
@@ -67,11 +67,8 @@ class _Page extends HookWidget {
                       context.read<AccessLogsCubit>().loadInitialData(),
                   builder: (context, logs) {
                     if (logs.isEmpty) {
-                      return Center(
-                        child: BaseText.bodySmall(
-                          'Nenhum log de acesso encontrado'.hardcoded,
-                          fontStyle: FontStyle.italic,
-                        ),
+                      return BaseEmptyState.text(
+                        title: 'Nenhum log de acesso encontrado'.hardcoded,
                       );
                     }
 

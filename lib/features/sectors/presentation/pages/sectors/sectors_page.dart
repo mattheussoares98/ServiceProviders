@@ -7,13 +7,13 @@ import 'package:o_jogo_da_obra/features/sectors/domain/entities/sector_entity.da
 import 'package:o_jogo_da_obra/features/sectors/presentation/cubits/sectors/sectors_cubit.dart';
 import 'package:o_jogo_da_obra/features/users/domain/entities/permission.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/app_bar/base_app_bar.dart';
+import 'package:o_jogo_da_obra/shared_ui/ui/base/base_empty_state.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_list_tile.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_scaffold.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/base_state_view.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/buttons/base_icon_button.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/platform_icon.dart';
 import 'package:o_jogo_da_obra/shared_ui/ui/base/responsive/responsive_list_flow.dart';
-import 'package:o_jogo_da_obra/shared_ui/ui/base/text/base_text.dart';
 
 @RoutePage()
 class SectorsPage extends StatelessWidget {
@@ -46,8 +46,8 @@ class SectorsPage extends StatelessWidget {
         onRetry: () => context.read<SectorsCubit>().loadSectors(),
         builder: (context, sectors) {
           if (sectors.isEmpty) {
-            return Center(
-              child: BaseText.bodyMedium('Nenhum setor cadastrado'.hardcoded),
+            return BaseEmptyState.text(
+              title: 'Nenhum setor cadastrado'.hardcoded,
             );
           }
 

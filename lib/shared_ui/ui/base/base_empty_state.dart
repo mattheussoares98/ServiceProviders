@@ -10,18 +10,28 @@ class BaseEmptyState extends HookWidget {
   const BaseEmptyState({
     super.key,
     required this.title,
-    required this.description,
-    required this.actionLabel,
-    required this.onAction,
-    required this.icon,
+    this.description,
+    this.actionLabel,
+    this.onAction,
+    this.icon,
     this.canPerformAction = true,
   });
 
+  const BaseEmptyState.text({
+    super.key,
+    required this.title,
+    this.description,
+    this.actionLabel,
+    this.onAction,
+    this.icon,
+    this.canPerformAction = false,
+  });
+
   final String title;
-  final String description;
-  final String actionLabel;
-  final VoidCallback onAction;
-  final PlatformIcon icon;
+  final String? description;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final PlatformIcon? icon;
   final bool canPerformAction;
 
   @override
@@ -58,67 +68,84 @@ class BaseEmptyState extends HookWidget {
 
     final primaryColor = context.colorScheme.primary;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: Sizes.p24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RepaintBoundary(
-              child: GestureDetector(
-                onTap: onAction,
-                child: AnimatedBuilder(
-                  animation: controller,
-                  builder: (context, child) {
-                    return Transform.scale(
-                      scale: pulseAnimation.value,
-                      child: Container(
-                        width: Sizes.p80,
-                        height: Sizes.p80,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: primaryColor.withValues(alpha: 0.1),
-                          boxShadow: [
-                            BoxShadow(
-                              color: primaryColor.withValues(
-                                alpha: glowAnimation.value,
+    return LayoutBuilder(
+      builder: (context, constraints) => SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Sizes.p24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) ...[
+                    RepaintBoundary(
+                      child: GestureDetector(
+                        onTap: onAction,
+                        child: AnimatedBuilder(
+                          animation: controller,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: pulseAnimation.value,
+                              child: Container(
+                                width: Sizes.p80,
+                                height: Sizes.p80,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: primaryColor.withValues(alpha: 0.1),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: primaryColor.withValues(
+                                        alpha: glowAnimation.value,
+                                      ),
+                                      blurRadius: Sizes.p24,
+                                      spreadRadius: Sizes.p8,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: PlatformIcon(
+                                    materialIcon: icon!.materialIcon,
+                                    cupertinoIcon: icon!.cupertinoIcon,
+                                    color: icon!.color ?? primaryColor,
+                                    size: icon!.size ?? Sizes.p40,
+                                  ),
+                                ),
                               ),
-                              blurRadius: Sizes.p24,
-                              spreadRadius: Sizes.p8,
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: PlatformIcon(
-                            materialIcon: icon.materialIcon,
-                            cupertinoIcon: icon.cupertinoIcon,
-                            color: icon.color ?? primaryColor,
-                            size: icon.size ?? Sizes.p40,
-                          ),
+                            );
+                          },
                         ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                    gapH24,
+                  ],
+                  BaseText(
+                    title,
+                    textType: TextType.titleMedium,
+                    fontWeight: FontWeight.w600,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (description != null && description!.isNotEmpty) ...[
+                    gapH8,
+                    BaseText.bodySmall(
+                      description!,
+                      textAlign: TextAlign.center,
+                      color: context.colorScheme.onSurface.withValues(
+                        alpha: 0.7,
+                      ),
+                    ),
+                  ],
+                  if (canPerformAction &&
+                      actionLabel != null &&
+                      onAction != null) ...[
+                    gapH24,
+                    BaseButton(text: actionLabel!, onTap: onAction),
+                  ],
+                ],
               ),
             ),
-            gapH24,
-            BaseText(
-              title,
-              textType: TextType.titleMedium,
-              fontWeight: FontWeight.w600,
-              textAlign: TextAlign.center,
-            ),
-            gapH8,
-            BaseText.bodySmall(
-              description,
-              textAlign: TextAlign.center,
-              color: context.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-            gapH24,
-            if (canPerformAction)
-              BaseButton(text: actionLabel, onTap: onAction),
-          ],
+          ),
         ),
       ),
     );
