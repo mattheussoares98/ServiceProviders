@@ -673,6 +673,7 @@ class _CreateUpdatePage extends HookWidget {
           defaultActionText: 'Descartar'.hardcoded,
         );
         if (discard == true && context.mounted) {
+          unawaited(context.read<AttachmentsCubit>().refreshAttachments());
           Navigator.of(context).pop();
         }
       },
