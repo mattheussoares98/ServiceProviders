@@ -58,7 +58,7 @@ class CreateCategorySheet extends HookWidget {
               gapH16,
               BaseTextFormField(
                 labelText: 'Nome da categoria'.hardcoded,
-                hintText: 'Ex: Ar Condicionado'.hardcoded,
+                hintText: 'Ex: Ouro | Prata | Bronze'.hardcoded,
                 controller: nameController,
                 focusNode: nameFocusNode,
                 textInputAction: TextInputAction.done,
