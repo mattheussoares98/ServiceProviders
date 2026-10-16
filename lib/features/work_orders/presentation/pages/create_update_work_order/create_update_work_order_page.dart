@@ -450,7 +450,7 @@ class _CreateUpdatePage extends HookWidget {
     }
 
     final items = [
-      if (externalChangedWorkOrder.value != null)
+      if (externalChangedWorkOrder.value != null && !isLoading)
         _WorkOrderExternalChangeBanner(
           onReload: () => applyWorkOrder(externalChangedWorkOrder.value!),
         ),
