@@ -1,14 +1,11 @@
 # Assets Table Policies
 
 ```sql
-CREATE POLICY "Users read own company assets with permission"
+CREATE POLICY "Users read own company assets"
   ON public.assets FOR SELECT
   TO authenticated
   USING (
-    (
-      company_id = public.get_user_company_id()
-      AND public.has_permission('assets.read')
-    )
+    company_id = public.get_user_company_id()
     -- Provider mode: read only the rows referenced by the work orders assigned
     -- to a provider company the user actively belongs to.
     OR public.is_provider_referenced_asset(id)

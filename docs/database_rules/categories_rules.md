@@ -1,12 +1,11 @@
 # Categories Table Policies
 
 ```sql
-CREATE POLICY "Users read own company categories with permission"
+CREATE POLICY "Users read own company categories"
   ON public.categories FOR SELECT
   TO authenticated
   USING (
     company_id = public.get_user_company_id()
-    AND public.has_permission('categories.read')
   );
 
 CREATE POLICY "Users insert own company categories with permission"
