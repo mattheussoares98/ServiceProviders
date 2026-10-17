@@ -294,11 +294,14 @@ class _CreateUpdatePage extends HookWidget {
       context.read<AttachmentsCubit>().refreshAttachments();
     }
 
+    final isSavingOrSaved = useState<bool>(false);
+
     useEffect(() {
       if (!isEditing) return null;
       final cubit = context.read<WorkOrdersCubit>();
       final sub = cubit.realtimeEvents.listen((event) {
-        if (event.id == workOrderId &&
+        if (!isSavingOrSaved.value &&
+            event.id == workOrderId &&
             event.eventType == RealtimeEventType.update &&
             event.entity != null) {
           externalChangedWorkOrder.value = event.entity;
@@ -394,6 +397,7 @@ class _CreateUpdatePage extends HookWidget {
 
       final sessionUser = context.read<SessionCubit>().state.user;
 
+      isSavingOrSaved.value = true;
       final succeeds = await context.read<WorkOrdersCubit>().saveWorkOrder(
         id: workOrderId,
         isEditing: workOrder != null,
@@ -443,6 +447,7 @@ class _CreateUpdatePage extends HookWidget {
       if (succeeds && context.mounted) {
         Navigator.of(context).pop(true);
       } else {
+        isSavingOrSaved.value = false;
         if (context.mounted) {
           unawaited(context.read<AttachmentsCubit>().refreshAttachments());
         }
@@ -450,7 +455,9 @@ class _CreateUpdatePage extends HookWidget {
     }
 
     final items = [
-      if (externalChangedWorkOrder.value != null && !isLoading)
+      if (externalChangedWorkOrder.value != null &&
+          !isLoading &&
+          !isSavingOrSaved.value)
         _WorkOrderExternalChangeBanner(
           onReload: () => applyWorkOrder(externalChangedWorkOrder.value!),
         ),

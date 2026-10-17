@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:o_jogo_da_obra/core/domain/entities/realtime_event.dart';
+import 'package:o_jogo_da_obra/core/domain/entities/realtime_event_type.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/cubits/assets/assets_cubit.dart';
 import 'package:o_jogo_da_obra/features/assets/presentation/widgets/searchable_asset/searchable_asset_picker_modal.dart';
 import 'package:o_jogo_da_obra/features/attachments/presentation/cubits/attachments/attachments_cubit.dart';
@@ -36,6 +39,7 @@ import 'package:o_jogo_da_obra/shared_ui/utils/screen_util/screen_util.dart';
 import '../../../../../../testing/mocks/factories/asset_factory.dart';
 import '../../../../../../testing/mocks/factories/customer_factory.dart';
 import '../../../../../../testing/mocks/factories/user_factory.dart';
+import '../../../../../../testing/mocks/factories/work_order_factory.dart';
 
 class MockWorkOrdersCubit extends MockCubit<WorkOrdersState>
     implements WorkOrdersCubit {}
@@ -241,7 +245,10 @@ void main() {
     await GetIt.I.reset();
   });
 
-  Widget buildWidget({WorkType workType = WorkType.internalOnly}) {
+  Widget buildWidget({
+    WorkType workType = WorkType.internalOnly,
+    String? workOrderId,
+  }) {
     when(() => mockCompanyCubit.state).thenReturn(
       CompanyState(
         company: UserFactory.makeCompanyEntity().copyWith(workType: workType),
@@ -267,6 +274,7 @@ void main() {
           BlocProvider<SessionCubit>.value(value: mockSessionCubit),
         ],
         child: CreateUpdateWorkOrderPage(
+          workOrderId: workOrderId,
           attachmentsCubit: mockAttachmentsCubit,
         ),
       ),
@@ -638,6 +646,118 @@ void main() {
 
         // Modal should NOT open
         expect(find.byType(SearchableAssetPickerModal), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'does not show external change banner when saving even if realtime update event fires',
+      (tester) async {
+        final existingWorkOrder = WorkOrderFactory.makeWorkOrderEntity()
+            .copyWith(
+              id: 'wo-1',
+              title: 'Original Title',
+              locationId: tLocation.id,
+            );
+
+        final realtimeEventsController =
+            StreamController<RealtimeEvent<WorkOrderEntity>>.broadcast();
+        addTearDown(realtimeEventsController.close);
+
+        when(() => mockWorkOrdersCubit.state).thenReturn(
+          WorkOrdersState(
+            workOrders: [existingWorkOrder],
+            changeRequests: const [],
+          ),
+        );
+        when(
+          () => mockWorkOrdersCubit.realtimeEvents,
+        ).thenAnswer((_) => realtimeEventsController.stream);
+
+        final completer = Completer<bool>();
+        when(
+          () => mockWorkOrdersCubit.saveWorkOrder(
+            id: any(named: 'id'),
+            isEditing: any(named: 'isEditing'),
+            locationId: any(named: 'locationId'),
+            customerId: any(named: 'customerId'),
+            workType: any(named: 'workType'),
+            areaId: any(named: 'areaId'),
+            assetId: any(named: 'assetId'),
+            assignedToId: any(named: 'assignedToId'),
+            createdById: any(named: 'createdById'),
+            createdByProviderProfileId: any(
+              named: 'createdByProviderProfileId',
+            ),
+            openedBy: any(named: 'openedBy'),
+            title: any(named: 'title'),
+            description: any(named: 'description'),
+            priority: any(named: 'priority'),
+            status: any(named: 'status'),
+            type: any(named: 'type'),
+            scheduledDate: any(named: 'scheduledDate'),
+            estimatedDuration: any(named: 'estimatedDuration'),
+            createdAt: any(named: 'createdAt'),
+            actualDuration: any(named: 'actualDuration'),
+            completedAt: any(named: 'completedAt'),
+            laborCost: any(named: 'laborCost'),
+            maintenancePlanId: any(named: 'maintenancePlanId'),
+            notes: any(named: 'notes'),
+            partsCost: any(named: 'partsCost'),
+            startedAt: any(named: 'startedAt'),
+            totalCost: any(named: 'totalCost'),
+            price: any(named: 'price'),
+            currency: any(named: 'currency'),
+            attachmentsCubit: any(named: 'attachmentsCubit'),
+            serviceProviderCompanyId: any(named: 'serviceProviderCompanyId'),
+            providerProfileId: any(named: 'providerProfileId'),
+            slaPolicyId: any(named: 'slaPolicyId'),
+            checklistTemplateId: any(named: 'checklistTemplateId'),
+          ),
+        ).thenAnswer((_) => completer.future);
+
+        await tester.pumpWidget(buildWidget(workOrderId: 'wo-1'));
+        await tester.pumpAndSettle();
+
+        // Change title to create dirty changes
+        await tester.enterText(
+          find.widgetWithText(TextFormField, 'Título *'),
+          'New Title',
+        );
+        await tester.pumpAndSettle();
+
+        // Tap Save
+        await tester.tap(findSaveButton());
+        await tester.pumpAndSettle();
+
+        // Confirm save dialog
+        await tester.tap(find.text('Sim'));
+        await tester.pump();
+
+        // Fire realtime event for this work order while saving is in progress
+        realtimeEventsController.add(
+          RealtimeEvent(
+            id: 'wo-1',
+            eventType: RealtimeEventType.update,
+            entity: existingWorkOrder.copyWith(title: 'External Updated Title'),
+          ),
+        );
+        await tester.pump();
+
+        // Banner should NOT be displayed
+        expect(
+          find.text('Esta ordem de serviço foi alterada externamente.'),
+          findsNothing,
+        );
+
+        // Complete save successfully
+        completer.complete(true);
+        await tester.pumpAndSettle();
+
+        // Banner should still NOT be displayed
+        expect(
+          find.text('Esta ordem de serviço foi alterada externamente.'),
+          findsNothing,
+        );
       },
     );
   });
